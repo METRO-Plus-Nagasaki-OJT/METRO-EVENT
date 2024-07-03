@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?{% now 'U' %}">
+    <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
+    {% block css %}{% endblock css %}
+</head>
+
+<body>
+    {% include 'dashboard/nav.html' %}
+
+    <div class="min-h-screen bg-background py-5 px-2">
+        <div>
+            <h2 class="text-2xl">{% block page_en %}{% endblock page_en %}</h2>
+            <span>{% block page_jp %}{% endblock page_jp %}</span>
+        </div>
+        <div class="bg-white">
+            {% block content %}
+                
+            {% endblock content %}
+        </div>
+    </div>
+
+    {% block script %}{% endblock script %}
+    <script>
+        document.addEventListener('alpine:init', () => {
+            console.log("Alpined is initiated")
+        })
+    </script>
+</body>
+
+</html>
