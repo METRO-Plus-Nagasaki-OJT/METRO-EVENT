@@ -1,0 +1,24 @@
+{% extends 'dashboard/auth.html' %}
+{% load static %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="border-8 border-gray-300 rounded-lg p-8 max-w-[1000px] w-full">
+        <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
+        <form @submit.prevent="login">
+            <div class="mb-4">
+                <label for="username" class="block mb-2 text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username" x-model="username" placeholder="Enter your username" class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring focus:border-blue-500">
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" x-model="password" placeholder="Enter your password" class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring focus:border-blue-500">
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md w-full">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}
+{% block script %}
+
+{% endblock script %}
