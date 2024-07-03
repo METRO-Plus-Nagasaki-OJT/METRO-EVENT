@@ -29,4 +29,6 @@ urlpatterns = [
     path("test/", test),
     path("event/", include("event.urls")),
     path("participant/", include("participant.urls")),
+    path("reception/", include("reception.urls")),
+    path("p-hub-admin/", include("p_hub_admin.urls"))
 ]
