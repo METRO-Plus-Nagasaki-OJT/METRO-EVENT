@@ -5,16 +5,20 @@
 
 {% block content %}
 <!-- Container -->
-<div class="px-5">
-    <div class="mb-4">
-        <h2 class="text-2xl">Participant</h2>
-        <span>pt</span>
-    </div>
+
+<div class="mb-4 bg-gray-200 px-1 py-5">
+    <h2 class="text-2xl">PARTICIPANT</h2>
+    <span>Participants List</span>
+</div>
+
+<div class="px-5 py-5">
+
 
     <!-- Events Dropdown -->
     <div class="mb-4 flex items-center">
         <label for="events" class="mr-2 text-sm font-medium text-gray-700">Select Event:</label>
-        <select id="events" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
+        <select id="events"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
             <!-- Dynamically populate event options -->
             {% for event in events %}
             <option value="{{ event.id }}">{{ event.name }}</option>
@@ -24,96 +28,429 @@
 
     <!-- New Participant Button -->
     <div class="mb-4">
-        <a href="{% url 'participant' %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Register New Participant</a>
+        <button id="openModal"
+            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Register
+            New Participant</button>
     </div>
 
-    <!-- Pagination Controls and Search Bar -->
-    <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center">
-            <label for="pagination" class="mr-2 text-sm font-medium text-gray-700">Show:</label>
-            <select id="pagination" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" style="width: 200px;">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-            </select>
-        </div>
-        <div class="relative flex items-center mx-auto">
-            <input type="text" id="search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pl-10" placeholder="Search by name or ID">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg aria-hidden="true" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.41-1.41l5.38 5.38a1 1 0 01-1.42 1.42l-5.37-5.39zM8 14A6 6 0 108 2a6 6 0 000 12z" clip-rule="evenodd" />
-                </svg>
+    <!-- Register Modal -->
+    <div id="participantModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white p-5 rounded-lg w-full sm:w-2/3">
+            <div class="bg-blue-500 px-4 py-4">
+                <h3 class="text-xl mb-4 text-white pt-3">Register New Participant</h3>
             </div>
-            <button class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Search</button>
-        </div>
-        <div class="relative flex items-center mx-end">
-            <button class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Download CSV</button>
+            <div class="flex flex-wrap -mx-2">
+                <!-- Image Container -->
+                <div class="w-full sm:w-1/3 p-2 pt-5">
+                    <div id="imageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
+                        <span>No image</span>
+                    </div>
+                    <div class="mt-2 flex flex-col items-center space-y-2 py-7">
+                        <button id="cameraButton"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-[200px]">Camera</button>
+                        <input type="file" id="fileInput" class="hidden" accept="image/*">
+                        <button id="fileButton"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-[200px]">Upload</button>
+                    </div>
+                </div>
+
+                <!-- Input Fields -->
+                <div class="w-full sm:w-2/3 p-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" id="name"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <div class="grid grid-cols-4 pt-4 gap-[225px]">
+                            <div>
+                                <label for="participant_no" class="block text-sm font-medium text-gray-700">Participant
+                                    No</label>
+                                <input type="text" id="participant_no"
+                                    class="mt-1 block w-[80px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="dob"
+                                    class="block text-sm font-medium w-[50px] text-gray-700">DateOfBirth</label>
+                                <input type="date" id="dob"
+                                    class="mt-1 block w-[150px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                <div class="mt-1 flex pt-4">
+                                    <input type="radio" id="male" name="gender" value="male" class="mr-1">
+                                    <label for="male" class="mr-4">Male</label>
+                                    <input type="radio" id="female" name="gender" value="female" class="mr-1">
+                                    <label for="female">Female</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="occupation"
+                                    class="block text-sm font-medium text-gray-700">Occupation</label>
+                                <select id="occupation"
+                                    class="mt-1 block w-[130px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="occupation1">Occupation 1</option>
+                                    <option value="occupation2">Occupation 2</option>
+                                    <option value="occupation3">Occupation 3</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="grid grid-cols-2 pt-4 gap-[90px] sm:col-span-2 mt-4">
+                            <div>
+                                <label for="phone1" class="block text-sm font-medium text-gray-700">PhNo1</label>
+                                <input type="text" id="phone1"
+                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="phone2" class="block text-sm font-medium text-gray-700">PhNo2</label>
+                                <input type="text" id="phone2"
+                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2 mt-4">
+                            <label for="memo" class="block text-sm font-medium text-gray-700">Memo</label>
+                            <textarea id="memo" rows="2"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        </div>
+                        <div class="sm:col-span-2 mt-4">
+                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <textarea id="address" rows="2"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Register and Cancel Buttons -->
+                <div class="mt-4 flex justify-end w-full">
+                    <button id="registerParticipant"
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
+                    <button id="cancelRegistration"
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Participants Table -->
-    <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-500">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr>
-                    <th scope="col" class="py-3 px-6">Participant ID</th>
-                    <th scope="col" class="py-3 px-6">Name</th>
-                    <th scope="col" class="py-3 px-6">Seat Number</th>
-                    <th scope="col" class="py-3 px-6">Date of Birth</th>
-                    <th scope="col" class="py-3 px-6">Phone Number</th>
-                    <th scope="col" class="py-3 px-6">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Example row (Replace with dynamic data) -->
-                {% for participant in participants %}
-                <tr class="bg-white border-b">
-                    <td class="py-4 px-6">{{ participant.id }}</td>
-                    <td class="py-4 px-6">{{ participant.name }}</td>
-                    <td class="py-4 px-6">{{ participant.seat_no }}</td>
-                    <td class="py-4 px-6">{{ participant.dob }}</td>
-                    <td class="py-4 px-6">{{ participant.phone }}</td>
-                    <td class="py-4 px-6">{{ participant.status }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Update and Cancel Buttons -->
+    <div id="editModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white p-5 rounded-lg w-full sm:w-2/3">
+            <div class="bg-blue-500 px-4 py-4">
+                <h3 class="text-xl mb-4 text-white pt-3">Update Details</h3>
+            </div>
+            <div class="flex flex-wrap -mx-2">
+                <!-- Image Container -->
+                <div class="w-full sm:w-1/3 p-2 pt-5">
+                    <div id="imageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
+                        <span>No image</span>
+                    </div>
+                    <div class="mt-2 flex flex-col items-center space-y-2 py-7">
+                        <button id="cameraButton"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Camera</button>
+                        <input type="file" id="fileInput" class="hidden" accept="image/*">
+                        <button id="fileButton"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Upload</button>
+                        <button id="deleteImage"
+                            class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Delete
+                            Image</button>
+                    </div>
+                </div>
+
+                <!-- Input Fields -->
+                <div class="w-full sm:w-2/3 p-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" id="name"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        </div>
+                        <div class="grid grid-cols-5 pt-4 gap-[170px]">
+                            <div>
+                                <label for="participant_no"
+                                    class="block text-sm font-medium text-gray-700">ParticipantNo</label>
+                                <input type="text" id="participant_no"
+                                    class="mt-1 block w-[80px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="dob"
+                                    class="block text-sm font-medium w-[50px] text-gray-700">DateOfBirth</label>
+                                <input type="date" id="dob"
+                                    class="mt-1 block w-[150px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                <div class="mt-1 flex pt-4">
+                                    <input type="radio" id="male" name="gender" value="male" class="mr-1">
+                                    <label for="male" class="mr-4">Male</label>
+                                    <input type="radio" id="female" name="gender" value="female" class="mr-1">
+                                    <label for="female">Female</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="image" class="block text-sm font-medium text-gray-700">ImageCheck</label>
+                                <input type="text" id="image" class="mt-1 block w-[80px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm
+                                    cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                                    value="False" disabled>
+                            </div>
+                            <div>
+                                <label for="occupation"
+                                    class="block text-sm font-medium text-gray-700">Occupation</label>
+                                <select id="occupation"
+                                    class="mt-1 block w-[130px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="occupation1">Occupation 1</option>
+                                    <option value="occupation2">Occupation 2</option>
+                                    <option value="occupation3">Occupation 3</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="grid grid-cols-2 pt-4 gap-[90px] sm:col-span-2 mt-4">
+                            <div>
+                                <label for="phone1" class="block text-sm font-medium text-gray-700">PhNo1</label>
+                                <input type="text" id="phone1"
+                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="phone2" class="block text-sm font-medium text-gray-700">PhNo2</label>
+                                <input type="text" id="phone2"
+                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2 mt-4">
+                            <label for="memo" class="block text-sm font-medium text-gray-700">Memo</label>
+                            <textarea id="memo" rows="2"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        </div>
+                        <div class="sm:col-span-2 mt-4">
+                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <textarea id="address" rows="2"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        </div>
+                        <div class="sm:col-span-2 mt-4">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer border-s">
+                                <div
+                                    class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                                </div>
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Turn on to send
+                                    update infos to Email</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Edit and Cancel Buttons -->
+                <div class="mt-4 flex justify-end w-full">
+                    <button id="updateParticipant"
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Update</button>
+
+                    <button id="deleteEdit"
+                        class=" bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 text-red-600">Delete</button>
+
+                    <button id="cancelEdit"
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Pagination Controls -->
-    <div class="flex justify-between items-center mt-4">
-        <div class="text-sm text-gray-700">
-            Showing <span class="font-medium">{{ page.start_index }}</span> to <span class="font-medium">{{ page.end_index }}</span> of <span class="font-medium">{{ page.total_count }}</span> results
+</div>
+
+<!-- Pagination Controls and Search Bar -->
+<div class="flex justify-between items-center mb-4 px-5">
+    <div class="flex items-center">
+        <label for="pagination" class="mr-2 text-sm font-medium text-gray-700">Show:</label>
+        <select id="pagination"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            style="width: 200px;">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+    </div>
+    <div class="relative flex items-center mx-auto">
+        <input type="text" id="search"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pl-10"
+            placeholder="Search by name or ID">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg aria-hidden="true" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M12.9 14.32a8 8 0 111.41-1.41l5.38 5.38a1 1 0 01-1.42 1.42l-5.37-5.39zM8 14A6 6 0 108 2a6 6 0 000 12z"
+                    clip-rule="evenodd" />
+            </svg>
         </div>
-        <nav aria-label="Page navigation">
-            <ul class="inline-flex items-center -space-x-px">
-                {% if page.has_previous %}
-                <li>
-                    <a href="?page={{ page.previous_page_number }}" class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
-                        <span class="sr-only">Previous</span>
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z" clip-rule="evenodd" />
-                        </svg>
-                    </a>
-                </li>
-                {% endif %}
-                {% for num in page.paginator.page_range %}
-                <li>
-                    <a href="?page={{ num }}" class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{ num }}</a>
-                </li>
-                {% endfor %}
-                {% if page.has_next %}
-                <li>
-                    <a href="?page={{ page.next_page_number }}" class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
-                        <span class="sr-only">Next</span>
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z" clip-rule="evenodd" />
-                        </svg>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+        <button
+            class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Search</button>
+    </div>
+    <div class="relative flex items-center mx-end">
+        <button
+            class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Download
+            CSV</button>
     </div>
 </div>
+
+<!-- Participants Table -->
+<div class="overflow-x-auto relative shadow-md sm:rounded-lg px-5">
+    <table class="w-full text-sm text-left text-gray-500">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+                <th scope="col" class="py-3 px-6 w-4"></th>
+                <th scope="col" class="py-3 px-6">Participant ID</th>
+                <th scope="col" class="py-3 px-6">Name</th>
+                <th scope="col" class="py-3 px-6">Seat Number</th>
+                <th scope="col" class="py-3 px-6">Date of Birth</th>
+                <th scope="col" class="py-3 px-6">Phone Number</th>
+                <th scope="col" class="py-3 px-6">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Example row (Replace with dynamic data) -->
+            {% for participant in participants %}
+            <tr class="bg-white border-b">
+                <td class="py-4 px-6">
+                    <button
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 open-edit-modal"
+                        data-participant-id="{{ participant.id }}">Details</button>
+                </td>
+                <td class="py-4 px-6">{{ participant.id }}</td>
+                <td class="py-4 px-6">{{ participant.name }}</td>
+                <td class="py-4 px-6">{{ participant.seat_no }}</td>
+                <td class="py-4 px-6">{{ participant.dob }}</td>
+                <td class="py-4 px-6">{{ participant.phone }}</td>
+                <td class="py-4 px-6">{{ participant.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination Controls -->
+<div class="flex justify-between items-center mt-4 px-5">
+    <div class="text-sm text-gray-700">
+        Showing <span class="font-medium">{{ page.start_index }}</span> to <span class="font-medium">{{
+            page.end_index }}</span> of <span class="font-medium">{{ page.total_count }}</span> results
+    </div>
+    <nav aria-label="Page navigation">
+        <ul class="inline-flex items-center -space-x-px">
+            {% if page.has_previous %}
+            <li>
+                <a href="?page={{ page.previous_page_number }}"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
+                    <span class="sr-only">Previous</span>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+            {% for num in page.paginator.page_range %}
+            <li>
+                <a href="?page={{ num }}"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{
+                    num }}</a>
+            </li>
+            {% endfor %}
+            {% if page.has_next %}
+            <li>
+                <a href="?page={{ page.next_page_number }}"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
+                    <span class="sr-only">Next</span>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+</div>
+
+<script>
+    //Register Modal handling
+    const openModalButton = document.getElementById('openModal');
+    const closeModalButton = document.getElementById('cancelRegistration');
+    const modal = document.getElementById('participantModal');
+
+    openModalButton.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+    });
+
+    closeModalButton.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const openEditButtons = document.querySelectorAll('.open-edit-modal');
+    const editModal = document.getElementById('editModal');
+
+    openEditButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            editModal.classList.remove('hidden');
+        });
+    });
+
+    const cancelEditButton = document.getElementById('cancelEdit');
+    if (cancelEditButton) {
+        cancelEditButton.addEventListener('click', function() {
+            editModal.classList.add('hidden');
+        });
+    }
+
+    const openParticipantButtons = document.querySelectorAll('.open-participant-modal');
+    const participantModal = document.getElementById('participantModal');
+
+    openParticipantButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            participantModal.classList.remove('hidden');
+        });
+    });
+
+    const cancelParticipantButton = document.getElementById('cancelRegistration');
+    if (cancelParticipantButton) {
+        cancelParticipantButton.addEventListener('click', function() {
+            participantModal.classList.add('hidden');
+        });
+    }
+});
+
+    // Image preview handling
+    const imageContainer = document.getElementById('imageContainer');
+    const fileInput = document.getElementById('fileInput');
+
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const img = document.createElement('img');
+            img.src = reader.result;
+            img.classList.add('h-full', 'w-full', 'object-cover');
+            imageContainer.innerHTML = '';
+            imageContainer.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+    });
+</script>
+
 {% endblock %}
