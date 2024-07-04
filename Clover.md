@@ -187,4 +187,4 @@ Here's a complete example integrating Clover with a simple HTML form:
 -   Validation Messages: Custom validation messages can be provided to each rule for better user feedback.
 -   Dynamic Form Data: Form data is automatically collected using new FormData(form), making it easy to handle submissions.
 
-_Created by Wai Yan Lin for METOR OJT Project._
+_Created by Wai Yan Lin for METRO OJT Project._
