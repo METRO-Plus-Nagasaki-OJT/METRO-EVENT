@@ -41,7 +41,7 @@
                 <div class="text-right">
                     <button
                         class="bg-teal-500 px-[5%] py-[1%] text-[2rem]  text-center text-white rounded-[50px] border-[5px] border-white">
-                        Mode : 入館
+                        <span x-data x-text="$store.mode?.x ? 'Mode' : 'Edit' ">Mode</span> : 入館
                     </button>
                 </div>
                 <div class="pl-10">
@@ -77,11 +77,12 @@
         const video = document.getElementById('webcam');
         let handLandmarker
 
+        let mode = false
 
 
         let lastTime = 0;
         const fps = 30;
-        const fpsInterval = 1000 / fps;
+        const interval = 1000 / fps;
 
         const img = document.createElement("img")
 
@@ -96,15 +97,18 @@
             minTrackingConfidence: 0.5
         });
 
-        function onResults(results){
+        function onResults(results) {
             const landmarks = results.multiHandLandmarks[0]
-            landmarks?.forEach(function(l){
+            landmarks?.forEach(function (l) {
                 const x = l.x * canvas.clientWidth
                 const y = l.y * canvas.clientHeight
-                console.log(x,y)
+                if (x > 0 && x < 200 && y > 0 && y < 200) {
+                    mode = !mode
+                    Alpine.store("mode", {
+                        x: mode
+                    })
+                }
             })
-
-    
         }
 
         hands.onResults(onResults);
@@ -115,33 +119,41 @@
             context.save()
             context.scale(-1, 1);
             context.drawImage(video, -width, 0, width, height);
-            await hands.send({ image: video });
+
+            if (currentTime - lastTime >= interval) {
+                await hands.send({ image: video });
+                lastTime = currentTime;
+            }
+
             context.restore()
             requestAnimationFrame(drawCanvs)
         }
 
-        function startWebcam() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    webcamStream = stream;
-                    video.srcObject = stream;
-
-                    requestAnimationFrame(drawCanvs)
-
-                })
-                .catch(error => {
-                    console.error('Error accessing webcam:', error);
-                });
-        }
-
-        function stopWebcam() {
-            if (webcamStream) {
-                webcamStream.getTracks().forEach(track => track.stop());
-            }
-        }
-        startWebcam()
 
         document.addEventListener('alpine:init', () => {
+
+
+            function startWebcam() {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        webcamStream = stream;
+                        video.srcObject = stream;
+
+                        requestAnimationFrame(drawCanvs)
+
+                    })
+                    .catch(error => {
+                        console.error('Error accessing webcam:', error);
+                    });
+            }
+
+            function stopWebcam() {
+                if (webcamStream) {
+                    webcamStream.getTracks().forEach(track => track.stop());
+                }
+            }
+            startWebcam()
+
             Alpine.store("reception", {
                 verify: true,
                 message: false,
