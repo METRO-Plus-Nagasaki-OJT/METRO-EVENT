@@ -7,36 +7,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}?{% now 'U' %}">
+    <script src="{% static 'js/mediapipe.js' %}"></script>
     <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
+
 </head>
 
 <body>
     <div class="relative min-h-screen">
         <video id="webcam" hidden autoplay></video>
-        <canvas id="canvas" class="absolute w-full h-full"></canvas>
-        <div class="absolute w-full h-full p-5 flex flex-col justify-between">
-            <div class="text-right">
-                <button class="bg-blue-500 px-5 py-2 text-white rounded-[3px]">
-                    Mode
-                </button>
-            </div>
-            <div>
-                <div x-data x-show="$store.reception.verify"
-                    class="w-[300px] h-[300px]  py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-50 bg-black flex flex-col justify-between items-center">
-                    <div>Demo</div>
-                    <div
-                        class="w-[75px] h-[75px] bg-lime-500 rounded-full flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" class="size-14 fill-white">
-                            <path fill-rule="evenodd"
-                                d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
-                                clip-rule="evenodd" />
-                        </svg>
+        <canvas id="canvas" class="absolute w-full h-full object-cover"></canvas>
+        <div class="absolute top-5 left-5 right-5 bottom-5">
+            <div class="w-full h-full flex flex-col justify-between p-5 relative ">
+                <div class="bg-red-700 absolute-full bg-opacity-50  flex justify-center items-center">
+                    <div class="min-w-[500px] max-w-[1000px] text-white text-center">
+                        <h2 class="text-3xl underline">メッセージがあります</h2>
+                        <p class="text-4xl  mt-10">
+                            問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手
+                        </p>
                     </div>
-                    <div>Demo</div>
                 </div>
-            </div>
-            <div>
+                <div class="absolute border border-white w-full h-full top-0 right-0 border-t-0 border-b-0"></div>
+                <div class="top-0 left-0 right-0 absolute w-full flex justify-center ">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 w-9"></div>
+                    <div class="leading-[0px] px-3 text-white text-xl" x-data="clock" x-text="time">0000-00-00 00:00:00
+                    </div>
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1"></div>
+                </div>
+                <div class="bottom-0 left-0 right-0 absolute w-full flex justify-center ">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 w-[90%]"></div>
+                    <div class="leading-[0px] px-3 text-white text-xl">P Hub</div>
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1"></div>
+                </div>
+                <div class="text-right">
+                    <button
+                        class="bg-teal-500 px-[5%] py-[1%] text-[2rem]  text-center text-white rounded-[50px] border-[5px] border-white">
+                        Mode : 入館
+                    </button>
+                </div>
+                <div class="pl-10">
+                    <div x-data x-show="$store.reception.verify"
+                        class="w-[300px] h-[300px]  py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
+                        <div></div>
+                        <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-32 fill-white">
+                                <path fill-rule="evenodd"
+                                    d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="text-2xl text-center">
+                            <div>山田様</div>
+                            <div>1年○○○○療法</div>
+                        </div>
+                    </div>
+                    <div class="bg-red-700 max-w-[350px] text-white mt-5 p-2 rounded-lg">
+                        問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
+                    </div>
+                </div>
+                <div>
+                </div>
             </div>
         </div>
     </div>
@@ -46,6 +75,50 @@
         const canvas = document.getElementById("canvas")
         const context = canvas.getContext('2d');
         const video = document.getElementById('webcam');
+        let handLandmarker
+
+
+
+        let lastTime = 0;
+        const fps = 30;
+        const fpsInterval = 1000 / fps;
+
+        const img = document.createElement("img")
+
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        function onResults(results){
+            const landmarks = results.multiHandLandmarks[0]
+            landmarks?.forEach(function(l){
+                const x = l.x * canvas.clientWidth
+                const y = l.y * canvas.clientHeight
+                console.log(x,y)
+            })
+
+    
+        }
+
+        hands.onResults(onResults);
+
+        const drawCanvs = async function (currentTime) {
+            width = canvas.width = canvas.clientWidth;
+            height = canvas.height = canvas.clientHeight;
+            context.save()
+            context.scale(-1, 1);
+            context.drawImage(video, -width, 0, width, height);
+            await hands.send({ image: video });
+            context.restore()
+            requestAnimationFrame(drawCanvs)
+        }
 
         function startWebcam() {
             navigator.mediaDevices.getUserMedia({ video: true })
@@ -53,14 +126,8 @@
                     webcamStream = stream;
                     video.srcObject = stream;
 
-                    setInterval(() => {
-                        width = canvas.width = canvas.clientWidth;
-                        height = canvas.height = canvas.clientHeight;
-                        context.scale(-1, 1); // Flip the canvas horizontally
-                        context.drawImage(video, -width, 0, width, height);
-                        context.fillStyle = 'red'; // Set the color of the rectangle
-                        context.fillRect(canvas.width - 50, canvas.height - 50, 50, 50);
-                    }, 40)
+                    requestAnimationFrame(drawCanvs)
+
                 })
                 .catch(error => {
                     console.error('Error accessing webcam:', error);
@@ -75,13 +142,38 @@
         startWebcam()
 
         document.addEventListener('alpine:init', () => {
-            window.Alpine.store("reception", {
-                verify: true
+            Alpine.store("reception", {
+                verify: true,
+                message: false,
             })
 
-            window.Alpine.store("reception", {
-                verify: false
-            })
+            Alpine.data("clock", () => ({
+                time: null,
+                init() {
+                    setInterval(() => {
+                        this.time = `${this.currentDate()} ${this.currentTime()}`
+                    }, 1000)
+                },
+
+                currentDate() {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-indexed
+                    const day = now.getDate().toString().padStart(2, '0');
+
+                    const dateString = `${year}-${month}-${day}`;
+                    return dateString;
+                },
+                currentTime() {
+                    const now = new Date();
+                    const hours = now.getHours().toString().padStart(2, '0');
+                    const minutes = now.getMinutes().toString().padStart(2, '0');
+                    const seconds = now.getSeconds().toString().padStart(2, '0');
+
+                    const timeString = `${hours}:${minutes}:${seconds}`;
+                    return timeString
+                }
+            }))
         })
 
     </script>
