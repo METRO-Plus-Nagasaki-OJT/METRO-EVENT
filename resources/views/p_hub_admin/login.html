@@ -2,31 +2,68 @@
 {% load static %}
 
 {% block content %}
-<div x-data class="flex justify-center items-center min-h-screen bg-gray-100">
+<div x-data="login" class="flex justify-center items-center min-h-screen bg-gray-100">
     <div class="border-8 border-gray-300 rounded-lg p-8 max-w-md w-full">
         <h1 class="text-center font-bold text-3xl mb-8">Login Form</h1>
-        <form method="post" class="space-y-4">
+        <form id="loginForm" @submit.prevent="submitForm" class="space-y-4" x-ref="form">
             {% csrf_token %}
             <div class="mb-4">
                 <label for="inputUsername" class="block mb-2 font-medium text-gray-700">Username</label>
-                <input type="text" id="inputUsername" name="username" placeholder="Enter your username"
+                <input x-clover:username="rule.username" type="text" id="inputUsername" name="username" placeholder="Enter your username"
                        class="block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                <div x-text="errors.username"></div>
             </div>
             <div class="mb-4">
                 <label for="inputPassword" class="block mb-2 font-medium text-gray-700">Password</label>
-                <input type="password" id="inputPassword" name="password" placeholder="Enter your password"
+                <input x-clover:password="rule.password" type="password" id="inputPassword" name="password" placeholder="Enter your password"
                        class="block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                <div x-text="errors.password"></div>
             </div>
             <div class="py-5">
-                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                <button type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                     Login
                 </button>
             </div>
         </form>
     </div>
 </div>
-
 {% endblock content %}
 {% block script %}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('login', () => ({
+            rule: {
+                "username" : [Clover.rule.required()],
+                "password" : [Clover.rule.required()]
+            },
+            errors: {},
+            async submitForm(){
+                const form = this.$refs.form
+                const data = new FormData(form)
 
+                try {
+                    const response = await fetch("", {
+                        method: "POST",
+                        body:data
+                    })
+                
+                const res = await response.json()    
+
+                if (!response.ok){
+                    throw res
+                }
+
+                console.log(res)
+                
+                }catch(error) {
+                    console.log(error)
+                }
+               
+                    
+
+            }
+        }))
+    })
+</script>
 {% endblock script %}
