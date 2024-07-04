@@ -65,7 +65,7 @@ const Clover = {
         },
         number: function (message) {
             return function (field, val) {
-                var regex = /^[0-9]$/;
+                var regex = /^\d+$/;
                 if (!val.match(regex)) {
                     return {
                         rule: 'number',
