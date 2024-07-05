@@ -5,17 +5,20 @@
 <div x-data="login" class="flex justify-center items-center min-h-screen bg-gray-100">
     <div class="border-8 border-gray-300 rounded-lg p-8 max-w-md w-full">
         <h1 class="text-center font-bold text-3xl mb-8"> ログイン </h1>
-        <form id="loginForm" @submit.prevent="submitForm" class="space-y-4" x-ref="form">
+        <form id="loginForm" x-clover-form="submitForm" class="space-y-4" x-ref="form">
             {% csrf_token %}
+            <div id = "errormessage" class = "text-red-500 italic text-center mb-4" x-show = "error">
+                {{ errorMessage }}
+            </div>
             <div class="mb-4">
                 <label for="inputUsername" class="block mb-2 font-medium text-gray-700">ユーザー名</label>
-                <input x-clover:username="rule.username" type="text" id="inputUsername" name="username" placeholder="ユーザー名を入力してください"
+                <input x-clover-verify type="text" id="inputUsername" name="username" placeholder="ユーザー名を入力してください"
                        class="block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                <div x-text="errors.username"　class="text-red-500 text-sm mt-1" x-text="errors.username"></div>
+                <div x-text="errors.username" class="text-red-500 text-sm mt-1" x-text="errors.username"></div>
             </div>
             <div class="mb-4">
                 <label for="inputPassword" class="block mb-2 font-medium text-gray-700">パスワード</label>
-                <input x-clover:password="rule.password" type="password" id="inputPassword" name="password" placeholder="パスワードを入力してください"
+                <input x-clover-verify type="password" id="inputPassword" name="password" placeholder="パスワードを入力してください"
                        class="block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
                 <div x-text="errors.password" class="text-red-500 text-sm mt-1" x-text="errors.password"></div>
             </div>
@@ -34,10 +37,12 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('login', () => ({
             rule: {
-                "username" : [Clover.rule.required()],
-                "password" : [Clover.rule.required()]
+                "username" : [Clover.rule.required("ユーザー名は必要性です。")],
+                "password" : [Clover.rule.required("パスワードは必要性です。")]
             },
             errors: {},
+            error: false,
+            errorMessage: '',
             async submitForm(){
                 const form = this.$refs.form
                 const data = new FormData(form)
@@ -51,13 +56,19 @@
                 const res = await response.json()    
 
                 if (!response.ok){
-                    throw res
+                    throw new Error(res.error || 'Failed to login');
                 }
 
                 console.log(res)
                 
+                if (res.success === false && res.error === "Invalid credentials") {
+                    throw new Error('Invalid credentials');
+                }
                 }catch(error) {
-                    console.log(error)
+                    console.log('Login error:', error);
+
+                    this.error = true;
+                    this.errorMessage = error.message || 'An error';
                 }
             }
         }))
