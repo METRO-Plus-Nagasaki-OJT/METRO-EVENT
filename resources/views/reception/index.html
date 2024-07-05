@@ -18,8 +18,8 @@
             <h2 class="text-2xl">Reception</h2>
         </div>
         <div class="container h-full flex flex-col bg-white px-2 py-3 mt-2 rounded-[5px]">
-            <div class="flex justify-between items-center">
-                <button class=" bg-red-500 text-white px-5 py-2 flex items-center rounded-[5px] space-x-2">
+            <div x-data class="flex justify-between items-center">
+                <button @click="$store.reception.disconnectClient()" class=" bg-red-500 text-white px-5 py-2 flex items-center rounded-[5px] space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-3 h-3">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -28,7 +28,7 @@
                     <span>Stop</span>
                 </button>
                 <div class="flex items-center space-x-1">
-                    <button x-data @click="$store.reception.connectClient()"
+                    <button @click="$store.reception.connectClient()"
                         class=" bg-teal-500 text-white px-5 py-2 flex items-center rounded-[5px] space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-3 h-3">
@@ -37,7 +37,7 @@
                         </svg>
                         <span>Client Connect</span>
                     </button>
-                    <button class=" bg-teal-500 text-white px-5 py-2 flex items-center rounded-[5px] space-x-2">
+                    <button  class=" bg-teal-500 text-white px-5 py-2 flex items-center rounded-[5px] space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                             <path
                                 d="M17.004 10.407c.138.435-.216.842-.672.842h-3.465a.75.75 0 0 1-.65-.375l-1.732-3c-.229-.396-.053-.907.393-1.004a5.252 5.252 0 0 1 6.126 3.537ZM8.12 8.464c.307-.338.838-.235 1.066.16l1.732 3a.75.75 0 0 1 0 .75l-1.732 3c-.229.397-.76.5-1.067.161A5.23 5.23 0 0 1 6.75 12a5.23 5.23 0 0 1 1.37-3.536ZM10.878 17.13c-.447-.098-.623-.608-.394-1.004l1.733-3.002a.75.75 0 0 1 .65-.375h3.465c.457 0 .81.407.672.842a5.252 5.252 0 0 1-6.126 3.539Z" />
@@ -76,9 +76,9 @@
                                 <div>受付</div>
                             </div>
                             <div class="flex-1 text-right">
-                                <button
-                                    class="bg-teal-500 px-[5%] py-[1%] text-[1rem]  text-center text-white rounded-[50px] border-[5px] border-white">
-                                    <span x-data x-text="$store.current.mode ? 'Mode': 'edit'"></span> : 入館
+                                <button x-data x-bind:class="$store.current.mode ? 'bg-teal-500' : 'bg-yellow-300' "
+                                    class="px-[5%] py-[1%] text-[1rem]  text-center text-white rounded-[50px] border-[5px] border-white">
+                                    Mode : <span x-text="$store.current.mode ? '入館': '退館'"></span>
                                 </button>
                             </div>
                         </div>
@@ -121,6 +121,7 @@
             window.Alpine.store("reception", {
                 verify: true,
                 webcamStream: null,
+                clientWindow : null,
                 init() {
                     const reception = this
                     bc.onmessage = (event) => {
@@ -131,11 +132,12 @@
                     };
                 },
                 connectClient() {
+                    const reception = this
                     navigator.mediaDevices.getUserMedia({ video: true })
                         .then(stream => {
                             video.srcObject = stream;
                             video.play()
-                            window.open("client")
+                            reception.clientWindow = window.open("client")
                             function drawCanvas() {
                                 canvas.width = canvas.clientWidth;
                                 canvas.height = canvas.clientHeight
@@ -152,8 +154,8 @@
                         });
                 },
                 disconnectClient() {
-                    if (webcamStream) {
-                        this.webcamStream.getTracks().forEach(track => track.stop());
+                    if(this.clientWindow){
+                        this.clientWindow.close()
                     }
                 },
             })

@@ -39,9 +39,9 @@
                     <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1"></div>
                 </div>
                 <div class="text-right">
-                    <button
+                    <button x-data x-bind:class="$store.current.mode ? 'bg-teal-500' : 'bg-yellow-300'"
                         class="bg-teal-500 px-[5%] py-[1%] text-[2rem]  text-center text-white rounded-[50px] border-[5px] border-white">
-                        <span x-data x-text="$store.current?.mode ? 'Mode' : 'Edit' ">Mode</span> : 入館
+                        Mode : <span x-text="$store.current.mode ? '入館': '退館'"></span>
                     </button>
                 </div>
                 <div class="pl-10">
