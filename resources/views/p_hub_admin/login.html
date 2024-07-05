@@ -2,23 +2,65 @@
 {% load static %}
 
 {% block content %}
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
-    <div class="border-8 border-gray-300 rounded-lg p-8 max-w-[1000px] w-full">
-        <h1 class="text-3xl font-bold mb-4 text-center">Login</h1>
-        <form @submit.prevent="login">
+<div x-data="login" class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="border-8 border-gray-300 rounded-lg p-8 max-w-md w-full">
+        <h1 class="text-center font-bold text-3xl mb-8"> ログイン </h1>
+        <form id="loginForm" @submit.prevent="submitForm" class="space-y-4" x-ref="form">
+            {% csrf_token %}
             <div class="mb-4">
-                <label for="username" class="block mb-2 text-sm font-medium text-gray-700">Username</label>
-                <input type="text" id="username" x-model="username" placeholder="Enter your username" class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring focus:border-blue-500">
+                <label for="inputUsername" class="block mb-2 font-medium text-gray-700">ユーザー名</label>
+                <input x-clover:username="rule.username" type="text" id="inputUsername" name="username" placeholder="ユーザー名を入力してください"
+                       class="block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                <div x-text="errors.username"　class="text-red-500 text-sm mt-1" x-text="errors.username"></div>
             </div>
             <div class="mb-4">
-                <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" x-model="password" placeholder="Enter your password" class="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring focus:border-blue-500">
+                <label for="inputPassword" class="block mb-2 font-medium text-gray-700">パスワード</label>
+                <input x-clover:password="rule.password" type="password" id="inputPassword" name="password" placeholder="パスワードを入力してください"
+                       class="block w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                <div x-text="errors.password" class="text-red-500 text-sm mt-1" x-text="errors.password"></div>
             </div>
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md w-full">Login</button>
+            <div class="py-5">
+                <button type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                    ログイン
+                </button>
+            </div>
         </form>
     </div>
 </div>
 {% endblock content %}
 {% block script %}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('login', () => ({
+            rule: {
+                "username" : [Clover.rule.required()],
+                "password" : [Clover.rule.required()]
+            },
+            errors: {},
+            async submitForm(){
+                const form = this.$refs.form
+                const data = new FormData(form)
 
+                try {
+                    const response = await fetch("", {
+                        method: "POST",
+                        body:data
+                    })
+                
+                const res = await response.json()    
+
+                if (!response.ok){
+                    throw res
+                }
+
+                console.log(res)
+                
+                }catch(error) {
+                    console.log(error)
+                }
+            }
+        }))
+    })
+</script>
 {% endblock script %}
