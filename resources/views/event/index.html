@@ -1,6 +1,7 @@
 {% extends "dashboard/master.html" %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 <div class="px-5">
     <div class="mb-4">
         <h2 class="text-2xl">Event</h2>
@@ -8,7 +9,7 @@
     
     <div class="flex justify-start pb-4">
         <div class="relative">
-            <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded hover:bg-blue-700 mb-6">+ Create Row</button>
+            <button  data-modal-target="#crud-modal" data-modal-toggle="#crud-modal" class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded mb-6">+ Create Row</button>
             <div id="dropdown-menu" class="absolute z-10 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg hidden">
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 1</a>
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 2</a>
@@ -24,6 +25,7 @@
                 <option value="20">20</option>
                 <option value="50">50</option>
             </select>
+           <p class="pt-2 ml-2">show pages</p>
         </div>
     <div class="flex justify-end pb-4 mr-3">
     <div class="ml-4">
@@ -86,29 +88,31 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                {% for e in event  %}
+
+                <tr id="eventRow{{ e.id }}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="w-4 p-4 py-4 col-span-2">
                         <div class="flex items-center">
-                             <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">Edit</button>
+                             <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded" onclick="editEvent('{{ e.id }}')">Edit</button>
                         </div>
                     </td>
                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        5
+                        {{ e.id }}
                     </th>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Event 1
+                        {{ e.name }}
                     </td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Laptop
+                        {{ e.start_time }} - {{ e.end_time }}
                     </td>
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        $2999
+                        0/46
                     </td>
                     <td class="px-6 py-4">
-                 
+                        
                     </td>
                 </tr>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <!-- <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="w-4 p-4">
                         <div class="flex items-center">
                             <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">Edit</button>
@@ -151,11 +155,131 @@
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     
                     </td>
-                </tr>
-               
+                </tr> -->
+                {% endfor %}
             </tbody>
         </table>
+        <!-- Create Event -->
+        <div id="crud-modal" tabindex="-1" aria-hidden="false" aria-labelledby="modal-title" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-700 h-500 mt-9"  role="dialog" aria-modal="true">
+            <div class="relative p-4 w-full max-w-md">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    
+                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
+                        <h3 class="text-2xl text-white">
+                         Add Event
+                        </h3>
+                        <button type="button" id="modalCloseButton" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-close="crud-modal">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                 
+                    <form class="p-4 md:p-5" method="post ">
+                        <div class="grid gap-4">
+                            <div class="flex justify-between items-center ">
+                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="name">Name</label>
+                                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name" required="">
+                            </div><br>
+
+                            <div class="flex justify-between items-center ">
+                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="period">Period</label>
+                                <input type="text" name="period" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" required="">
+                            </div><br>
+
+                            <div class="flex justify-between items-center ">
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="venue">Venue</label>
+                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue" required="">
+                            </div><br>
+
+                            <div class="flex justify-between items-center ">
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9" name="organizer">Organizer</label>
+
+                                <input type="text" name="organizer" id="organizer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event organizer" required="">
+                            </div><br>
+        
+                            <div class="flex justify-between items-center mb-5">
+                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="memo">Memo</label>
+                                <textarea id="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pb-4 mt-5">
+                        <button type="submit" class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
+                            Add new event
+                        </button>
+                        <button id="CloseButton" type="button" class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-modal-close="crud-modal">
+                            cancel
+                        </button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <!-- Edit Event -->
+        <div id="edit-modal" tabindex="-1" aria-hidden="false" aria-labelledby="modal-title" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-700 h-500 mt-9"  role="dialog" aria-modal="true">
+            <div class="relative p-4 w-full max-w-md">
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    
+                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
+                        <h3 class="text-2xl text-white">
+                         Edit Event
+                        </h3>
+                        <button type="button" id="modalCloseButton" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-close="crud-modal">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                 
+                    <form class="p-4 md:p-5" method="post ">
+                        <div class="grid gap-4">
+                            <div class="flex justify-between items-center ">
+                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="name">Name</label>
+                                <input type="text" name="name" id="edit-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name" required="">
+                            </div><br>
+
+                            <div class="flex justify-between items-center ">
+                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="period">Period</label>
+                                <input type="text" name="period" id="edit-period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" required="">
+                            </div><br>
+
+                            <div class="flex justify-between items-center ">
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="venue">Venue</label>
+                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue" required="">
+                            </div><br>
+
+                            <div class="flex justify-between items-center ">
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9" name="organizer">Organizer</label>
+
+                                <input type="text" name="organizer" id="organizer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event organizer" required="">
+                            </div><br>
+        
+                            <div class="flex justify-between items-center mb-5">
+                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="memo">Memo</label>
+                                <textarea id="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pb-4 mt-5">
+                        <button type="submit" class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
+                         Edit event
+                        </button>
+                        <button id="editclose" type="button" class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
+                            cancel
+                        </button>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
         <div class="mt-4 flex justify-end py-3 px-3">
+            showing to results
             <span class="ml-2 inline-flex">
                 <button class="px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
                 <button class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
@@ -165,4 +289,78 @@
     </div>
 </div>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalOpenButtons = document.querySelectorAll('[data-modal-toggle]');
+        const modalCloseButtons = document.getElementById("modalCloseButton");
+        const modal = document.getElementById('crud-modal');
+        const close = document.getElementById('CloseButton');
+
+        modalOpenButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetModal = document.querySelector(this.getAttribute('data-modal-target'));
+                targetModal.classList.remove('hidden');
+                targetModal.setAttribute('aria-hidden', 'false');
+                modalOverlay.classList.remove('hidden');
+            });
+        });
+        function closeModal() {
+        modal.classList.add('hidden'); 
+        modal.setAttribute('aria-hidden', 'true'); 
+    }
+
+    modalCloseButtons.addEventListener('click', function() {
+        closeModal();
+    });
+
+    close.addEventListener('click',function(){
+        closeModal();
+    });
+
+    });
+   // Function to open edit modal and populate with event data
+function editEvent(eventId) {
+    
+    let eventData = {
+        id: eventId,
+        name: "Sample Event",
+        period: "2024-07-04 10:00 AM - 2024-07-04 12:00 PM",
+        venue: "Sample Venue",
+        organizer: "Sample Organizer",
+        memo: "Sample Memo"
+    };
+
+    // Populate edit modal fields with event data
+    document.getElementById('edit-modal').classList.remove('hidden');
+    document.getElementById('edit-name').value = eventData.name;
+    document.getElementById('edit-period').value = eventData.period;
+    document.getElementById('edit-venue').value = eventData.venue;
+    document.getElementById('edit-organizer').value = eventData.organizer;
+    document.getElementById('edit-memo').value = eventData.memo;
+
+    // Add event ID to form data for submission or further processing
+    document.getElementById('edit-event-id').value = eventId;
+}
+
+function closeModal() {
+        edit_modal.classList.add('hidden'); 
+        edit_modal.setAttribute('aria-hidden', 'true'); 
+    }
+
+// Function to close edit modal
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+// Example form submission function
+function submitEditForm() {
+    // Handle form submission here
+    // Example: You may use AJAX to send updated data to the server
+
+    // After successful submission, close modal
+    closeModal('edit-modal');
+}
+
+</script>
 {% endblock content %}

@@ -41,7 +41,7 @@
                 <div class="text-right">
                     <button
                         class="bg-teal-500 px-[5%] py-[1%] text-[2rem]  text-center text-white rounded-[50px] border-[5px] border-white">
-                        <span x-data x-text="$store.mode?.x ? 'Mode' : 'Edit' ">Mode</span> : 入館
+                        <span x-data x-text="$store.current?.mode ? 'Mode' : 'Edit' ">Mode</span> : 入館
                     </button>
                 </div>
                 <div class="pl-10">
@@ -70,21 +70,19 @@
         </div>
     </div>
     <script>
-        let webcamStream;
-        let newWindow
         const canvas = document.getElementById("canvas")
         const context = canvas.getContext('2d');
         const video = document.getElementById('webcam');
-        let handLandmarker
 
-        let mode = false
+        const bc = new BroadcastChannel("p_hub_reception");
 
-
-        let lastTime = 0;
         const fps = 30;
         const interval = 1000 / fps;
 
-        const img = document.createElement("img")
+
+        let lastTime = 0;
+        let mode = true;
+        let timeout;
 
         const hands = new Hands({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
@@ -103,60 +101,67 @@
                 const x = l.x * canvas.clientWidth
                 const y = l.y * canvas.clientHeight
                 if (x > 0 && x < 200 && y > 0 && y < 200) {
-                    mode = !mode
-                    Alpine.store("mode", {
-                        x: mode
-                    })
+                    if (!timeout) {
+                        mode = !mode
+                        bc.postMessage(JSON.stringify({ mode }))
+                        Alpine.store("current", {
+                            mode: mode
+                        })
+                        timeout = setTimeout(() => {
+                            timeout = undefined
+                        }, 3000)
+                    }
                 }
             })
         }
 
         hands.onResults(onResults);
 
-        const drawCanvs = async function (currentTime) {
-            width = canvas.width = canvas.clientWidth;
-            height = canvas.height = canvas.clientHeight;
-            context.save()
-            context.scale(-1, 1);
-            context.drawImage(video, -width, 0, width, height);
-
-            if (currentTime - lastTime >= interval) {
-                await hands.send({ image: video });
-                lastTime = currentTime;
-            }
-
-            context.restore()
-            requestAnimationFrame(drawCanvs)
-        }
-
-
         document.addEventListener('alpine:init', () => {
-
-
-            function startWebcam() {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(stream => {
-                        webcamStream = stream;
-                        video.srcObject = stream;
-
-                        requestAnimationFrame(drawCanvs)
-
-                    })
-                    .catch(error => {
-                        console.error('Error accessing webcam:', error);
-                    });
-            }
-
-            function stopWebcam() {
-                if (webcamStream) {
-                    webcamStream.getTracks().forEach(track => track.stop());
-                }
-            }
-            startWebcam()
-
+            Alpine.store("current", {
+                mode: true
+            })
             Alpine.store("reception", {
                 verify: true,
                 message: false,
+                webcamStream: null,
+                init() {
+                    this.connectClient()
+                },
+                connectClient() {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(stream => {
+                            webcamStream = stream;
+                            video.srcObject = stream;
+                            const drawCanvs = async function (currentTime) {
+                                width = canvas.width = canvas.clientWidth;
+                                height = canvas.height = canvas.clientHeight;
+                                context.save()
+                                context.scale(-1, 1);
+                                context.drawImage(video, -width, 0, width, height);
+
+                                if (currentTime - lastTime >= interval) {
+                                    await hands.send({ image: video });
+                                    lastTime = currentTime;
+                                }
+                                context.restore()
+                                requestAnimationFrame(drawCanvs)
+                            }
+
+                            drawCanvs()
+
+                        })
+                        .catch(error => {
+                            console.error('Error accessing webcam:', error);
+                        });
+
+
+                },
+                disconnectClient() {
+                    if (webcamStream) {
+                        webcamStream.getTracks().forEach(track => track.stop());
+                    }
+                }
             })
 
             Alpine.data("clock", () => ({
