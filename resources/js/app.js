@@ -1,6 +1,4 @@
-import Alpine from 'alpinejs'
-
-window.Alpine = Alpine
+import Alpine from 'alpinejs';
 
 const Clover = {
     rule: {
@@ -21,7 +19,7 @@ const Clover = {
                     value: val.match(regex)
                         ? false
                         : message ||
-                        `The  ${field}  does not match with mail format`,
+                          `The  ${field}  does not match with mail format`,
                 };
             };
         },
@@ -33,7 +31,7 @@ const Clover = {
                     value: val.match(regex)
                         ? false
                         : message ||
-                        `The ${field} must have a minimum of eight characters with at least one alphabet and one number`,
+                          `The ${field} must have a minimum of eight characters with at least one alphabet and one number`,
                 };
             };
         },
@@ -58,16 +56,16 @@ const Clover = {
                         value: list.includes(val)
                             ? false
                             : message ||
-                            `The ${field} must be include in ${list.join(
-                                ','
-                            )}`,
+                              `The ${field} must be include in ${list.join(
+                                  ','
+                              )}`,
                     };
                 };
             };
         },
         number: function (message) {
             return function (field, val) {
-                var regex = /^[0-9]$/;
+                var regex = /^\d+$/;
                 if (!val.match(regex)) {
                     return {
                         rule: 'number',
@@ -77,15 +75,18 @@ const Clover = {
                 return { value: false };
             };
         },
-        custom: function (message) {
-            return function (cb) {
-                return function (field, val) {
-                    return { rule: 'custom', value: message || cb(field, val) };
-                };
+        custom: function (message, cb) {
+            return function (field, val) {
+                return { rule: 'custom', value: message || cb(field, val) };
             };
         },
         object: function (attr) {
             return this.validate(attr);
+        },
+        file: function (message, extension = []) {
+            return function (field, val) {
+                return { rule: 'file', value: message || cb(field, val) };
+            };
         },
     },
     validate: function ({ rule, data }) {
@@ -119,10 +120,11 @@ const Clover = {
 };
 
 document.addEventListener('alpine:init', () => {
-    window.Alpine.directive(
-        'clover',
+    Alpine.directive(
+        'clover-verify',
         function (el, { value, modifiers, expression }, { cleanup, evaluate }) {
             let timeout;
+            const name = value || el.getAttribute('name');
             let handler = () => {
                 const errors = evaluate('errors');
                 if (timeout) {
@@ -130,8 +132,13 @@ document.addEventListener('alpine:init', () => {
                 }
                 timeout = setTimeout(function () {
                     let error;
-                    for (let r of evaluate(expression)) {
-                        const e = r(value, el.value);
+                    for (let r of evaluate(`rule.${name}`)) {
+                        const e = r(
+                            name,
+                            el.getAttribute('type') === 'file'
+                                ? el.files
+                                : el.value
+                        );
                         if (e.value) {
                             error = e.value;
                             break;
@@ -139,9 +146,9 @@ document.addEventListener('alpine:init', () => {
                     }
 
                     if (error) {
-                        errors[value] = error;
+                        errors[name] = error;
                     } else {
-                        errors[value] = '';
+                        delete errors[name];
                     }
                 }, 300);
             };
@@ -153,8 +160,44 @@ document.addEventListener('alpine:init', () => {
             });
         }
     );
+
+    Alpine.directive(
+        'clover-form',
+        function (el, { value, modifiers, expression }, { cleanup, evaluate }) {
+            const errors = evaluate('errors');
+            const checkRule = value || 'rule';
+            const handler = function (e) {
+                e.preventDefault();
+                const rule = evaluate(checkRule);
+                for (let name in rule) {
+                    for (let r of rule[name]) {
+                        const e = r(
+                            name,
+                            el.getAttribute('type') === 'file'
+                                ? el.elements[name].files
+                                : el.elements[name].value
+                        );
+                        if (e.value) {
+                            errors[name] = e.value;
+                            break;
+                        } else {
+                            delete errors[name];
+                        }
+                    }
+                }
+                evaluate(expression);
+            };
+
+            el.addEventListener('submit', handler);
+
+            cleanup(() => {
+                el.removeEventListener('submit', handler);
+            });
+        }
+    );
 });
 
-window.Clover = Clover
+window.Clover = Clover;
+window.Alpine = Alpine;
 
-Alpine.start()
+Alpine.start();

@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?{% now 'U' %}">
+    <script src="{% static 'js/mediapipe.js' %}"></script>
+    <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
+
+</head>
+
+<body>
+    <div class="relative min-h-screen">
+        <video id="webcam" hidden autoplay></video>
+        <canvas id="canvas" class="absolute-full object-cover"></canvas>
+        <div class="bg-red-700 absolute-full bg-opacity-50  flex justify-center items-center"
+            x-transition.duration.500ms x-data x-cloak x-show="$store.reception.showMessage">
+            <div class="min-w-[500px] max-w-[1000px] text-white text-center">
+                <h2 class="text-3xl underline">メッセージがあります</h2>
+                <p class="text-4xl  mt-10">
+                    問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手
+                </p>
+            </div>
+        </div>
+        <div class="absolute top-5 left-5 right-5 bottom-5">
+            <div class="w-full h-full flex flex-col justify-between p-5 relative ">
+                <div class="absolute border border-white w-full h-full top-0 right-0 border-t-0 border-b-0"></div>
+                <div class="top-0 left-0 right-0 absolute w-full flex justify-center ">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 w-9"></div>
+                    <div class="leading-[0px] px-3 text-white text-xl" x-data x-text="$store.reception.time">0000-00-00
+                        00:00:00
+                    </div>
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1"></div>
+                </div>
+                <div class="bottom-0 left-0 right-0 absolute w-full flex justify-center ">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 w-[90%]"></div>
+                    <div class="leading-[0px] px-3 text-white text-xl">P Hub</div>
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1"></div>
+                </div>
+                <div class="text-right">
+                    <button x-data x-bind:class="$store.reception.mode ? 'bg-teal-500' : 'bg-yellow-300'"
+                        class="bg-teal-500 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
+                        Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
+                    </button>
+                </div>
+                <div class="pl-10">
+                    <div x-data x-show="$store.reception.verify"
+                        class="w-[300px] h-[300px]  py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
+                        <div></div>
+                        <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-32 fill-white">
+                                <path fill-rule="evenodd"
+                                    d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="text-2xl text-center">
+                            <div>山田様</div>
+                            <div>1年○○○○療法</div>
+                        </div>
+                    </div>
+                    <div class="bg-red-700 max-w-[350px] text-white mt-5 p-2 rounded-lg">
+                        問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
+                    </div>
+                </div>
+                <div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById("canvas")
+        const context = canvas.getContext('2d');
+        const video = document.getElementById('webcam');
+        const bc = new BroadcastChannel("p_hub_reception");
+        const fps = 30;
+        const interval = 1000 / fps;
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        let lastTime = 0;
+        let mode = true;
+        let timeout;
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        bc.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            if ("close" in data) {
+                window.close()
+            }
+        }
+
+        function onResults(results) {
+            const landmarks = results.multiHandLandmarks[0]
+            landmarks?.forEach(function (l) {
+                const x = l.x * canvas.clientWidth
+                const y = l.y * canvas.clientHeight
+                if (x > 0 && x < 200 && y > 0 && y < 200) {
+                    if (!timeout) {
+                        mode = !mode
+                        bc.postMessage(JSON.stringify({ mode }))
+                        Alpine.store("reception").mode = mode
+                        timeout = setTimeout(() => {
+                            timeout = undefined
+                        }, 2000)
+                    }
+                }
+            })
+        }
+
+        hands.onResults(onResults);
+
+        class AsyncIterable {
+            constructor(data) {
+                this.data = data;
+            }
+
+            async *[Symbol.asyncIterator]() {
+                for (let item of this.data) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.store("reception", {
+                time: null,
+                mode: true,
+                verify: true,
+                showMessage: false,
+                message: null,
+                messages: [
+                    { content: "問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手" },
+                    { content: "権んりをき大軽ど界細ひ外球ワイセラ女新カメソ社74着テ立遊ぴなむ月治ナカヱヒ展掲ぱゅ務銃うどよク陳火んリ利致こクべ英将ぜお本痛傾ーリぶ。購67状締拳5近ぶょ排掲ケ急掲ムコ上7健ロ台検ぞきス団著前方ネ報焼のだとび謝意チオ想安メウ融写壮憶ッ。力ずざえび略省年か制年クキソエ終工決ワキケ学隆じだふ期7混ぞリぐゆ所位コネヱ性体断どかぽ都後ネケツミ都最額拠セキサ端心とぼゆに" },
+                    { content: "同とぽゃ早50持スし碁7策ナモヒ禁事にう買財ふっ袋止ドざぱご立67議忘チアム択原にンつへ年単構満ねとイッ。著39増ホユスリ仙無フおい誌速ワミノ長層ヒ朝勧ヨ社問にー交試サオメス業終ウヲシヒ大喫なゅ防生ぽふッレ較5速覧皇仲儀ざぎ。明ニカ果人ヲヘ進別すこげ世横はい言袋ケ医選ほ出維モヤセヒ制毎ヱタ最供そにおい央撲フ疑会キマ禁採ナヨクタ滋防大トせ教練クもず文更投温うむ要旨傑摯晋こ。" }
+                ],
+                webcamStream: null,
+                init() {
+                    this.connectClient()
+                    this.message = this.messages[0].content
+                    setInterval(() => {
+                        this.time = `${this.currentDate()} ${this.currentTime()}`
+                    }, 1000)
+                },
+                connectClient() {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(stream => {
+                            webcamStream = stream;
+                            video.srcObject = stream;
+                            const drawCanvs = async function (currentTime) {
+                                width = canvas.width = canvas.clientWidth;
+                                height = canvas.height = canvas.clientHeight;
+                                context.save()
+                                context.scale(-1, 1);
+                                context.drawImage(video, -width, 0, width, height);
+
+                                if (currentTime - lastTime >= interval) {
+                                    await hands.send({ image: video });
+                                    lastTime = currentTime;
+                                }
+                                context.restore()
+                                requestAnimationFrame(drawCanvs)
+                            }
+                            drawCanvs()
+                        })
+                        .catch(error => {
+                            console.error('Error accessing webcam:', error);
+                        });
+
+
+                },
+                disconnectClient() {
+                    if (webcamStream) {
+                        webcamStream.getTracks().forEach(track => track.stop());
+                    }
+                },
+                currentDate() {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-indexed
+                    const day = now.getDate().toString().padStart(2, '0');
+
+                    const dateString = `${year}-${month}-${day}`;
+                    return dateString;
+                },
+                currentTime() {
+                    const now = new Date();
+                    const hours = now.getHours().toString().padStart(2, '0');
+                    const minutes = now.getMinutes().toString().padStart(2, '0');
+                    const seconds = now.getSeconds().toString().padStart(2, '0');
+
+                    const timeString = `${hours}:${minutes}:${seconds}`;
+                    return timeString
+                }
+            })
+        })
+
+    </script>
+</body>
+
+</html>

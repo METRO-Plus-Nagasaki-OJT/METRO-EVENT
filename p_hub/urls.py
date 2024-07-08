@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.shortcuts import render
 
 
@@ -26,7 +26,9 @@ def test(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path(
-        "test/", test
-    ),
+    path("test/", test),
+    path("event/", include("event.urls")),
+    path("participant/", include("participant.urls")),
+    path("reception/", include("reception.urls")),
+    path("p-hub-admin/", include("p_hub_admin.urls"))
 ]
