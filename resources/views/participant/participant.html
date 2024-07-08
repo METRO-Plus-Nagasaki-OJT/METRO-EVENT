@@ -19,7 +19,6 @@
         <label for="events" class="mr-2 text-sm font-medium text-gray-700">Select Event:</label>
         <select id="events"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
-            <!-- Dynamically populate event options -->
             {% for event in events %}
             <option value="{{ event.id }}">{{ event.name }}</option>
             {% endfor %}
@@ -34,9 +33,11 @@
     </div>
 
     <!-- Register Modal -->
-    <div id="participantModal"
+    <div id="participantModal" x-data="participantModal"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-white p-5 rounded-lg w-full sm:w-2/3">
+        <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" x-clover-form="submit" action="{% url 'participant' %}"
+            method="post">
+            {% csrf_token %}
             <div class="bg-blue-500 px-4 py-4">
                 <h3 class="text-xl mb-4 text-white pt-3">Register New Participant</h3>
             </div>
@@ -44,14 +45,16 @@
                 <!-- Image Container -->
                 <div class="w-full sm:w-1/3 p-2 pt-5">
                     <div id="imageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
-                        <span>No image</span>
+                        <img id="capturedImage" class="h-full w-full object-cover" src="">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
-                        <button id="cameraButton"
-                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-[200px]">Camera</button>
-                        <input type="file" id="fileInput" class="hidden" accept="image/*">
-                        <button id="fileButton"
-                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-[200px]">Upload</button>
+                        <button id="cameraButton" type="button"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="initCamera">Camera</button>
+                        <canvas id="captureCanvas" class="hidden"></canvas>
+                        <button id="captureButton" type="button" name="profile"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="captureImage" :disabled="!isCameraReady">Capture</button>
                     </div>
                 </div>
 
@@ -60,60 +63,60 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                            <input type="text" id="name"
+                            <input type="text" id="name" name="name" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.name" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" id="email"
+                            <input type="email" id="email" name="email" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.email" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="participant_no"
+                                class="block text-sm font-medium text-gray-700">ParticipantNo</label>
+                            <input type="text" id="seat_no" name="ptno" x-clover-verify
+                                class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.ptno" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="dob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
+                            <input type="date" id="dob" name="dob" x-clover-verify
+                                class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.dob" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Gender</label>
+                            <div class="mt-1 flex pt-4">
+                                <input type="radio" id="male" name="gender" value="male" class="mr-1" checked>
+                                <label for="male" class="mr-4">Male</label>
+                                <input type="radio" id="female" name="gender" value="female" class="mr-1">
+                                <label for="female">Female</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="occupation" class="block text-sm font-medium text-gray-700">Occupation</label>
+                            <select id="occupation" name="role" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="occupation1">Occupation 1</option>
+                                <option value="occupation2">Occupation 2</option>
+                                <option value="occupation3">Occupation 3</option>
+                            </select>
+                            <span x-text="errors.occupation" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="phone1" class="block text-sm font-medium text-gray-700">PhNo1</label>
+                            <input type="text" id="phone1" name="phone1" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.phone1" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="phone2" class="block text-sm font-medium text-gray-700">PhNo2</label>
+                            <input type="text" id="phone2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
-                        <div class="grid grid-cols-4 pt-4 gap-[225px]">
-                            <div>
-                                <label for="participant_no" class="block text-sm font-medium text-gray-700">Participant
-                                    No</label>
-                                <input type="text" id="participant_no"
-                                    class="mt-1 block w-[80px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="dob"
-                                    class="block text-sm font-medium w-[50px] text-gray-700">DateOfBirth</label>
-                                <input type="date" id="dob"
-                                    class="mt-1 block w-[150px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Gender</label>
-                                <div class="mt-1 flex pt-4">
-                                    <input type="radio" id="male" name="gender" value="male" class="mr-1">
-                                    <label for="male" class="mr-4">Male</label>
-                                    <input type="radio" id="female" name="gender" value="female" class="mr-1">
-                                    <label for="female">Female</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label for="occupation"
-                                    class="block text-sm font-medium text-gray-700">Occupation</label>
-                                <select id="occupation"
-                                    class="mt-1 block w-[130px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                    <option value="occupation1">Occupation 1</option>
-                                    <option value="occupation2">Occupation 2</option>
-                                    <option value="occupation3">Occupation 3</option>
-                                </select>
-                            </div>
 
-                        </div>
-                        <div class="grid grid-cols-2 pt-4 gap-[90px] sm:col-span-2 mt-4">
-                            <div>
-                                <label for="phone1" class="block text-sm font-medium text-gray-700">PhNo1</label>
-                                <input type="text" id="phone1"
-                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="phone2" class="block text-sm font-medium text-gray-700">PhNo2</label>
-                                <input type="text" id="phone2"
-                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                        </div>
                         <div class="sm:col-span-2 mt-4">
                             <label for="memo" class="block text-sm font-medium text-gray-700">Memo</label>
                             <textarea id="memo" rows="2"
@@ -121,8 +124,9 @@
                         </div>
                         <div class="sm:col-span-2 mt-4">
                             <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <textarea id="address" rows="2"
+                            <textarea id="address" rows="2" name="address" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                            <span x-text="errors.address" class="text-red-600"></span>
                         </div>
                     </div>
                 </div>
@@ -131,18 +135,18 @@
 
                 <!-- Register and Cancel Buttons -->
                 <div class="mt-4 flex justify-end w-full">
-                    <button id="registerParticipant"
+                    <button id="registerParticipant" type="submit"
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
                     <button id="cancelRegistration"
                         class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Update and Cancel Buttons -->
     <div id="editModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-white p-5 rounded-lg w-full sm:w-2/3">
+        <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" x-data="editModal" x-clover-form="submit">
             <div class="bg-blue-500 px-4 py-4">
                 <h3 class="text-xl mb-4 text-white pt-3">Update Details</h3>
             </div>
@@ -169,66 +173,60 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                            <input type="text" id="name"
+                            <input type="text" id="name" name="editname" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editname" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" id="email"
+                            <input type="email" id="email" name="editemail" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editemail" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="participant_no"
+                                class="block text-sm font-medium text-gray-700">ParticipantNo</label>
+                            <input type="text" id="participant_no" name="editptno" x-clover-verify
+                                class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editptno" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="dob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
+                            <input type="date" id="dob" name="editdob" x-clover-verify
+                                class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editdob" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Gender</label>
+                            <div class="mt-1 flex pt-4">
+                                <input type="radio" id="male" name="gender" value="male" class="mr-1" checked>
+                                <label for="male" class="mr-4">Male</label>
+                                <input type="radio" id="female" name="gender" value="female" class="mr-1">
+                                <label for="female">Female</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="occupation" class="block text-sm font-medium text-gray-700">Occupation</label>
+                            <select id="occupation" name="editoccupation" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="occupation1">Occupation 1</option>
+                                <option value="occupation2">Occupation 2</option>
+                                <option value="occupation3">Occupation 3</option>
+                            </select>
+                            <span x-text="errors.editoccupation" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="phone1" class="block text-sm font-medium text-gray-700">PhNo1</label>
+                            <input type="text" id="phone1" name="editphone1" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editphone1" class="text-red-600"></span>
+                        </div>
+                        <div>
+                            <label for="phone2" class="block text-sm font-medium text-gray-700">PhNo2</label>
+                            <input type="text" id="phone2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
-                        <div class="grid grid-cols-5 pt-4 gap-[170px]">
-                            <div>
-                                <label for="participant_no"
-                                    class="block text-sm font-medium text-gray-700">ParticipantNo</label>
-                                <input type="text" id="participant_no"
-                                    class="mt-1 block w-[80px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="dob"
-                                    class="block text-sm font-medium w-[50px] text-gray-700">DateOfBirth</label>
-                                <input type="date" id="dob"
-                                    class="mt-1 block w-[150px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Gender</label>
-                                <div class="mt-1 flex pt-4">
-                                    <input type="radio" id="male" name="gender" value="male" class="mr-1">
-                                    <label for="male" class="mr-4">Male</label>
-                                    <input type="radio" id="female" name="gender" value="female" class="mr-1">
-                                    <label for="female">Female</label>
-                                </div>
-                            </div>
-                            <div>
-                                <label for="image" class="block text-sm font-medium text-gray-700">ImageCheck</label>
-                                <input type="text" id="image" class="mt-1 block w-[80px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm
-                                    cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                    value="False" disabled>
-                            </div>
-                            <div>
-                                <label for="occupation"
-                                    class="block text-sm font-medium text-gray-700">Occupation</label>
-                                <select id="occupation"
-                                    class="mt-1 block w-[130px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                    <option value="occupation1">Occupation 1</option>
-                                    <option value="occupation2">Occupation 2</option>
-                                    <option value="occupation3">Occupation 3</option>
-                                </select>
-                            </div>
 
-                        </div>
-                        <div class="grid grid-cols-2 pt-4 gap-[90px] sm:col-span-2 mt-4">
-                            <div>
-                                <label for="phone1" class="block text-sm font-medium text-gray-700">PhNo1</label>
-                                <input type="text" id="phone1"
-                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                            <div>
-                                <label for="phone2" class="block text-sm font-medium text-gray-700">PhNo2</label>
-                                <input type="text" id="phone2"
-                                    class="mt-1 block w-[350px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            </div>
-                        </div>
                         <div class="sm:col-span-2 mt-4">
                             <label for="memo" class="block text-sm font-medium text-gray-700">Memo</label>
                             <textarea id="memo" rows="2"
@@ -236,18 +234,9 @@
                         </div>
                         <div class="sm:col-span-2 mt-4">
                             <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <textarea id="address" rows="2"
+                            <textarea id="address" rows="2" name="editaddress" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                        </div>
-                        <div class="sm:col-span-2 mt-4">
-                            <label class="inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" class="sr-only peer border-s">
-                                <div
-                                    class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
-                                </div>
-                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Turn on to send
-                                    update infos to Email</span>
-                            </label>
+                            <span x-text="errors.editaddress" class="text-red-600"></span>
                         </div>
                     </div>
                 </div>
@@ -256,7 +245,7 @@
 
                 <!-- Edit and Cancel Buttons -->
                 <div class="mt-4 flex justify-end w-full">
-                    <button id="updateParticipant"
+                    <button id="updateParticipant" type="submit"
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Update</button>
 
                     <button id="deleteEdit"
@@ -266,7 +255,7 @@
                         class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
 </div>
@@ -399,39 +388,40 @@
         modal.classList.add('hidden');
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-    const openEditButtons = document.querySelectorAll('.open-edit-modal');
-    const editModal = document.getElementById('editModal');
+    //Edit Modal Handling
+    document.addEventListener('DOMContentLoaded', function () {
+        const openEditButtons = document.querySelectorAll('.open-edit-modal');
+        const editModal = document.getElementById('editModal');
 
-    openEditButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            editModal.classList.remove('hidden');
+        openEditButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                editModal.classList.remove('hidden');
+            });
         });
+
+        const cancelEditButton = document.getElementById('cancelEdit');
+        if (cancelEditButton) {
+            cancelEditButton.addEventListener('click', function () {
+                editModal.classList.add('hidden');
+            });
+        }
+
+        const openParticipantButtons = document.querySelectorAll('.open-participant-modal');
+        const participantModal = document.getElementById('participantModal');
+
+        openParticipantButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                participantModal.classList.remove('hidden');
+            });
+        });
+
+        const cancelParticipantButton = document.getElementById('cancelRegistration');
+        if (cancelParticipantButton) {
+            cancelParticipantButton.addEventListener('click', function () {
+                participantModal.classList.add('hidden');
+            });
+        }
     });
-
-    const cancelEditButton = document.getElementById('cancelEdit');
-    if (cancelEditButton) {
-        cancelEditButton.addEventListener('click', function() {
-            editModal.classList.add('hidden');
-        });
-    }
-
-    const openParticipantButtons = document.querySelectorAll('.open-participant-modal');
-    const participantModal = document.getElementById('participantModal');
-
-    openParticipantButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            participantModal.classList.remove('hidden');
-        });
-    });
-
-    const cancelParticipantButton = document.getElementById('cancelRegistration');
-    if (cancelParticipantButton) {
-        cancelParticipantButton.addEventListener('click', function() {
-            participantModal.classList.add('hidden');
-        });
-    }
-});
 
     // Image preview handling
     const imageContainer = document.getElementById('imageContainer');
@@ -451,6 +441,145 @@
 
         reader.readAsDataURL(file);
     });
+
+    document.addEventListener("alpine:init", () => {
+        Alpine.data("participantModal", () => ({
+            webcamStream: null,
+            videoElement: null,
+            captureCanvas: null,
+            isCameraReady: false,
+            rule: {
+                name: [Clover.rule.required()],
+                email: [Clover.rule.mail()],
+                seat_no: [Clover.rule.required()],
+                dob: [Clover.rule.required()],
+                role: [Clover.rule.required()],
+                phone1: [Clover.rule.required()],
+                address: [Clover.rule.required()],
+            },
+            errors: {},
+            submit() {
+
+            },
+            // async submit() {
+            //     const body = new FormData(this.$el)
+            //     try {
+            //         const res = await fetch("/participant/", {
+            //             method: "POST",
+            //             body,
+            //         })
+            //         const data = await res.json()
+            //         if (!res.ok) {
+            //             throw data
+            //         }
+            //     } catch (error) {
+            //         console.error(error)
+            //     }
+            // },
+
+            initCamera() {
+                this.videoElement = document.createElement('video');
+                this.captureCanvas = document.getElementById('captureCanvas');
+                const imageContainer = document.getElementById('imageContainer');
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        this.webcamStream = stream;
+                        this.videoElement.srcObject = stream;
+                        this.videoElement.play();
+                        this.isCameraReady = true;
+                        // Display video stream in imageContainer
+                        imageContainer.innerHTML = '';
+                        imageContainer.appendChild(this.videoElement);
+                    })
+                    .catch(err => {
+                        console.error('Error accessing webcam:', err);
+                    });
+            },
+
+            captureImage() {
+                if (this.isCameraReady) {
+                    const context = this.captureCanvas.getContext('2d');
+                    this.captureCanvas.width = this.videoElement.videoWidth;
+                    this.captureCanvas.height = this.videoElement.videoHeight;
+                    context.drawImage(this.videoElement, 0, 0, this.captureCanvas.width, this.captureCanvas.height);
+
+                    // Optionally display the captured image in imageContainer
+                    const img = document.createElement('img');
+                    img.src = this.captureCanvas.toDataURL('image/jpeg');
+                    img.classList.add('h-full', 'w-full', 'object-cover');
+                    document.getElementById('imageContainer').innerHTML = '';
+                    document.getElementById('imageContainer').appendChild(img);
+
+                    // Stop webcam after capturing image
+                    this.stopCamera();
+                }
+            },
+
+            stopCamera() {
+                if (this.webcamStream) {
+                    this.webcamStream.getTracks().forEach(track => track.stop());
+                    this.videoElement.srcObject = null;
+                    this.webcamStream = null;
+                    this.isCameraReady = false;
+                }
+            }
+
+        }))
+
+        Alpine.data("editModal", () => ({
+            rule: {
+                editname: [Clover.rule.required()],
+                editemail: [Clover.rule.mail()],
+                editptno: [Clover.rule.required()],
+                editdob: [Clover.rule.required()],
+                editoccupation: [Clover.rule.required()],
+                editphone1: [Clover.rule.required()],
+                editaddress: [Clover.rule.required()],
+            },
+            errors: {},
+            submit() {
+
+            }
+        }))
+    })
+
+    // $(document).ready(function() {
+    //         $('#registerForm').submit(function(event) {
+    //             event.preventDefault(); // Prevent default form submission
+
+    //             var formData = {
+    //                 'name': $('name').val(),
+    //                 'email': $('email').val(),
+    //                 'participant_no': $('participant_no').val(),
+    //                 'dob': $('dob').val(),
+    //                 'gender': $('input[name=gender]:checked').val(),
+    //                 'occupation': $('occupation').val(),
+    //                 'phone1': $('#phone1').val(),
+    //                 'phone2': $('phone2').val(),
+    //                 'memo': $('memo').val(),
+    //                 'address': $('address').val()
+    //             };
+
+    //             $.ajax({
+    //                 type: 'POST',
+    //                 url: '/register/',  // Endpoint URL where your Django view is located
+    //                 data: formData,
+    //                 success: function(response) {
+    //                     console.log('Success:', response);
+    //                     // Optionally, handle success response here (e.g., show success message)
+    //                 },
+    //                 error: function(xhr, status, error) {
+    //                     console.log('Error:', error);
+    //                     // Optionally, handle error response here (e.g., show error message)
+    //                 }
+    //             });
+    //         });
+    //     });
+
+
+
+
+
 </script>
 
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends "dashboard/master.html" %}
-
+{% csrf_token %}
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 <div class="px-5">
@@ -177,33 +177,50 @@
                         </button>
                     </div>
                  
-                    <form class="p-4 md:p-5" method="post ">
+                    <form class="p-4 md:p-5" x-data="addmodal" x-clover-form="submit" x-ref="form">
+                        {% csrf_token %}
                         <div class="grid gap-4">
                             <div class="flex justify-between items-center ">
-                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="name">Name</label>
-                                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name" required="">
-                            </div><br>
+                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">Name</label>
+                                <input x-clover-verify type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name">
+                              
+                            </div>
+                            <span class="text-red-600 pl-24" x-text="errors.name"></span>
 
                             <div class="flex justify-between items-center ">
-                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="period">Period</label>
-                                <input type="text" name="period" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" required="">
-                            </div><br>
+                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">Start Time</label>
+                                <input type="datetime-local" name="starttime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
+                                
+                            </div>
+                            <span class="text-red-600 pl-24" x-text="errors.starttime"></span>
+                            <div class="flex justify-between items-center ">
+                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">End time</label>
+                                <input type="datetime-local" name="endtime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
+                               
+                            </div>
+                            <span class="text-red-600 pl-24" x-text="errors.endtime"></span>
+                            <div class="flex justify-between items-center ">
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
+                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue">
+                               
+                            </div>
+                            <span class="text-red-600 pl-24" x-text="errors.venue"></span>
 
                             <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="venue">Venue</label>
-                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue" required="">
-                            </div><br>
-
-                            <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9" name="organizer">Organizer</label>
-
-                                <input type="text" name="organizer" id="organizer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event organizer" required="">
-                            </div><br>
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9">Organizer</label>
+                                <select name="organizer" id="organizer" class="block w-full p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                    {% for u in user %}
+                                    <option value="{{u.id}}">{{ u.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="text-red-600 pl-24" x-text="errors.organizer"></span>
         
                             <div class="flex justify-between items-center mb-5">
-                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="memo">Memo</label>
-                                <textarea id="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
+                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Memo</label>
+                                <textarea id="memo" name="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
                             </div>
+                            <span class="text-red-600 pl-24 pb-11" x-text="errors.memo"></span>
                         </div>
                         <div class="flex justify-end pb-4 mt-5">
                         <button type="submit" class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
@@ -228,7 +245,7 @@
                         <h3 class="text-2xl text-white">
                          Edit Event
                         </h3>
-                        <button type="button" id="modalCloseButton" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-close="crud-modal">
+                        <button type="button" id="modalCloseButton" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                             </svg>
@@ -236,32 +253,37 @@
                         </button>
                     </div>
                  
-                    <form class="p-4 md:p-5" method="post ">
+                    <form class="p-4 md:p-5" class="editmodal">
                         <div class="grid gap-4">
                             <div class="flex justify-between items-center ">
-                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="name">Name</label>
-                                <input type="text" name="name" id="edit-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name" required="">
+                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >Name</label>
+                                <input type="text" name="name" id="edit-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name" >
                             </div><br>
 
                             <div class="flex justify-between items-center ">
-                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" name="period">Period</label>
-                                <input type="text" name="period" id="edit-period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" required="">
+                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >start time</label>
+                                <input type="text" name="starttime" id="edit-period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" >
                             </div><br>
 
                             <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="venue">Venue</label>
-                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue" required="">
+                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >end time</label>
+                                <input type="text" name="endtime" id="edit-period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" >
                             </div><br>
 
                             <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9" name="organizer">Organizer</label>
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" >Venue</label>
+                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue">
+                            </div><br>
 
-                                <input type="text" name="organizer" id="organizer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event organizer" required="">
+                            <div class="flex justify-between items-center ">
+                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9" >Organizer</label>
+
+                                <input type="text" name="organizer" id="organizer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event organizer" >
                             </div><br>
         
                             <div class="flex justify-between items-center mb-5">
-                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" name="memo">Memo</label>
-                                <textarea id="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
+                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" >Memo</label>
+                                <textarea id="memo" name="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
                             </div>
                         </div>
                         <div class="flex justify-end pb-4 mt-5">
@@ -288,8 +310,8 @@
         </div>
     </div>
 </div>
-
-
+{% endblock content %}
+{% block script  %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const modalOpenButtons = document.querySelectorAll('[data-modal-toggle]');
@@ -302,7 +324,7 @@
                 const targetModal = document.querySelector(this.getAttribute('data-modal-target'));
                 targetModal.classList.remove('hidden');
                 targetModal.setAttribute('aria-hidden', 'false');
-                modalOverlay.classList.remove('hidden');
+               
             });
         });
         function closeModal() {
@@ -348,19 +370,57 @@ function closeModal() {
         edit_modal.setAttribute('aria-hidden', 'true'); 
     }
 
-// Function to close edit modal
+
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-// Example form submission function
 function submitEditForm() {
-    // Handle form submission here
-    // Example: You may use AJAX to send updated data to the server
 
-    // After successful submission, close modal
     closeModal('edit-modal');
 }
+document.addEventListener('alpine:init', () => {
+    Alpine.data('addmodal', () => ({
+        rule:{
+        name : [Clover.rule.required()],
+        starttime:[Clover.rule.required()],
+        endtime:[Clover.rule.required()],
+        venue:[Clover.rule.required()],
+        organizer:[Clover.rule.required()],
+        memo:[Clover.rule.required()],
+        },
+        errors : {},
+        async submit() {
+            this.errors = {}
+            const form = this.$refs.form
+            const { valid, errors } = Clover.form({ form, rule:this.rule});
+            if (valid) {
+                try {
+                    const res = await fetch("", {
+                        method: "POST",
+                        body: new FormData(form),
+                    })
+
+
+                    if (!res.ok) {
+                        throw res
+                    }
+
+                    const response = await res.json()
+
+                    window.location.href = ""
+
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                this.errors = errors
+            }
+        }
+
+    }))
+    })
 
 </script>
-{% endblock content %}
+{% endblock script  %}
+
