@@ -23,7 +23,7 @@ class Event_Participant(models.Model):
     participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     email = models.EmailField()
-    phone_2 = models.CharField(max_length=30)
+    phone_1 = models.CharField(max_length=30)
     phone_2 = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
