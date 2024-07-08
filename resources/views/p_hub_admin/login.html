@@ -8,7 +8,7 @@
         <form id="loginForm" x-clover-form="submitForm" class="space-y-4" x-ref="form">
             {% csrf_token %}
             <div id = "errormessage" class = "text-red-500 italic text-center mb-4" x-show = "error">
-                {{ errorMessage }}
+                <span x-text="errorMessage"></span>
             </div>
             <div class="mb-4">
                 <label for="inputUsername" class="block mb-2 font-medium text-gray-700">ユーザー名</label>
@@ -37,8 +37,8 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('login', () => ({
             rule: {
-                "username" : [Clover.rule.required("ユーザー名は必要性です。")],
-                "password" : [Clover.rule.required("パスワードは必要性です。")]
+                "username" : [Clover.rule.required("ユーザー名が必要です。")],
+                "password" : [Clover.rule.required("パスワードが必要です。")]
             },
             errors: {},
             error: false,
@@ -50,7 +50,7 @@
                 try {
                     const response = await fetch("", {
                         method: "POST",
-                        body:data
+                        body: data
                     })
                 
                 const res = await response.json()    
@@ -68,7 +68,17 @@
                     console.log('Login error:', error);
 
                     this.error = true;
-                    this.errorMessage = error.message || 'An error';
+                    if (!data.get('username') && !data.get('password')) {
+                        this.errorMessage = "ユーザー名とパスワードを入力してください。";
+                    } else if (!data.get('username')) {
+                        this.errorMessage = 'ユーザー名を入力してください。';
+                    } else if (!data.get('password')) {
+                        this.errorMessage = 'パスワードを入力してください。';
+                    } else if (error.message === 'Invalid credentials') {
+                        this.errorMessage = 'ユーザー名またはパスワードが正しくありません。';
+                    } else {
+                        this.errorMessage = 'エラーが発生しました。もう一度お試しください。';
+                    }
                 }
             }
         }))
