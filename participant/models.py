@@ -10,7 +10,7 @@ class Participant(models.Model):
     dob = models.DateField()
     email = models.EmailField()
     face = models.BooleanField()
-    facial_feature = models.TextField()
+    facial_feature = models.TextField(default=None)
     memo = models.TextField()
     status = models.PositiveSmallIntegerField()
     role = models.PositiveSmallIntegerField()
