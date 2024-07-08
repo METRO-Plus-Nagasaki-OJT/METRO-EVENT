@@ -7,6 +7,7 @@ class Participant(models.Model):
     name = models.CharField(max_length=255)
     seat_no = models.CharField(max_length=255)
     gender = models.BooleanField()
+    profile = models.TextField(default=None)
     dob = models.DateField()
     email = models.EmailField()
     face = models.BooleanField()
