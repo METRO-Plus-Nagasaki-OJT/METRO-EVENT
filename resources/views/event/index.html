@@ -189,13 +189,13 @@
 
                             <div class="flex justify-between items-center ">
                                 <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">Start Time</label>
-                                <input type="date" name="starttime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
+                                <input type="datetime-local" name="starttime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
                                 
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.starttime"></span>
                             <div class="flex justify-between items-center ">
                                 <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">End time</label>
-                                <input type="date" name="endtime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
+                                <input type="datetime-local" name="endtime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
                                
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.endtime"></span>
@@ -209,8 +209,8 @@
                             <div class="flex justify-between items-center ">
                                 <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9">Organizer</label>
                                 <select name="organizer" id="organizer" class="block w-full p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    {% for e in event %}
-                                    <option value="{{e.id}}">{{ e.admin }}</option>
+                                    {% for u in user %}
+                                    <option value="{{u.id}}">{{ u.username }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -253,7 +253,7 @@
                         </button>
                     </div>
                  
-                    <form class="p-4 md:p-5" method="post ">
+                    <form class="p-4 md:p-5" class="editmodal">
                         <div class="grid gap-4">
                             <div class="flex justify-between items-center ">
                                 <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >Name</label>
@@ -420,6 +420,7 @@ document.addEventListener('alpine:init', () => {
 
     }))
     })
+
 </script>
 {% endblock script  %}
 
