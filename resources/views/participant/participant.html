@@ -55,6 +55,11 @@
                         <button id="captureButton" type="button" name="profile"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
                             @click="captureImage" :disabled="!isCameraReady">Capture</button>
+                        <input type="file" id="fileInput" name="fileInput" accept="image/*" class="hidden"
+                            x-ref="fileInput" @change="uploadImage($event)">
+                        <button type="button"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="$refs.fileInput.click()">Upload Image</button>
                     </div>
                 </div>
 
@@ -78,7 +83,7 @@
                                 class="block text-sm font-medium text-gray-700">ParticipantNo</label>
                             <input type="text" id="seat_no" name="ptno" x-clover-verify
                                 class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.ptno" class="text-red-600"></span>
+                            <span x-text="errors.seat_no" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="dob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
@@ -144,7 +149,7 @@
         </form>
     </div>
 
-    <!-- Update and Cancel Buttons -->
+    <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
         <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" x-data="editModal" x-clover-form="submit">
             <div class="bg-blue-500 px-4 py-4">
@@ -153,15 +158,21 @@
             <div class="flex flex-wrap -mx-2">
                 <!-- Image Container -->
                 <div class="w-full sm:w-1/3 p-2 pt-5">
-                    <div id="imageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
+                    <div id="editImageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <span>No image</span>
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
-                        <button id="cameraButton"
+                        <button id="editCameraButton" @click="initCamera" type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Camera</button>
-                        <input type="file" id="fileInput" class="hidden" accept="image/*">
-                        <button id="fileButton"
-                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Upload</button>
+                        <canvas id="editCaptureCanvas" class="hidden"></canvas>
+                        <button id="editCaptureButton" type="button" name="profile"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="captureImage" :disabled="!isCameraReady">Capture</button>
+                        <input type="file" id="editFileInput" name="editFileInput" accept="image/*" class="hidden"
+                            x-ref="editFileInput" @change="uploadImage($event)">
+                        <button type="button"
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="triggerFileInput">Upload Image</button>
                         <button id="deleteImage"
                             class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Delete
                             Image</button>
@@ -186,14 +197,14 @@
                         <div>
                             <label for="participant_no"
                                 class="block text-sm font-medium text-gray-700">ParticipantNo</label>
-                            <input type="text" id="participant_no" name="editptno" x-clover-verify
-                                class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.editptno" class="text-red-600"></span>
+                            <input type="text" id="seat_no" name="editseat_no" x-clover-verify
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editseat_no" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="dob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
                             <input type="date" id="dob" name="editdob" x-clover-verify
-                                class="mt-1 block w-[395px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editdob" class="text-red-600"></span>
                         </div>
                         <div>
@@ -425,22 +436,7 @@
 
     // Image preview handling
     const imageContainer = document.getElementById('imageContainer');
-    const fileInput = document.getElementById('fileInput');
-
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            const img = document.createElement('img');
-            img.src = reader.result;
-            img.classList.add('h-full', 'w-full', 'object-cover');
-            imageContainer.innerHTML = '';
-            imageContainer.appendChild(img);
-        };
-
-        reader.readAsDataURL(file);
-    });
+    const editimageContainer = document.getElementById('editimageContainer');
 
     document.addEventListener("alpine:init", () => {
         Alpine.data("participantModal", () => ({
@@ -461,21 +457,6 @@
             submit() {
 
             },
-            // async submit() {
-            //     const body = new FormData(this.$el)
-            //     try {
-            //         const res = await fetch("/participant/", {
-            //             method: "POST",
-            //             body,
-            //         })
-            //         const data = await res.json()
-            //         if (!res.ok) {
-            //             throw data
-            //         }
-            //     } catch (error) {
-            //         console.error(error)
-            //     }
-            // },
 
             initCamera() {
                 this.videoElement = document.createElement('video');
@@ -522,15 +503,42 @@
                     this.webcamStream = null;
                     this.isCameraReady = false;
                 }
-            }
+            },
+
+            uploadImage(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                    const img = document.createElement('img');
+                    img.src = reader.result;
+                    img.classList.add('h-full', 'w-full', 'object-cover');
+                    document.getElementById('imageContainer').innerHTML = '';
+                    document.getElementById('imageContainer').appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            },
+
+            triggerFileInput() {
+                if (this.$refs.fileInput) {
+                    this.$refs.fileInput.click(); // Accessing click event of fileInput
+                } else {
+                    console.error('File input element not found.');
+                }
+            },
 
         }))
 
         Alpine.data("editModal", () => ({
+            webcamStream: null,
+            videoElement: null,
+            captureCanvas: null,
+            isCameraReady: false,
             rule: {
                 editname: [Clover.rule.required()],
                 editemail: [Clover.rule.mail()],
-                editptno: [Clover.rule.required()],
+                editseat_no: [Clover.rule.required()],
                 editdob: [Clover.rule.required()],
                 editoccupation: [Clover.rule.required()],
                 editphone1: [Clover.rule.required()],
@@ -539,46 +547,78 @@
             errors: {},
             submit() {
 
+            },
+            initCamera() {
+                this.videoElement = document.createElement('video');
+                this.captureCanvas = document.getElementById('editcaptureCanvas');
+                const editimageContainer = document.getElementById('editimageContainer');
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        this.webcamStream = stream;
+                        this.videoElement.srcObject = stream;
+                        this.videoElement.play();
+                        this.isCameraReady = true;
+                        // Display video stream in imageContainer
+                        editimageContainer.innerHTML = '';
+                        editimageContainer.appendChild(this.videoElement);
+                    })
+                    .catch(err => {
+                        console.error('Error accessing webcam:', err);
+                    });
+            },
+
+            captureImage() {
+                if (this.isCameraReady) {
+                    const context = this.captureCanvas.getContext('2d');
+                    this.captureCanvas.width = this.videoElement.videoWidth;
+                    this.captureCanvas.height = this.videoElement.videoHeight;
+                    context.drawImage(this.videoElement, 0, 0, this.captureCanvas.width, this.captureCanvas.height);
+
+                    // Optionally display the captured image in imageContainer
+                    const img = document.createElement('img');
+                    img.src = this.captureCanvas.toDataURL('image/jpeg');
+                    img.classList.add('h-full', 'w-full', 'object-cover');
+                    document.getElementById('editimageContainer').innerHTML = '';
+                    document.getElementById('editimageContainer').appendChild(img);
+
+                    // Stop webcam after capturing image
+                    this.stopCamera();
+                }
+            },
+
+            uploadImage(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                    const img = document.createElement('img');
+                    img.src = reader.result;
+                    img.classList.add('h-full', 'w-full', 'object-cover');
+                    document.getElementById('editImageContainer').innerHTML = '';
+                    document.getElementById('editImageContainer').appendChild(img);
+                };
+
+                reader.readAsDataURL(file);
+            },
+
+            triggerFileInput() {
+                if (this.$refs.editFileInput) {
+                    this.$refs.editFileInput.click();
+                } else {
+                    console.error('File input element not found.');
+                }
+            },
+
+            stopCamera() {
+                if (this.webcamStream) {
+                    this.webcamStream.getTracks().forEach(track => track.stop());
+                    this.videoElement.srcObject = null;
+                    this.webcamStream = null;
+                    this.isCameraReady = false;
+                }
             }
         }))
     })
-
-    // $(document).ready(function() {
-    //         $('#registerForm').submit(function(event) {
-    //             event.preventDefault(); // Prevent default form submission
-
-    //             var formData = {
-    //                 'name': $('name').val(),
-    //                 'email': $('email').val(),
-    //                 'participant_no': $('participant_no').val(),
-    //                 'dob': $('dob').val(),
-    //                 'gender': $('input[name=gender]:checked').val(),
-    //                 'occupation': $('occupation').val(),
-    //                 'phone1': $('#phone1').val(),
-    //                 'phone2': $('phone2').val(),
-    //                 'memo': $('memo').val(),
-    //                 'address': $('address').val()
-    //             };
-
-    //             $.ajax({
-    //                 type: 'POST',
-    //                 url: '/register/',  // Endpoint URL where your Django view is located
-    //                 data: formData,
-    //                 success: function(response) {
-    //                     console.log('Success:', response);
-    //                     // Optionally, handle success response here (e.g., show success message)
-    //                 },
-    //                 error: function(xhr, status, error) {
-    //                     console.log('Error:', error);
-    //                     // Optionally, handle error response here (e.g., show error message)
-    //                 }
-    //             });
-    //         });
-    //     });
-
-
-
-
 
 </script>
 
