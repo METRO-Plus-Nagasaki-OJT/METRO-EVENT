@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'event',
     'attendance',
     'reception',
+    'message',
  
 ]
 
