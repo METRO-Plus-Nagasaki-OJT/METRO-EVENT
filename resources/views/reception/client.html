@@ -8,14 +8,17 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}?{% now 'U' %}">
     <script src="{% static 'js/mediapipe.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
     <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
 
 </head>
 
 <body>
     <div class="relative min-h-screen">
-        <video id="webcam" hidden autoplay></video>
-        <canvas id="canvas" class="absolute-full object-cover"></canvas>
+        <video id="webcam" autoplay class="absolute-full object-cover scale-x-[-1]"></video>
+        <canvas id="canvas" class="absolute-full object-cover" style="visibility: hidden;"></canvas>
+        <div class=" z-50  absolute  size-80 border " id="face-box" style="transform: translate(-50%,-50%);"></div>
         <div class="bg-red-700 absolute-full bg-opacity-50  flex justify-center items-center"
             x-transition.duration.500ms x-data x-cloak x-show="$store.reception.showMessage">
             <div class="min-w-[500px] max-w-[1000px] text-white text-center">
@@ -72,6 +75,11 @@
         </div>
     </div>
     <script>
+
+        let lastTime = 0;
+        let mode = true;
+        let timeout;
+
         const canvas = document.getElementById("canvas")
         const context = canvas.getContext('2d');
         const video = document.getElementById('webcam');
@@ -82,9 +90,20 @@
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
         });
 
-        let lastTime = 0;
-        let mode = true;
-        let timeout;
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+            }
+        });
+
+        const facebox = document.getElementById("face-box")
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
 
         hands.setOptions({
             maxNumHands: 1,
@@ -100,12 +119,40 @@
             }
         }
 
+
+        function onFaceMeshResult(results) {
+            const landmarks = results.multiFaceLandmarks[0]
+            if (landmarks) {
+                const leftCheek = landmarks[234]; 
+                const rightCheek = landmarks[454];
+                const topLandmark = landmarks[10];
+                const bottomLandmark = landmarks[152];
+
+                // Calculate distances between landmarks for face width and height
+                const faceWidth = Math.abs(rightCheek.x - leftCheek.x) * canvas.clientWidth;
+                const height = Math.abs(bottomLandmark.y - topLandmark.y) * canvas.clientHeight;
+
+
+                const x = landmarks[0].x * canvas.clientWidth
+                const y = landmarks[0].y * canvas.clientHeight
+                // Update facebox styles
+
+                facebox.style.width = `${faceWidth * 1.5}px`
+                facebox.style.height = `${height * 2}px`
+                facebox.style.right = `${x - (faceWidth * 1.5)}px`;
+                facebox.style.top = `${y - 100}px`;
+            }
+
+        }
+
+        faceMesh.onResults(onFaceMeshResult);
+
         function onResults(results) {
             const landmarks = results.multiHandLandmarks[0]
             landmarks?.forEach(function (l) {
                 const x = l.x * canvas.clientWidth
                 const y = l.y * canvas.clientHeight
-                if (x > 0 && x < 200 && y > 0 && y < 200) {
+                if (x > 0 && x < 250 && y > 0 && y < 250) {
                     if (!timeout) {
                         mode = !mode
                         bc.postMessage(JSON.stringify({ mode }))
@@ -153,13 +200,13 @@
                     }, 1000)
                 },
                 connectClient() {
-                    navigator.mediaDevices.getUserMedia({ video: true })
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                         .then(stream => {
                             webcamStream = stream;
                             video.srcObject = stream;
                             const drawCanvs = async function (currentTime) {
-                                width = canvas.width = canvas.clientWidth;
-                                height = canvas.height = canvas.clientHeight;
+                                width = canvas.width = video.videoWidth;
+                                height = canvas.height = video.videoHeight;
                                 context.save()
                                 context.scale(-1, 1);
                                 context.drawImage(video, -width, 0, width, height);
@@ -168,6 +215,9 @@
                                     await hands.send({ image: video });
                                     lastTime = currentTime;
                                 }
+
+                                await faceMesh.send({ image: video });
+
                                 context.restore()
                                 requestAnimationFrame(drawCanvs)
                             }

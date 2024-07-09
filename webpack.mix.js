@@ -5,7 +5,8 @@ require('mix-tailwindcss');
 mix.setPublicPath('public')
 
 
-mix.js("resources/js/app.js", "js").js("resources/js/mediapipe.js", "js")
+mix.js("resources/js/app.js", "js")
+    .js("resources/js/mediapipe.js", "js")
 
 mix.postCss('resources/css/app.css', 'css').tailwind(
     path.resolve(__dirname, 'tailwind.config.js')
