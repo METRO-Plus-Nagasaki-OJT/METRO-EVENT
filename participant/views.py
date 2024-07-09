@@ -10,10 +10,10 @@ def participant(request):
         # Retrieve data from POST request
         name = request.POST.get('name')
         email = request.POST.get('email')
-        participant_no = request.POST.get('participant_no')
+        seat_no = request.POST.get('seat_no')
         dob = request.POST.get('dob')
         gender = request.POST.get('gender')
-        occupation = request.POST.get('occupation')
+        role = request.POST.get('role')
         phone1 = request.POST.get('phone1')
         phone2 = request.POST.get('phone2')
         memo = request.POST.get('memo')
@@ -23,10 +23,10 @@ def participant(request):
         participant = Participant(
             name=name,
             email=email,
-            participant_no=participant_no,
+            seat_no=seat_no,
             dob=dob,
             gender=gender,
-            occupation=occupation,
+            role=role,
             phone1=phone1,
             phone2=phone2,
             memo=memo,
@@ -37,6 +37,8 @@ def participant(request):
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
+        participants = Participant.objects.all()
         events = Event.objects.all()
-        return render(request, 'participant/participant.html', {'events': events})
+        
+        return render(request, 'participant/participant.html', context={'participants': participants, 'events': events})
 
