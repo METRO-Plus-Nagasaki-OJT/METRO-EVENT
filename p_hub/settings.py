@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'event',
     'attendance',
     'reception',
- 
 ]
 
 MIDDLEWARE = [
@@ -137,9 +136,10 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ASGI_APPLICATION = 'p_hub.asgi.application'
 
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default":{
+        'BACKEND':'channels.layers.InMemoryChannelLayer',
     },
 }
