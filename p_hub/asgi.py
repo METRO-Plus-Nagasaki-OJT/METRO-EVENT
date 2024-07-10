@@ -12,6 +12,7 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 import participant.routing
+import attendance.routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'p_hub.settings')
 
@@ -20,11 +21,9 @@ application = get_asgi_application()
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        #Just HTTP for now, others protocols later
-
         "websocket":
                 URLRouter(
-                participant.routing.websocket_urlpatterns 
+                participant.routing.websocket_urlpatterns+attendance.routing.websocket_urlpatterns
         )
     }
 )  
