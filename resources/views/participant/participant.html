@@ -60,6 +60,9 @@
                         <button type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
                             @click="$refs.fileInput.click()">Upload Image</button>
+                        <button id="deleteImage" type="button"
+                            class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="deleteImage">Delete Image</button>
                     </div>
                 </div>
 
@@ -158,24 +161,25 @@
             <div class="flex flex-wrap -mx-2">
                 <!-- Image Container -->
                 <div class="w-full sm:w-1/3 p-2 pt-5">
-                    <div id="editImageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
+                    <div id="editimageContainer"
+                        class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <span>No image</span>
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="editCameraButton" @click="initCamera" type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Camera</button>
-                        <canvas id="editCaptureCanvas" class="hidden"></canvas>
-                        <button id="editCaptureButton" type="button" name="profile"
+                        <canvas id="editcaptureCanvas" class="hidden"></canvas>
+                        <button id="editcaptureButton" type="button" name="profile"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
                             @click="captureImage" :disabled="!isCameraReady">Capture</button>
-                        <input type="file" id="editFileInput" name="editFileInput" accept="image/*" class="hidden"
-                            x-ref="editFileInput" @change="uploadImage($event)">
+                        <input type="file" id="editfileInput" name="editfileInput" accept="image/*" class="hidden"
+                            x-ref="editfileInput" @change="uploadImage($event)">
                         <button type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
                             @click="triggerFileInput">Upload Image</button>
-                        <button id="deleteImage"
-                            class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Delete
-                            Image</button>
+                        <button id="deleteEditImage" type="button"
+                            class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            @click="deleteEditImage">Delete Image</button>
                     </div>
                 </div>
 
@@ -528,6 +532,12 @@
                 }
             },
 
+            deleteImage() {
+                const imgContainer = document.getElementById('imageContainer');
+                imgContainer.innerHTML = ''; // Clear image container
+            }
+
+
         }))
 
         Alpine.data("editModal", () => ({
@@ -586,6 +596,15 @@
                 }
             },
 
+            stopCamera() {
+                if (this.webcamStream) {
+                    this.webcamStream.getTracks().forEach(track => track.stop());
+                    this.videoElement.srcObject = null;
+                    this.webcamStream = null;
+                    this.isCameraReady = false;
+                }
+            },
+
             uploadImage(event) {
                 const file = event.target.files[0];
                 const reader = new FileReader();
@@ -594,29 +613,26 @@
                     const img = document.createElement('img');
                     img.src = reader.result;
                     img.classList.add('h-full', 'w-full', 'object-cover');
-                    document.getElementById('editImageContainer').innerHTML = '';
-                    document.getElementById('editImageContainer').appendChild(img);
+                    document.getElementById('editimageContainer').innerHTML = '';
+                    document.getElementById('editimageContainer').appendChild(img);
                 };
 
                 reader.readAsDataURL(file);
             },
 
             triggerFileInput() {
-                if (this.$refs.editFileInput) {
-                    this.$refs.editFileInput.click();
+                if (this.$refs.editfileInput) {
+                    this.$refs.editfileInput.click(); // Accessing click event of fileInput
                 } else {
                     console.error('File input element not found.');
                 }
             },
 
-            stopCamera() {
-                if (this.webcamStream) {
-                    this.webcamStream.getTracks().forEach(track => track.stop());
-                    this.videoElement.srcObject = null;
-                    this.webcamStream = null;
-                    this.isCameraReady = false;
-                }
+            deleteEditImage() {
+                const editImgContainer = document.getElementById('editimageContainer');
+                editImgContainer.innerHTML = ''; // Clear edit image container
             }
+
         }))
     })
 
