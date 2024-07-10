@@ -140,20 +140,6 @@
 
 
 
-        const faceMesh = new FaceMesh({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
-            }
-        });
-
-
-        faceMesh.setOptions({
-            maxNumFaces: 1,
-            refineLandmarks: true,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
-        });
-
 
         hands.setOptions({
             maxNumHands: 1,
@@ -174,25 +160,7 @@
         let prevWidth;
         let prevHeight;
 
-        // function drawRectangle(detection) {
-        //     const boundingBox = detection.boundingBox;
-        //     context.beginPath();
-        //     context.rect(
-        //         ((boundingBox.xCenter - boundingBox.width / 2) * canvas.clientWidth)-(boundingBox.width * canvas.clientWidth),
-        //         boundingBox.yCenter - boundingBox.height / 2,
-        //         100,
-        //         boundingBox.height * canvas.clientHeight
-        //     );
-        //     context.strokeStyle = 'red';
-        //     context.lineWidth = 2;
-        //     context.stroke();
-        //     console.log("aa")
-        // }
-
         function onFaceDetectionResult(result) {
-            // context.save()
-            // context.clearRect(0, 0, canvas.width, canvas.height);
-            // context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const detection = result.detections[0]
             if (detection) {
                 facebox.style.display = "block"
@@ -208,10 +176,9 @@
                     y = prevY
                     width = prevWidth
                     height = prevHeight
+                    
+                    Alpine.store("reception").recognizeFace()
                 }
-
-                // drawRectangle(detection);
-
 
                 facebox.style.right = `${x}px`;
                 facebox.style.top = `${y}px`;
@@ -225,40 +192,13 @@
                 prevHeight = height
             } else {
                 facebox.style.display = "none"
+
             }
 
         }
 
 
         faceDetection.onResults(onFaceDetectionResult);
-
-
-        function onFaceMeshResult(results) {
-            const landmarks = results.multiFaceLandmarks[0]
-            if (landmarks) {
-                const leftCheek = landmarks[234];
-                const rightCheek = landmarks[454];
-                const topLandmark = landmarks[10];
-                const bottomLandmark = landmarks[152];
-
-                // Calculate distances between landmarks for face width and height
-                const faceWidth = Math.abs(rightCheek.x - leftCheek.x) * canvas.clientWidth;
-                const height = Math.abs(bottomLandmark.y - topLandmark.y) * canvas.clientHeight;
-
-
-                const x = landmarks[0].x * canvas.clientWidth
-                const y = landmarks[0].y * canvas.clientHeight
-                // Update facebox styles
-
-                facebox.style.width = `${faceWidth * 1.5}px`
-                facebox.style.height = `${height * 2}px`
-                facebox.style.right = `${x - (faceWidth * 1.5)}px`;
-                facebox.style.top = `${y - 100}px`;
-            }
-
-        }
-
-        faceMesh.onResults(onFaceMeshResult);
 
         function onResults(results) {
             const landmarks = results.multiHandLandmarks[0]
@@ -295,6 +235,8 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                loader: false,
+                failCount: 0,
                 time: null,
                 mode: true,
                 verify: true,
@@ -340,13 +282,19 @@
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
                         });
-
-
                 },
                 disconnectClient() {
                     if (webcamStream) {
                         webcamStream.getTracks().forEach(track => track.stop());
                     }
+                },
+                recognizeFace() {
+
+                    if (!this.loader) {
+                        this.loader = true
+                        const base64 = canvas.toDataURL();
+                    }
+
                 },
                 currentDate() {
                     const now = new Date();

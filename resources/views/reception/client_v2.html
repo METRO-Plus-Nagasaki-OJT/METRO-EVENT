@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <video id="video" hidden></video>
+    <script>
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const video = document.getElementById("video");
+
+        const stage = new Konva.Stage({
+            container: 'container',
+            width: width,
+            height: height,
+        });
+
+        const layer = new Konva.Layer();
+        stage.add(layer);
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+
+                const videoImage = new Konva.Image({
+                    x: 0,
+                    y: 0,
+                    image: video,
+                    width: width,
+                    height: height,
+                });
+
+                layer.add(videoImage);
+                layer.draw();
+
+                function updateFrame() {
+                    videoImage.image(video);
+                    layer.draw();
+                    requestAnimationFrame(updateFrame);
+                }
+
+                updateFrame();
+            })
+            .catch(error => {
+                console.error('Error accessing webcam:', error);
+            });
+    </script>
+</body>
+
+</html>

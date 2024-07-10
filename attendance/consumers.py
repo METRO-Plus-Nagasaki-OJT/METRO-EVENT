@@ -12,7 +12,7 @@ from sklearn.preprocessing import Normalizer
 l2_normalizer = Normalizer("l2")
 
 def get_embeddings_dict():
-    with open("../embeddings/encodings.pkl", "rb") as f:
+    with open("./embeddings/encodings.pkl", "rb") as f:
         encoding_dict = pkl.load(f)
     return encoding_dict
 
@@ -25,7 +25,7 @@ def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
     similarity = 1 - cosine(embedding1, embedding2)
     return similarity, similarity > (1 - threshold)
 
-def verify():
+def verify(encode):
     encode = l2_normalizer.transform(np.array(encode).reshape(1, -1))[0]
     highest_similarity = -1
     best_matched = None
@@ -39,10 +39,19 @@ def verify():
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_group_name = f"chat_{self.room_name}"
+
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name, self.channel_name
+        )
+
         self.accept()
 
     def disconnect(self, close_code):
-       pass
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name, self.channel_name
+        )
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -52,4 +61,5 @@ class ImageConsumer(WebsocketConsumer):
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         image = get_encode(image)
-        self.send(text_data=json.dumps({"image_url":...}))
+        pred = verify(image)
+        self.send(text_data=json.dumps({"image_url":}))
