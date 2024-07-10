@@ -68,4 +68,4 @@ class ImageConsumer(WebsocketConsumer):
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         image = get_encode(image)
         pred = verify(image)
-        self.send(text_data=json.dumps({"image_url": True}))
+        self.send(text_data=json.dumps({"image_url":"hehe"}))

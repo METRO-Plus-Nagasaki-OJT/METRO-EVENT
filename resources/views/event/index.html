@@ -393,7 +393,6 @@ document.addEventListener('alpine:init', () => {
         async submit() {
             this.errors = {}
             const form = this.$refs.form
-            const { valid, errors } = Clover.form({ form, rule:this.rule});
             if (valid) {
                 try {
                     const res = await fetch("", {
