@@ -11,19 +11,24 @@ from sklearn.preprocessing import Normalizer
 
 l2_normalizer = Normalizer("l2")
 
+
 def get_embeddings_dict():
     with open("./embeddings/encodings.pkl", "rb") as f:
         encoding_dict = pkl.load(f)
     return encoding_dict
 
+
 encoding_dict = get_embeddings_dict()
+
 
 def get_encode(img):
     return DeepFace.represent(img_path=img, model_name="Facenet")[0]["embedding"]
 
+
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
     similarity = 1 - cosine(embedding1, embedding2)
     return similarity, similarity > (1 - threshold)
+
 
 def verify(encode):
     encode = l2_normalizer.transform(np.array(encode).reshape(1, -1))[0]
@@ -36,6 +41,7 @@ def verify(encode):
             best_matched = name
     if best_matched:
         print(best_matched)
+
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
@@ -62,4 +68,4 @@ class ImageConsumer(WebsocketConsumer):
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         image = get_encode(image)
         pred = verify(image)
-        self.send(text_data=json.dumps({"image_url":}))
+        self.send(text_data=json.dumps({"image_url": True}))
