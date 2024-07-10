@@ -10,18 +10,128 @@
 
 <div class = "px-5 py-5"> 
     <div class = "mb-4">
-        <button id = "newMessage" class ="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring font-medium rounded-lg text-sm px-5 py-2.5 text-center"> 
-            Create Message
+        <button id = "newMessage" class ="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring font-medium rounded-lg px-5 py-3 text-center"> 
+            + Create Message
         </button>
     </div>
 
-    <div id = "newMessageBox" class = "fixed inset-0 flex items-cnter "
+    <!-- Message Box -->
+    <div id = "newMessageBox" class = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <form class="bg-white p-5 rounded-lg w-full sm:max-w-lg mx-auto" x-clover-form="submit" action="" method="post">
+            {% csrf_token %}
+            <div class ="bg-blue-500 px-4 py-3">
+                <h3 class ="text-xl mb-4 text-white pt-3"> Create Message </h3>
+            </div>
+            <div class ="flex flex-wrap -mx-2">
+                <div class = "w-full px-4 py-3">
+                    <div class = "space-y-4">
+                        <div>
+                            <label for = "event" class = "block text-sm font-medium text-gray-700"> Event </label>
+                            <select id="event"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                            {% for event in events %}
+                            <option value="{{ event.id }}">{{ event.name }}</option>
+                            {% endfor %}
+                            </select>                        
+                        </div>
+                        <div>
+                            <label for = "subject" class = "block text-sm font-medium text-gray-700"> Subject </label>
+                            <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <textarea id="address" name="address" rows = "1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label for = "content" class = "block text-sm font-medium text-gray-700"> Content </label>
+                            <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label for = "period" class ="block text-sm font-medium text-gray-700"> Period </label>
+                            <div class="flex space-x-4">
+                                <input type="date" id="startDate" name="startDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                                <span class="text-gray-700 mt-2">to</span>
+                                <input type="date" id="endDate" name="endDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>                       
+                        <div>
+                            <label for = "type" class = "block text-sm font-medium text-gray-700"> Type </label>
+                            <select id="type"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+
+                            </select>                        
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end w-full">
+                    <button id="createMessage" type="submit"
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
+                    <button id="cancelCreation"
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Detail Box -->
+    <div id = "DetailBox" class = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <form class="bg-white p-5 rounded-lg w-full sm:max-w-lg mx-auto" x-clover-form="submit" action="" method="post">
+            {% csrf_token %}
+            <div class ="bg-blue-500 px-4 py-3">
+                <h3 class ="text-xl mb-4 text-white pt-3"> Detail </h3>
+            </div>
+            <div class ="flex flex-wrap -mx-2">
+                <div class = "w-full px-4 py-3">
+                    <div class = "space-y-4">
+                        <div>
+                            <label for = "subject" class = "block text-sm font-medium text-gray-700"> Subject </label>
+                            <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for = "content" class = "block text-sm font-medium text-gray-700"> Content </label>
+                            <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label for = "period" class ="block text-sm font-medium text-gray-700"> Period </label>
+                            <div class="flex space-x-4">
+                                <input type="date" id="startDate" name="startDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                                <span class="text-gray-700 mt-2">to</span>
+                                <input type="date" id="endDate" name="endDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                            </div>
+                        </div>                       
+                        <div>
+                            <label for = "type" class = "block text-sm font-medium text-gray-700"> Type </label>
+                            <select id="type"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+
+                            </select>                        
+                        </div>
+                        <div>
+                            <label for = "createdDate" class ="block text-sm font-medium text-gray-700"> Created Date </label>
+                            <input type = "date" id = "createdDate" name = "createdDate" class = "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                        </div>
+                        <div>
+                            <label for = "finishedDate" class ="block text-sm font-medium text-gray-700"> Finished Date </label>
+                            <input type = "date" id = "finishedDate" name = "finishedDate" class = "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end w-full">
+                    <button id="createMessage" type="submit"
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
+                    <button id="cancelCreation"
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- messagePages and Search Bar -->
 <div class ="flex justify-between items-center mb-4 px-5">
-    <div class ="flex items-center">
-        <label for="messagePages" class = "mr-2 text-sm font-medium text-gray-700"> Show: </label>
+    <div class ="flex items-center pb-4 mr-3">
         <select id ="messagePages" class = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
         style = "width: 200px;">
             <option value = "10"> 10 </option>
@@ -30,6 +140,7 @@
             <option value = "40"> 40 </option>
             <option value = "50"> 50 </option>
     </select>
+    <label for="messagePages" class = "ml-2 font-medium text-gray-700"> Shown Pages </label>
     </div>
     <div class="relative flex items-center">
         <input type="text" id="search"
@@ -65,4 +176,18 @@
 {% endblock content %}
 
 {% block script %}
+<script>
+    const newMessageButton = document.getElementById("newMessage");
+    const closeMessageButton = document.getElementById("cancelCreation");
+    const messageBox = document.getElementById("newMessageBox");
+
+    newMessageButton.addEventListener('click', () => {
+        messageBox.classList.remove('hidden');
+    })
+
+    closeMessageButton.addEventListener('click', () => {
+        messageBox.classList.add('hidden');
+    })
+
+</script>
 {% endblock script %}
