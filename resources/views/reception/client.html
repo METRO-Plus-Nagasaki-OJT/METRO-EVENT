@@ -160,7 +160,6 @@
         let prevWidth;
         let prevHeight;
 
-
         function onFaceDetectionResult(result) {
             const detection = result.detections[0]
             if (detection) {
@@ -177,10 +176,8 @@
                     y = prevY
                     width = prevWidth
                     height = prevHeight
+                    Alpine.store("reception").recognizeFace()
                 }
-
-                // drawRectangle(detection);
-
 
                 facebox.style.right = `${x}px`;
                 facebox.style.top = `${y}px`;
@@ -194,6 +191,7 @@
                 prevHeight = height
             } else {
                 facebox.style.display = "none"
+
             }
 
         }
@@ -236,6 +234,8 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                loader: false,
+                failCount: 0,
                 time: null,
                 mode: true,
                 verify: true,
@@ -281,13 +281,19 @@
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
                         });
-
-
                 },
                 disconnectClient() {
                     if (webcamStream) {
                         webcamStream.getTracks().forEach(track => track.stop());
                     }
+                },
+                recognizeFace() {
+
+                    if (!this.loader) {
+                        this.loader = true
+                        const base64 = canvas.toDataURL();
+                    }
+
                 },
                 currentDate() {
                     const now = new Date();
