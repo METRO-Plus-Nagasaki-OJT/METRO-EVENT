@@ -81,9 +81,9 @@
                         Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
                     </button>
                 </div>
-                <div class="flex">
+                <div class="flex justify-between items-start">
                     <div>
-                        <div x-data x-show="$store.reception.verify"
+                        <div x-data x-show="$store.reception.verify" x-transition:enter.duration.500ms
                             class=" p-16 py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
                             <div></div>
                             <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
@@ -98,9 +98,13 @@
                                 <div>1年○○○○療法</div>
                             </div>
                         </div>
-                        <div class="bg-red-700 bg-opacity-45 max-w-[350px] text-white mt-5 p-2 rounded-lg">
+                        <div x-data x-show="false"
+                            class="bg-red-700 bg-opacity-45 max-w-[350px] text-white mt-5 p-2 rounded-lg">
                             問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                         </div>
+                    </div>
+                    <div x-data x-show="$store.reception.showQrAlert" class="text-white">
+                        please qr code
                     </div>
                 </div>
                 <div>
@@ -110,7 +114,7 @@
     </div>
     <script>
 
-        let lastTime = 0;
+
         let mode = true;
         let timeout;
 
@@ -119,8 +123,7 @@
         const video = document.getElementById('webcam');
         const bc = new BroadcastChannel("p_hub_reception");
         const facebox = document.getElementById("face-box")
-        const fps = 30;
-        const interval = 1000 / fps;
+
         const hands = new Hands({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
         });
@@ -137,8 +140,6 @@
             model: 'short',
             minDetectionConfidence: 0.8
         });
-
-
 
 
         hands.setOptions({
@@ -159,25 +160,28 @@
         let prevY;
         let prevWidth;
         let prevHeight;
+        let tk
 
         function onFaceDetectionResult(result) {
             const detection = result.detections[0]
+
             if (detection) {
-                facebox.style.display = "block"
+
                 let boundingBox = detection.boundingBox;
                 let width = Math.floor((boundingBox.width * canvas.clientWidth * 1.5));
                 let height = Math.floor((boundingBox.height * canvas.clientHeight * 2));
                 let x = Math.floor((boundingBox.xCenter - (boundingBox.width * 1.5)) * canvas.clientWidth);
                 let y = Math.floor((boundingBox.yCenter - boundingBox.height * 2) * canvas.clientHeight);
+                facebox.style.display = "block"
 
-
-                if (Math.abs(x - prevX) < 30) {
+                if (Math.abs(x - prevX)  < 30) {
                     x = prevX
                     y = prevY
                     width = prevWidth
                     height = prevHeight
-                    
-                    Alpine.store("reception").recognizeFace()
+                    if (Alpine.store("reception").faceRegonization) {
+                        Alpine.store("reception").recognizeFace()
+                    }
                 }
 
                 facebox.style.right = `${x}px`;
@@ -192,7 +196,9 @@
                 prevHeight = height
             } else {
                 facebox.style.display = "none"
-
+                Alpine.store("reception").loader = false
+                Alpine.store("reception").faceRegonization = true
+                Alpine.store("reception").verify = false
             }
 
         }
@@ -205,7 +211,6 @@
             landmarks?.forEach(function (l) {
                 const x = l.x
                 const y = l.y
-                console.log(x, y)
                 if (x > 0 && x.toFixed(1) < 0.3 && y > 0 && y.toFixed(1) < 0.3) {
                     if (!timeout) {
                         mode = !mode
@@ -235,13 +240,17 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                showQrAlert: false,
+                faceRegonization: true,
                 loader: false,
                 failCount: 0,
                 time: null,
                 mode: true,
-                verify: true,
+                chatSocket: null,
+                verify: false,
                 showMessage: false,
                 message: null,
+                socketReady: false,
                 messages: [
                     { content: "問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手" },
                     { content: "権んりをき大軽ど界細ひ外球ワイセラ女新カメソ社74着テ立遊ぴなむ月治ナカヱヒ展掲ぱゅ務銃うどよク陳火んリ利致こクべ英将ぜお本痛傾ーリぶ。購67状締拳5近ぶょ排掲ケ急掲ムコ上7健ロ台検ぞきス団著前方ネ報焼のだとび謝意チオ想安メウ融写壮憶ッ。力ずざえび略省年か制年クキソエ終工決ワキケ学隆じだふ期7混ぞリぐゆ所位コネヱ性体断どかぽ都後ネケツミ都最額拠セキサ端心とぼゆに" },
@@ -249,17 +258,55 @@
                 ],
                 webcamStream: null,
                 init() {
+                    const reception = this
                     this.connectClient()
                     this.message = this.messages[0].content
                     setInterval(() => {
                         this.time = `${this.currentDate()} ${this.currentTime()}`
                     }, 1000)
+                    this.chatSocket = new WebSocket(
+                        'ws://' + window.location.host + '/ws/attendance/1/'
+                    );
+                    this.chatSocket.onopen = function () {
+                        reception.socketReady = true
+                    }
+
+                    this.chatSocket.onmessage = function (e) {
+                        const data = JSON.parse(e.data)
+                        if (data.success) {
+                            reception.verify = true
+                            reception.failCount = 0
+                        } else if (reception.failCount <= 2) {
+                            reception.loader = false
+                            if (reception.failCount === 2) {
+                                reception.faceRegonization = false
+                                facebox.style.display = "none"
+                                reception.showQrAlert = true
+                            } else {
+                                reception.failCount = reception.failCount + 1
+                            }
+                        }
+                    }
                 },
                 connectClient() {
                     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                         .then(stream => {
                             webcamStream = stream;
                             video.srcObject = stream;
+
+                            const reception = this
+
+
+                            const setFPS = () => {
+                                let lastTime = 0
+                                return ({ fps, currentTime }) => {
+                                    const interval = 1000 / fps;
+                                    const con = currentTime - lastTime >= interval
+                                    lastTime = currentTime
+                                    return con
+                                }
+                            }
+
                             const drawCanvs = async function (currentTime) {
                                 width = canvas.width = video.videoWidth;
                                 height = canvas.height = video.videoHeight;
@@ -267,17 +314,25 @@
                                 context.scale(-1, 1);
                                 context.drawImage(video, -width, 0, width, height);
 
-                                if (currentTime - lastTime >= interval) {
-                                    await hands.send({ image: video });
-                                    lastTime = currentTime;
+                                if (setFPS({ fps: 1, currentTime }) && width > 10 && !reception.loader && !reception.faceRegonization) {
+                                    const imageData = context.getImageData(0, 0, width, height)
+                                    const code = jsQR(imageData.data, imageData.width, imageData.height)
+                                    if (code) {
+                                        reception.loader = true
+                                        reception.checkQR()
+                                    }
                                 }
 
-                                await faceDetection.send({ image: video });
+                                if (setFPS({ fps: 30, currentTime })) {
+                                    await hands.send({ image: video });
+                                    await faceDetection.send({ image: video });
+
+                                }
 
                                 context.restore()
                                 requestAnimationFrame(drawCanvs)
                             }
-                            drawCanvs()
+                            requestAnimationFrame(drawCanvs)
                         })
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
@@ -289,12 +344,16 @@
                     }
                 },
                 recognizeFace() {
-
-                    if (!this.loader) {
+                    if (!this.loader && this.socketReady) {
                         this.loader = true
                         const base64 = canvas.toDataURL();
+                        this.chatSocket.send(JSON.stringify({ "image_url": base64, "qr_code": false }))
                     }
 
+                },
+                checkQR() {
+                    const base64 = canvas.toDataURL();
+                    this.chatSocket.send(JSON.stringify({ "image_url": base64, qr_code: true }))
                 },
                 currentDate() {
                     const now = new Date();
