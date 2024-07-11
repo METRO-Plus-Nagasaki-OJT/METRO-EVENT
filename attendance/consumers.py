@@ -9,6 +9,7 @@ from deepface import DeepFace
 from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
+import os
 
 l2_normalizer = Normalizer("l2")
 
@@ -21,7 +22,8 @@ encoding_dict = load_pickle("./embeddings/encodings.pkl")
 
 
 def get_encode(img):
-    return DeepFace.represent(img_path=img, model_name="Facenet")[0]["embedding"]
+    embed = DeepFace.represent(img_path=img, model_name="Facenet")[0]["embedding"]
+    return l2_normalizer.transform(np.array(embed).reshape(1, -1))[0]
 
 
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
@@ -29,22 +31,21 @@ def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
     return similarity, similarity > (1 - threshold)
 
 def load_mls():
-    model_lists = ["isolationforest", "oneclasssvm", "ellipticenvelope"]
-    for i in range(len(model_lists)):
-        model_lists[i] = load_pickle(model_lists[i])
-    return model_lists
+    # model_lists = ["isolationforest.pkl", "oneclasssvm.pkl", "ellipticenvelope.pkl"]
+    # models = []
+    # for i in range(len(model_lists)):
+    #     print(model_lists[i])
+    #     models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
+    model = load_pickle("./embeddings/isolationforest.pkl")
+    return model
 
 def check_unknown(encode):
     l_o_models = load_mls()
-    preds = []
-    for i in l_o_models:
-        preds.append(i.predict(encode))
-    counts =  Counter(preds)
-    result = counts.most_common(1)[0][0]
+    result = l_o_models.predict([encode])[0]
+    print(result)
     return True if result == -1 else False
 
 def verify(encode, threshold):
-    encode = l2_normalizer.transform(np.array(encode).reshape(1, -1))[0]
     highest_similarity = -1
     best_matched = None
     for name, embedding in encoding_dict.items():
@@ -53,6 +54,7 @@ def verify(encode, threshold):
             highest_similarity = similarity
             best_matched = name
     if best_matched and highest_similarity > threshold:
+        print(best_matched)
         return best_matched
     else:
         return None
@@ -89,4 +91,5 @@ class ImageConsumer(WebsocketConsumer):
             success_message = False
         elif pred and not unknown:
             success_message = True
+        print(success_message)
         self.send(text_data=json.dumps({"success":success_message}))
