@@ -1,26 +1,33 @@
 from django.shortcuts import render
 from .models import Message
 from django.http import JsonResponse
+from event.models import Event
 
 # Create your views here.
 def message_view(request):
     if request.method == "POST":
-        sender = request.POST.get('sender')
         subject = request.POST.get('subject')
-        period = request.POST.get('period')
-        situation = request.POST.get('situation')
+        sender = request.POST.get('sender')
+        content = request.POST.get('content')
+        startDate = request.POST.get('startDate')
+        endDate = request.POST.get('endDate')
+        message_type = request.POST.get('type')
 
         message = Message(
-            sender = sender,
             subject = subject,
-            period = period,
-            situation = situation
+            sender = sender,
+            content = content,
+            startDate = startDate,
+            endDate = endDate,
+            type = message_type
+
         )
         message.save()
         
-        return JsonResponse({'stauts': 'success', 'message': "Message have been created successfully!"})
+        return JsonResponse({'status': 'success', 'message': "Message have been created successfully!"})
     
     elif request.method == "GET":
         messages = Message.objects.all()
+        events = Event.objects.all()
 
-    return render(request, 'message/message.html')
+    return render(request, 'message/message.html', context = {'messages': messages, 'events': events})

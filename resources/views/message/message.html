@@ -39,8 +39,8 @@
                             <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <textarea id="address" name="address" rows = "1" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-none"></textarea>
+                            <label for="sender" class="block text-sm font-medium text-gray-700"> Sender </label>
+                            <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                         </div>
                         <div>
                             <label for = "content" class = "block text-sm font-medium text-gray-700"> Content </label>
@@ -49,9 +49,9 @@
                         <div>
                             <label for = "period" class ="block text-sm font-medium text-gray-700"> Period </label>
                             <div class="flex space-x-4">
-                                <input type="date" id="startDate" name="startDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                                <input type="datetime-local" id="startDate" name="startDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                                 <span class="text-gray-700 mt-2">to</span>
-                                <input type="date" id="endDate" name="endDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                                <input type="datetime-local" id="endDate" name="endDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                             </div>
                         </div>                       
                         <div>
@@ -67,7 +67,7 @@
                 <div class="mt-8 flex justify-end w-full">
                     <button id="createMessage" type="submit"
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
-                    <button id="cancelCreation"
+                    <button id="cancelCreation" type="button"
                         class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
                 </div>
             </div>
@@ -85,35 +85,35 @@
                 <div class = "w-full px-4 py-3">
                     <div class = "space-y-4">
                         <div>
-                            <label for = "subject" class = "block text-sm font-medium text-gray-700"> Subject </label>
-                            <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                            <label for = "detailsubject" class = "block text-sm font-medium text-gray-700"> Subject </label>
+                            <input type = "text" id = "detailsubject" name ="detailsubject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for = "content" class = "block text-sm font-medium text-gray-700"> Content </label>
-                            <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                            <label for = "detailcontent" class = "block text-sm font-medium text-gray-700"> Content </label>
+                            <textarea type = "text" id = "detailcontent" name = "detailcontent" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
                         </div>
                         <div>
-                            <label for = "period" class ="block text-sm font-medium text-gray-700"> Period </label>
+                            <label for = "detailperiod" class ="block text-sm font-medium text-gray-700"> Period </label>
                             <div class="flex space-x-4">
-                                <input type="date" id="startDate" name="startDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                                <input type="date" id="detailstartDate" name="detailstartDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                                 <span class="text-gray-700 mt-2">to</span>
-                                <input type="date" id="endDate" name="endDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                                <input type="date" id="detailendDate" name="detailendDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                             </div>
                         </div>                       
                         <div>
-                            <label for = "type" class = "block text-sm font-medium text-gray-700"> Type </label>
-                            <select id="type"
+                            <label for = "detailtype" class = "block text-sm font-medium text-gray-700"> Type </label>
+                            <select id="detailtype"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
 
                             </select>                        
                         </div>
                         <div>
-                            <label for = "createdDate" class ="block text-sm font-medium text-gray-700"> Created Date </label>
-                            <input type = "date" id = "createdDate" name = "createdDate" class = "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                            <label for = "detailcreatedDate" class ="block text-sm font-medium text-gray-700"> Created Date </label>
+                            <input type = "datetime-local" id = "detailcreatedDate" name = "detailcreatedDate" class = "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for = "finishedDate" class ="block text-sm font-medium text-gray-700"> Finished Date </label>
-                            <input type = "date" id = "finishedDate" name = "finishedDate" class = "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
+                            <label for = "detailfinishedDate" class ="block text-sm font-medium text-gray-700"> Finished Date </label>
+                            <input type = "datetime-local" id = "detailfinishedDate" name = "detailfinishedDate" class = "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm">
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
                 <div class="mt-8 flex justify-end w-full">
                     <button id="editMessage" type="submit"
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"> Edit </button>
-                    <button id="cancelEdition"
+                    <button id="cancelEdition" type="button"
                         class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"> Cancel </button>
                 </div>
             </div>
@@ -171,8 +171,78 @@
                 <th scope ="col" class = "px-6 py-3 w-4"> Situation </th>
             </tr>
         </thead>
+        <tbody>
+
+            {% for message in messages %}
+            <tr class="bg-white border-b">
+                <td class="py-4 px-6">
+                    <button
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 open-edit-modal"
+                        data-message-id="{{ message.id }}">Details</button>
+                </td>
+                <td class="py-4 px-6">{{ message.id }}</td>
+                <td class="py-4 px-6">{{ message.sender }}</td>
+                <td class="py-4 px-6">{{ message.subject }}</td>
+                <td class="py-4 px-6">{{ message.startDate }} to {{ message.endDate }} </td>
+                <td class="py-4 px-6">{{ participant.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </div>
+
+<div class="flex justify-between items-center mt-4 px-5">
+    <div class="text-sm text-gray-700">
+        Showing <span class="font-medium">{{ page.start_index }}</span> to <span class="font-medium">{{
+            page.end_index }}</span> of <span class="font-medium">{{ page.total_count }}</span> results
+    </div>
+    <nav aria-label="Page navigation">
+        <ul class="inline-flex items-center -space-x-px">
+            {% if page.has_previous %}
+            <li>
+                <a href="?page={{ page.previous_page_number }}"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
+                    <span class="sr-only"> Previous </span>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+            {% for num in page.paginator.page_range %}
+            <li>
+                <a href="?page={{ num }}"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{
+                    num }}</a>
+            </li>
+            {% endfor %}
+            {% if page.has_next %}
+            <li>
+                <a href="?page={{ page.next_page_number }}"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
+                    <span class="sr-only"> Next </span>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div class="mt-4 flex justify-end py-3 px-3">
+        showing to results
+        <span class="ml-2 inline-flex">
+            <button class="px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
+            <button class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
+            <button class="px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
+        </span>
+    </div>
+</div>
+
 {% endblock content %}
 
 {% block script %}
@@ -188,6 +258,24 @@
     closeMessageButton.addEventListener('click', () => {
         messageBox.classList.add('hidden');
     })
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const openEditButton = document.querySelectorAll('.open-edit-model');
+        const detailBox = document.getElementById("DetailBox");
+
+        openEditButton.forEach(button => {
+            button.addEventListener('click', function () {
+                detailBox.classList.remove('hidden');
+            });
+        });
+
+        const cancelEditionButton = document.getElementById('cancelEdition');
+        if (cancelEditionButton) {
+            cancelEditionButton.addEventListener('click', function () {
+                detailBox.classList.add('hidden');
+            })
+        }
+    });
 
 </script>
 {% endblock script %}
