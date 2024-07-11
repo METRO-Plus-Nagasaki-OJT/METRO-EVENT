@@ -19,8 +19,10 @@ def load_pickle(path):
 
 encoding_dict = load_pickle("./embeddings/encodings.pkl")
 
+
 def get_encode(img):
     return DeepFace.represent(img_path=img, model_name="Facenet")[0]["embedding"]
+
 
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
     similarity = 1 - cosine(embedding1, embedding2)
@@ -54,6 +56,7 @@ def verify(encode, threshold):
         return best_matched
     else:
         return None
+
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
