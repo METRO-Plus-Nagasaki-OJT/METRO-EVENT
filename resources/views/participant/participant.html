@@ -18,7 +18,7 @@
     <!-- Events Dropdown -->
     <div class="mb-4 flex items-center">
         <label for="events" class="mr-2 text-sm font-medium text-gray-700">Select Event:</label>
-        <select id="events"
+        <select id="events" name="event"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
             {% for event in events %}
             <option value="{{ event.id }}">{{ event.name }}</option>
@@ -85,7 +85,7 @@
                         </div>
                         <div>
                             <label for="seat_no" class="block text-sm font-medium text-gray-700">SeatNo</label>
-                            <input type="text" id="seat_no" name="ptno" x-clover-verify
+                            <input type="text" id="seat_no" name="seat_no" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.seat_no" class="text-red-600"></span>
                         </div>
@@ -98,9 +98,9 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Gender</label>
                             <div class="mt-1 flex pt-4">
-                                <input type="radio" id="male" name="gender" value="male" class="mr-1" checked>
+                                <input type="radio" id="male" name="gender" value="1" class="mr-1" checked>
                                 <label for="male" class="mr-4">Male</label>
-                                <input type="radio" id="female" name="gender" value="female" class="mr-1">
+                                <input type="radio" id="female" name="gender" value="0" class="mr-1">
                                 <label for="female">Female</label>
                             </div>
                         </div>
@@ -448,8 +448,8 @@
                         document.getElementById('editemail').value = data.email || '';
                         document.getElementById('editseat_no').value = data.seat_no || '';
                         document.getElementById('editdob').value = data.dob || '';
-                        document.getElementById('editphone_1').value = data.phone1 || '';
-                        document.getElementById('editphone_2').value = data.phone2 || '';
+                        document.getElementById('editphone_1').value = data.phone_1 || '';
+                        document.getElementById('editphone_2').value = data.phone_2 || '';
                         document.getElementById('editmemo').value = data.memo || '';
                         document.getElementById('editaddress').value = data.address || '';
                         document.getElementById('editrole').value = data.role || '';
@@ -528,27 +528,41 @@
             async submit() {
                 this.errors = {}
                 const form = this.$el
-                if (!Object.keys(errors).length) {
+                const formData = new FormData(form)
+                const eventDropdown = document.getElementById('events')
+
+                // Check if eventDropdown exists and append its value
+                if (eventDropdown && eventDropdown.value) {
+                    formData.append("event", eventDropdown.value)
+                } else {
+                    this.errors.event = "Event is required"
+                    console.log(this.errors)
+                    return
+                }
+
+                if (!Object.keys(this.errors).length) {
                     try {
                         const res = await fetch("", {
                             method: "POST",
-                            body: new FormData(form),
+                            body: formData,
                         })
-
 
                         if (!res.ok) {
                             throw res
                         }
 
                         const response = await res.json()
-
-                        window.location.href = ""
+                        if (response.status === 'success') {
+                            window.location.href = ""
+                        } else {
+                            console.log(response.message)
+                        }
 
                     } catch (error) {
                         console.log(error)
                     }
                 } else {
-                    this.errors = errors
+                    console.log(this.errors)
                 }
             },
 
