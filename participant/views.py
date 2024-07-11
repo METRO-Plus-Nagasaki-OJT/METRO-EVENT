@@ -3,8 +3,10 @@ from .models import Participant
 from event.models import Event
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import base64
+import binascii
 
-
+@csrf_exempt
 def participant(request):
     if request.method == 'POST':
         # Retrieve data from POST request
@@ -19,11 +21,16 @@ def participant(request):
         memo = request.POST.get('memo')
         address = request.POST.get('address')
         event_id = request.POST.get('event') 
-
-        print(event_id)
         event = get_object_or_404(Event, id=event_id)
 
-        # Create and save the Participant object
+        # Handle base64-encoded image data
+        if 'fileInput' in request.FILES:
+            profile = request.FILES["fileInput"]
+            img = profile.read()
+            profile = base64.b64encode(img).decode('utf-8')
+        else:
+            profile = None
+
         participant = Participant(
             name=name,
             email=email,
@@ -35,7 +42,8 @@ def participant(request):
             phone_2=phone_2,
             memo=memo,
             address=address,
-            event=event  
+            event=event,
+            profile=profile 
         )
         participant.save()
 
@@ -47,10 +55,18 @@ def participant(request):
         
         return render(request, 'participant/participant.html', context={'participants': participants, 'events': events})
 
+
 @csrf_exempt
 def get_participant_data(request, participant_id):
     if request.method == 'GET':
         participant = get_object_or_404(Participant, id=participant_id)
+
+        try:
+            profile_data = base64.b64decode(participant.profile)
+        except (binascii.Error, TypeError) as e:
+            print(f"Error decoding profile data: {e}")
+            profile_data = None
+
         data = {
             'name': participant.name,
             'email': participant.email,
@@ -62,6 +78,61 @@ def get_participant_data(request, participant_id):
             'address': participant.address,
             'role': participant.role,
             'gender': participant.gender,
-            # 'image_url': participant.image_url,  # Assuming you have this field in your model
+            'image_data': base64.b64encode(profile_data).decode('utf-8') if profile_data else None,
         }
         return JsonResponse(data)
+
+def delete_participant(request, participant_id):
+    print(request.method)
+    if request.method == 'DELETE':
+        participant = get_object_or_404(Participant, pk=participant_id)
+        participant.delete()
+        return JsonResponse({'message': 'Participant deleted successfully.'})
+    else:
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+
+def update_participant(request, participant_id):
+    if request.method == 'POST':
+        participant = get_object_or_404(Participant, id=participant_id)
+        
+        # Retrieve data from POST request
+        name = request.POST.get('editname')
+        email = request.POST.get('editemail')
+        seat_no = request.POST.get('editseat_no')
+        dob = request.POST.get('editdob')
+        gender = request.POST.get('editgender')
+        role = request.POST.get('editrole')
+        phone_1 = request.POST.get('editphone_1')
+        phone_2 = request.POST.get('editphone_2')
+        memo = request.POST.get('editmemo')
+        address = request.POST.get('editaddress')
+        event_id = request.POST.get('event') 
+        event = get_object_or_404(Event, id=event_id)
+
+        # Handle base64-encoded image data if provided
+        if 'editfileInput' in request.FILES:
+            profile = request.FILES["editfileInput"]
+            img = profile.read()
+            profile = base64.b64encode(img).decode('utf-8')  # Encode image to base64
+        else:
+            profile = participant.profile  # Use existing profile if no new image provided
+
+        # Update the fields of the existing participant object
+        participant.name = name
+        participant.email = email
+        participant.seat_no = seat_no
+        participant.dob = dob
+        participant.gender = gender
+        participant.role = role
+        participant.phone_1 = phone_1
+        participant.phone_2 = phone_2
+        participant.memo = memo
+        participant.address = address
+        participant.event = event
+        participant.profile = profile
+        
+        participant.save() 
+
+        return JsonResponse({'status': 'success'})
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
