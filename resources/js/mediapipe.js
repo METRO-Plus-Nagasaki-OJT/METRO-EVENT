@@ -1,8 +1,8 @@
 
 import { FaceDetection } from '@mediapipe/face_detection';
 import { Hands } from '@mediapipe/hands';
-import * as fabric from 'fabric';
+import jsQR from "jsqr";
 
 window.FaceDetection = FaceDetection
 window.Hands = Hands
-window.fabric = fabric
+window.jsQR = jsQR
