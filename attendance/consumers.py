@@ -10,6 +10,8 @@ from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
 import os
+from qreader import QReader
+from .face_capture import capture_face
 
 l2_normalizer = Normalizer("l2")
 
@@ -19,10 +21,10 @@ def load_pickle(path):
     return pklrick
 
 encoding_dict = load_pickle("./embeddings/encodings.pkl")
-
+qr_reader = QReader()
 
 def get_encode(img):
-    embed = DeepFace.represent(img_path=img, model_name="Facenet")[0]["embedding"]
+    embed = DeepFace.represent(img_path=img, model_name="Facenet", anti_spoofing=True)[0]["embedding"]
     return l2_normalizer.transform(np.array(embed).reshape(1, -1))[0]
 
 
@@ -44,6 +46,10 @@ def check_unknown(encode):
     result = l_o_models.predict([encode])[0]
     print(result)
     return True if result == -1 else False
+
+def read_qr(img):
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return qr_reader.detect_and_decode(rgb_img)
 
 def verify(encode, threshold):
     highest_similarity = -1
@@ -78,18 +84,23 @@ class ImageConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        img_base64 = text_data_json["image_url"]
+        img_base64, qr = text_data_json["image_url"], text_data_json["qr_code"]
+        success_message = None
         base64_data = img_base64.split(",")[1]
         byte_data = base64.b64decode(base64_data)
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
-        encode = get_encode(image)
-        pred = verify(encode, 0.8)
-        unknown = check_unknown(encode)
-        success_message = None
-        if pred == None and unknown:
-            success_message = False
-        elif pred and not unknown:
-            success_message = True
+        if not qr:
+            face = capture_face(image)
+            encode = get_encode(face)
+            pred = verify(encode, 0.8)
+            unknown = check_unknown(encode)
+            if pred == None and unknown:
+                success_message = False
+            elif pred and not unknown:
+                success_message = True
+        else:
+            qr_code = read_qr(image)[0]
+            print(qr_code)
         print(success_message)
         self.send(text_data=json.dumps({"success":success_message}))
