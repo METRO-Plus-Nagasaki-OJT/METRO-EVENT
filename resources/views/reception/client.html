@@ -135,10 +135,8 @@
 
         faceDetection.setOptions({
             model: 'short',
-            minDetectionConfidence: 0.9
+            minDetectionConfidence: 0.8
         });
-
-
 
 
         hands.setOptions({
@@ -179,7 +177,7 @@
 
                     if (Alpine.store("reception").faceRegonization) {
                         facebox.style.display = "block"
-                        // Alpine.store("reception").recognizeFace()
+                        Alpine.store("reception").recognizeFace()
                     }
                 }
 
@@ -196,6 +194,7 @@
             } else {
                 facebox.style.display = "none"
                 Alpine.store("reception").loader = false
+                Alpine.store("reception").faceRegonization = true
                 Alpine.store("reception").verify = false
             }
 
@@ -279,12 +278,10 @@
                             reception.loader = false
                             if (reception.failCount === 2) {
                                 reception.faceRegonization = false
-                                console.log("adad")
                                 facebox.style.display = "none"
                             } else {
                                 reception.failCount = reception.failCount + 1
                             }
-
                         }
                     }
                 },
@@ -314,12 +311,12 @@
                                 context.scale(-1, 1);
                                 context.drawImage(video, -width, 0, width, height);
 
-                                if (setFPS({ fps: 1, currentTime }) && width > 10 && !reception.loader && reception.faceRegonization) {
+                                if (setFPS({ fps: 1, currentTime }) && width > 10 && !reception.loader && !reception.faceRegonization) {
                                     const imageData = context.getImageData(0, 0, width, height)
                                     const code = jsQR(imageData.data, imageData.width, imageData.height)
                                     if (code) {
+                                        reception.loader = true
                                         reception.checkQR()
-                                        this.loader = false
                                     }
                                 }
 
@@ -332,7 +329,7 @@
                                 context.restore()
                                 requestAnimationFrame(drawCanvs)
                             }
-                            drawCanvs()
+                            requestAnimationFrame(drawCanvs)
                         })
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
@@ -347,11 +344,12 @@
                     if (!this.loader && this.socketReady) {
                         this.loader = true
                         const base64 = canvas.toDataURL();
-                        this.chatSocket.send(JSON.stringify({ "image_url": base64 }))
+                        this.chatSocket.send(JSON.stringify({ "image_url": base64 ,  "qr_code" : false}))
                     }
 
                 },
                 checkQR() {
+                    console.log("ssfsf")
                     const base64 = canvas.toDataURL();
                     this.chatSocket.send(JSON.stringify({ "image_url": base64, qr_code: true }))
                 },
