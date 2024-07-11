@@ -8,6 +8,7 @@
     <title>Document</title>
     <script src="{% static 'js/mediapipe.js' %}"></script>
     <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
     <style>
         body {
             margin: 0;
@@ -36,29 +37,6 @@
         });
 
 
-        function onHandResults(results) {
-            const landmarks = results.multiHandLandmarks[0]
-            console.log(results)
-            // landmarks?.forEach(function (l) {
-            //     const x = l.x
-            //     const y = l.y
-            //     console.log(x, y)
-            //     if (x > 0 && x.toFixed(1) < 0.3 && y > 0 && y.toFixed(1) < 0.3) {
-            //         if (!timeout) {
-            //             mode = !mode
-            //             bc.postMessage(JSON.stringify({ mode }))
-            //             Alpine.store("reception").mode = mode
-            //             timeout = setTimeout(() => {
-            //                 timeout = undefined
-            //             }, 2000)
-            //         }
-            //     }
-            // })
-        }
-
-        hands.onResults(onHandResults);
-
-
         const faceDetection = new FaceDetection({
             locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4/${file}`;
@@ -72,16 +50,6 @@
         });
 
 
-
-        function onFaceDetectionResult(result) {
-            const detection = result.detections[0]
-            console.log(detection)
-
-        }
-
-
-        faceDetection.onResults(onFaceDetectionResult);
-
         const width = window.innerWidth;
         const height = window.innerHeight;
         const video = document.getElementById("video");
@@ -94,15 +62,15 @@
             height: height,
         });
 
-        var buttonWidth = 200;
-        var buttonHeight = 60;
-        var buttonX = (window.innerWidth - buttonWidth) - 20;
-        var buttonY = (window.innerHeight - buttonHeight) - 780;
-        var cornerRadius = 10;
-        var buttonText = 'Mode  :  入館';
+        const buttonWidth = 200;
+        const buttonHeight = 60;
+        const buttonX = (stage.width() - buttonWidth) - 20;
+        const buttonY = 50;
+        const cornerRadius = 10;
+        const buttonText = 'Mode  :  入館';
 
         // Create the button background
-        var buttonRect = new Konva.Rect({
+        const buttonRect = new Konva.Rect({
             x: buttonX,
             y: buttonY,
             width: buttonWidth,
@@ -114,9 +82,21 @@
         });
 
 
+        const scanRect = new Konva.Rect({
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            fill: '#219ebc',
+            stroke: 'white',
+            strokeWidth: 3,
+            cornerRadius: cornerRadius
+        });
+
+
 
         // Create the text inside the button
-        var text = new Konva.Text({
+        const text = new Konva.Text({
             x: buttonX,
             y: buttonY + (buttonHeight - 20) / 2, // Adjust for vertical centering
             width: buttonWidth,
@@ -132,76 +112,121 @@
 
         stage.add(layer);
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then(stream => {
-                video.srcObject = stream;
-                video.play();
+        document.addEventListener("alpine:init", () => {
+            Alpine.store("client", {
+                init() {
+                    const Client = this
+                    this.openDetector()
+                    function onHandResults(results) {
+                        const landmarks = results.multiHandLandmarks[0]
+                        if (landmarks) {
+                            let { x, y } = landmarks[12]
+                            x = window.innerWidth - (x * window.innerWidth)
+                            if (x >= buttonX && x <= buttonX + 200 && y <= 0.4) {
+                                Client.mode = !Client.mode
+                                text.text(Client.mode ? 'Mode  :  退院' : 'Mode  :  入館')
+                                buttonRect.fill(Client.mode ? '#219ebc' : 'orange')
 
-                const videoImage = new Konva.Image({
-                    x: 0,
-                    y: 0,
-                    image: video,
-                });
-
-                // Flip the image horizontally
-                videoImage.scaleX(-1);
-                layer.add(videoImage);
-                layer.add(buttonRect);
-                layer.add(text);
-
-                function updateVideoSize() {
-                    const videoAspectRatio = video.videoWidth / video.videoHeight;
-                    const canvasAspectRatio = width / height;
-
-                    if (canvasAspectRatio > videoAspectRatio) {
-                        videoImage.width(width);
-                        videoImage.height(width / videoAspectRatio);
-                        videoImage.x(width); // Adjust position due to the flip
-                        videoImage.y((height - videoImage.height()) / 2);
-                    } else {
-                        videoImage.width(height * videoAspectRatio);
-                        videoImage.height(height);
-                        videoImage.x(width / 2 + videoImage.width() / 2); // Adjust position due to the flip
-                        videoImage.y(0);
+                            }
+                        }
                     }
+
+                    hands.onResults(onHandResults);
+
+                    function onFaceDetectionResult(result) {
+                        const detection = result.detections[0]
+                        if (detection) {
+                            const boundingBox = detection.boundingBox;
+                            const x = Math.abs(window.innerWidth - (boundingBox.xCenter * window.innerWidth))
+                            const y = Math.abs(boundingBox.yCenter * window.innerHeight)
+                            const width = Math.abs(boundingBox.width * window.innerWidth)
+                            const height = Math.abs(boundingBox.height * window.innerHeight)
+                            scanRect.x(x - (width/2))
+                            scanRect.y(y)
+                            scanRect.width(width)
+
+                        }
+
+                    }
+                    faceDetection.onResults(onFaceDetectionResult);
+                },
+                mode: true,
+                openDetector() {
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                        .then(stream => {
+                            video.srcObject = stream;
+                            video.play();
+
+                            const videoImage = new Konva.Image({
+                                x: 0,
+                                y: 0,
+                                image: video,
+                            });
+
+                            // Flip the image horizontally
+                            videoImage.scaleX(-1);
+                            layer.add(videoImage);
+                            layer.add(buttonRect);
+                            layer.add(text);
+                            layer.add(scanRect)
+
+                            function updateVideoSize() {
+                                const videoAspectRatio = video.videoWidth / video.videoHeight;
+                                const canvasAspectRatio = width / height;
+
+                                if (canvasAspectRatio > videoAspectRatio) {
+                                    videoImage.width(width);
+                                    videoImage.height(width / videoAspectRatio);
+                                    videoImage.x(width); // Adjust position due to the flip
+                                    videoImage.y((height - videoImage.height()) / 2);
+                                } else {
+                                    videoImage.width(height * videoAspectRatio);
+                                    videoImage.height(height);
+                                    videoImage.x(width / 2 + videoImage.width() / 2); // Adjust position due to the flip
+                                    videoImage.y(0);
+                                }
+                            }
+
+                            video.addEventListener('loadeddata', () => {
+                                updateVideoSize();
+                                layer.draw();
+                                requestAnimationFrame(updateFrame);
+                            });
+
+                            window.addEventListener('resize', () => {
+                                stage.width(window.innerWidth);
+                                stage.height(window.innerHeight);
+                                updateVideoSize();
+                                layer.draw();
+                            });
+
+
+                            let lastFrameTime = 0;
+                            const targetFPS = 1;
+                            const frameInterval = 1000 / targetFPS
+                            const updateFrame = async (timestamp) => {
+                                const deltaTime = timestamp - lastFrameTime;
+
+                                if (deltaTime >= frameInterval) {
+                                    lastFrameTime = timestamp;
+                                    await hands.send({ image: video });
+                                    await faceDetection.send({ image: video })
+
+                                }
+
+                                layer.draw()
+
+                                requestAnimationFrame(updateFrame);
+                            }
+
+                            requestAnimationFrame(updateFrame);
+                        })
+                        .catch(error => {
+                            console.error('Error accessing webcam:', error);
+                        });
                 }
-
-                video.addEventListener('loadeddata', () => {
-                    updateVideoSize();
-                    layer.draw();
-                    requestAnimationFrame(updateFrame);
-                });
-
-                window.addEventListener('resize', () => {
-                    stage.width(window.innerWidth);
-                    stage.height(window.innerHeight);
-                    updateVideoSize();
-                    layer.draw();
-                });
-
-
-                let lastFrameTime = 0;
-                const targetFPS = 1;
-                const frameInterval = 1000 / targetFPS
-                const updateFrame = async (timestamp) => {
-                    const deltaTime = timestamp - lastFrameTime;
-
-                    // if (deltaTime >= frameInterval) {
-                    //     lastFrameTime = timestamp;
-                    //     await hands.send({ image: video });
-                      
-                    // }
-                    videoImage.image(video)
-                    layer.draw()
-
-                    requestAnimationFrame(updateFrame);
-                }
-
-                requestAnimationFrame(updateFrame);
             })
-            .catch(error => {
-                console.error('Error accessing webcam:', error);
-            });
+        })
     </script>
 </body>
 
