@@ -11,14 +11,46 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
         crossorigin="anonymous"></script>
     <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
+    <style>
+        @keyframes example {
+            0% {
+                top: 0%;
+            }
 
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0%;
+            }
+        }
+
+        .x {
+            animation: example 5s linear infinite;
+            position: absolute;
+            height: 2px;
+            left: 3%;
+            right: 3%;
+            background-color: wheat;
+
+        }
+    </style>
 </head>
 
 <body>
-    <div class="relative min-h-screen">
-        <video id="webcam" autoplay class="absolute-full object-cover scale-x-[-1]"></video>
-        <canvas id="canvas" class="absolute-full object-cover" style="visibility: hidden;"></canvas>
-        <div class=" z-50  absolute  size-80 border " id="face-box" style="transform: translate(-50%,-50%);"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <video id="webcam" autoplay hidden class="absolute-full object-cover scale-x-[-1]"></video>
+        <canvas id="canvas" class="absolute-full object-cover"></canvas>
+        <div class="transition-[0.5s]  z-50  absolute hidden" id="face-box" style="transform: translate(-50%,50%);">
+            <div class="w-full h-full relative bg-opacity-40 p-5">
+                <div class="border x"></div>
+                <div class="size-20 absolute border-t-8 border-l-8 left-0 top-0"></div>
+                <div class="size-20 absolute border-t-8 border-r-8 right-0 top-0"></div>
+                <div class="size-20 absolute border-l-8 border-b-8 left-0 bottom-0"></div>
+                <div class="size-20 absolute border-r-8 border-b-8 right-0 bottom-0"></div>
+            </div>
+        </div>
         <div class="bg-red-700 absolute-full bg-opacity-50  flex justify-center items-center"
             x-transition.duration.500ms x-data x-cloak x-show="$store.reception.showMessage">
             <div class="min-w-[500px] max-w-[1000px] text-white text-center">
@@ -49,24 +81,26 @@
                         Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
                     </button>
                 </div>
-                <div class="pl-10">
-                    <div x-data x-show="$store.reception.verify"
-                        class="w-[300px] h-[300px]  py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
-                        <div></div>
-                        <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-32 fill-white">
-                                <path fill-rule="evenodd"
-                                    d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
-                                    clip-rule="evenodd" />
-                            </svg>
+                <div class="flex">
+                    <div>
+                        <div x-data x-show="$store.reception.verify"
+                            class=" p-16 py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
+                            <div></div>
+                            <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-32 fill-white">
+                                    <path fill-rule="evenodd"
+                                        d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="text-2xl text-center">
+                                <div>山田様</div>
+                                <div>1年○○○○療法</div>
+                            </div>
                         </div>
-                        <div class="text-2xl text-center">
-                            <div>山田様</div>
-                            <div>1年○○○○療法</div>
+                        <div class="bg-red-700 bg-opacity-45 max-w-[350px] text-white mt-5 p-2 rounded-lg">
+                            問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                         </div>
-                    </div>
-                    <div class="bg-red-700 max-w-[350px] text-white mt-5 p-2 rounded-lg">
-                        問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                     </div>
                 </div>
                 <div>
@@ -84,25 +118,27 @@
         const context = canvas.getContext('2d');
         const video = document.getElementById('webcam');
         const bc = new BroadcastChannel("p_hub_reception");
+        const facebox = document.getElementById("face-box")
         const fps = 30;
         const interval = 1000 / fps;
         const hands = new Hands({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
         });
 
-        const faceMesh = new FaceMesh({
+
+        const faceDetection = new FaceDetection({
             locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4/${file}`;
             }
         });
 
-        const facebox = document.getElementById("face-box")
-        faceMesh.setOptions({
-            maxNumFaces: 1,
-            refineLandmarks: true,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
+
+        faceDetection.setOptions({
+            model: 'short',
+            minDetectionConfidence: 0.8
         });
+
+
 
 
         hands.setOptions({
@@ -119,40 +155,58 @@
             }
         }
 
+        let prevX;
+        let prevY;
+        let prevWidth;
+        let prevHeight;
 
-        function onFaceMeshResult(results) {
-            const landmarks = results.multiFaceLandmarks[0]
-            if (landmarks) {
-                const leftCheek = landmarks[234]; 
-                const rightCheek = landmarks[454];
-                const topLandmark = landmarks[10];
-                const bottomLandmark = landmarks[152];
-
-                // Calculate distances between landmarks for face width and height
-                const faceWidth = Math.abs(rightCheek.x - leftCheek.x) * canvas.clientWidth;
-                const height = Math.abs(bottomLandmark.y - topLandmark.y) * canvas.clientHeight;
+        function onFaceDetectionResult(result) {
+            const detection = result.detections[0]
+            if (detection) {
+                facebox.style.display = "block"
+                let boundingBox = detection.boundingBox;
+                let width = Math.floor((boundingBox.width * canvas.clientWidth * 1.5));
+                let height = Math.floor((boundingBox.height * canvas.clientHeight * 2));
+                let x = Math.floor((boundingBox.xCenter - (boundingBox.width * 1.5)) * canvas.clientWidth);
+                let y = Math.floor((boundingBox.yCenter - boundingBox.height * 2) * canvas.clientHeight);
 
 
-                const x = landmarks[0].x * canvas.clientWidth
-                const y = landmarks[0].y * canvas.clientHeight
-                // Update facebox styles
+                if (Math.abs(x - prevX) < 30) {
+                    x = prevX
+                    y = prevY
+                    width = prevWidth
+                    height = prevHeight
+                    
+                    Alpine.store("reception").recognizeFace()
+                }
 
-                facebox.style.width = `${faceWidth * 1.5}px`
-                facebox.style.height = `${height * 2}px`
-                facebox.style.right = `${x - (faceWidth * 1.5)}px`;
-                facebox.style.top = `${y - 100}px`;
+                facebox.style.right = `${x}px`;
+                facebox.style.top = `${y}px`;
+
+                facebox.style.width = `${width}px`
+                facebox.style.height = `${height}px`
+
+                prevX = x
+                prevY = y
+                prevWidth = width
+                prevHeight = height
+            } else {
+                facebox.style.display = "none"
+
             }
 
         }
 
-        faceMesh.onResults(onFaceMeshResult);
+
+        faceDetection.onResults(onFaceDetectionResult);
 
         function onResults(results) {
             const landmarks = results.multiHandLandmarks[0]
             landmarks?.forEach(function (l) {
-                const x = l.x * canvas.clientWidth
-                const y = l.y * canvas.clientHeight
-                if (x > 0 && x < 250 && y > 0 && y < 250) {
+                const x = l.x
+                const y = l.y
+                console.log(x, y)
+                if (x > 0 && x.toFixed(1) < 0.3 && y > 0 && y.toFixed(1) < 0.3) {
                     if (!timeout) {
                         mode = !mode
                         bc.postMessage(JSON.stringify({ mode }))
@@ -181,6 +235,8 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                loader: false,
+                failCount: 0,
                 time: null,
                 mode: true,
                 verify: true,
@@ -207,7 +263,7 @@
                             const drawCanvs = async function (currentTime) {
                                 width = canvas.width = video.videoWidth;
                                 height = canvas.height = video.videoHeight;
-                                context.save()
+                                context.save();
                                 context.scale(-1, 1);
                                 context.drawImage(video, -width, 0, width, height);
 
@@ -216,7 +272,7 @@
                                     lastTime = currentTime;
                                 }
 
-                                await faceMesh.send({ image: video });
+                                await faceDetection.send({ image: video });
 
                                 context.restore()
                                 requestAnimationFrame(drawCanvs)
@@ -226,13 +282,19 @@
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
                         });
-
-
                 },
                 disconnectClient() {
                     if (webcamStream) {
                         webcamStream.getTracks().forEach(track => track.stop());
                     }
+                },
+                recognizeFace() {
+
+                    if (!this.loader) {
+                        this.loader = true
+                        const base64 = canvas.toDataURL();
+                    }
+
                 },
                 currentDate() {
                     const now = new Date();

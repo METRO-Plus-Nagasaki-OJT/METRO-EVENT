@@ -8,3 +8,7 @@ def index(request):
 
 def client(request):
     return render(request, "reception/client.html")
+
+
+def client_v2(request):
+    return render(request, "reception/client_v2.html")

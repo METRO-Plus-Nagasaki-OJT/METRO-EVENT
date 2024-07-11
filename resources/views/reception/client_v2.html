@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="{% static 'js/mediapipe.js' %}"></script>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <video id="video" hidden></video>
+    <script>
+
+
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+
+        function onHandResults(results) {
+            const landmarks = results.multiHandLandmarks[0]
+            console.log(results)
+            // landmarks?.forEach(function (l) {
+            //     const x = l.x
+            //     const y = l.y
+            //     console.log(x, y)
+            //     if (x > 0 && x.toFixed(1) < 0.3 && y > 0 && y.toFixed(1) < 0.3) {
+            //         if (!timeout) {
+            //             mode = !mode
+            //             bc.postMessage(JSON.stringify({ mode }))
+            //             Alpine.store("reception").mode = mode
+            //             timeout = setTimeout(() => {
+            //                 timeout = undefined
+            //             }, 2000)
+            //         }
+            //     }
+            // })
+        }
+
+        hands.onResults(onHandResults);
+
+
+        const faceDetection = new FaceDetection({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4/${file}`;
+            }
+        });
+
+
+        faceDetection.setOptions({
+            model: 'short',
+            minDetectionConfidence: 0.8
+        });
+
+
+
+        function onFaceDetectionResult(result) {
+            const detection = result.detections[0]
+            console.log(detection)
+
+        }
+
+
+        faceDetection.onResults(onFaceDetectionResult);
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const video = document.getElementById("video");
+
+        const xPosition = window.innerWidth - 220;
+
+        const stage = new Konva.Stage({
+            container: 'container',
+            width: width,
+            height: height,
+        });
+
+        var buttonWidth = 200;
+        var buttonHeight = 60;
+        var buttonX = (window.innerWidth - buttonWidth) - 20;
+        var buttonY = (window.innerHeight - buttonHeight) - 780;
+        var cornerRadius = 10;
+        var buttonText = 'Mode  :  入館';
+
+        // Create the button background
+        var buttonRect = new Konva.Rect({
+            x: buttonX,
+            y: buttonY,
+            width: buttonWidth,
+            height: buttonHeight,
+            fill: '#219ebc',
+            stroke: 'white',
+            strokeWidth: 3,
+            cornerRadius: cornerRadius
+        });
+
+
+
+        // Create the text inside the button
+        var text = new Konva.Text({
+            x: buttonX,
+            y: buttonY + (buttonHeight - 20) / 2, // Adjust for vertical centering
+            width: buttonWidth,
+            text: buttonText,
+            fontSize: 20,
+            fontFamily: 'Calibri',
+            fill: 'white',
+            align: 'center',
+            verticalAlign: 'middle'
+        });
+        // add the shape to the layer
+        const layer = new Konva.Layer();
+
+        stage.add(layer);
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => {
+                video.srcObject = stream;
+                video.play();
+
+                const videoImage = new Konva.Image({
+                    x: 0,
+                    y: 0,
+                    image: video,
+                });
+
+                // Flip the image horizontally
+                videoImage.scaleX(-1);
+                layer.add(videoImage);
+                layer.add(buttonRect);
+                layer.add(text);
+
+                function updateVideoSize() {
+                    const videoAspectRatio = video.videoWidth / video.videoHeight;
+                    const canvasAspectRatio = width / height;
+
+                    if (canvasAspectRatio > videoAspectRatio) {
+                        videoImage.width(width);
+                        videoImage.height(width / videoAspectRatio);
+                        videoImage.x(width); // Adjust position due to the flip
+                        videoImage.y((height - videoImage.height()) / 2);
+                    } else {
+                        videoImage.width(height * videoAspectRatio);
+                        videoImage.height(height);
+                        videoImage.x(width / 2 + videoImage.width() / 2); // Adjust position due to the flip
+                        videoImage.y(0);
+                    }
+                }
+
+                video.addEventListener('loadeddata', () => {
+                    updateVideoSize();
+                    layer.draw();
+                    requestAnimationFrame(updateFrame);
+                });
+
+                window.addEventListener('resize', () => {
+                    stage.width(window.innerWidth);
+                    stage.height(window.innerHeight);
+                    updateVideoSize();
+                    layer.draw();
+                });
+
+
+                let lastFrameTime = 0;
+                const targetFPS = 1;
+                const frameInterval = 1000 / targetFPS
+                const updateFrame = async (timestamp) => {
+                    const deltaTime = timestamp - lastFrameTime;
+
+                    // if (deltaTime >= frameInterval) {
+                    //     lastFrameTime = timestamp;
+                    //     await hands.send({ image: video });
+                      
+                    // }
+                    videoImage.image(video)
+                    layer.draw()
+
+                    requestAnimationFrame(updateFrame);
+                }
+
+                requestAnimationFrame(updateFrame);
+            })
+            .catch(error => {
+                console.error('Error accessing webcam:', error);
+            });
+    </script>
+</body>
+
+</html>

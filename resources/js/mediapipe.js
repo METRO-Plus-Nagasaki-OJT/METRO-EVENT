@@ -1,6 +1,6 @@
-import { Camera } from '@mediapipe/camera_utils';
-import { FaceMesh } from '@mediapipe/face_mesh';
+
+import { FaceDetection } from '@mediapipe/face_detection';
 import { Hands } from '@mediapipe/hands';
+
+window.FaceDetection = FaceDetection
 window.Hands = Hands
-window.FaceMesh = FaceMesh
-window.Camera = Camera
