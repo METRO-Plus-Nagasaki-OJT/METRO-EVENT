@@ -24,7 +24,7 @@ encoding_dict = load_pickle("./embeddings/encodings.pkl")
 qr_reader = QReader()
 
 def get_encode(img):
-    embed = DeepFace.represent(img_path=img, model_name="Facenet", anti_spoofing=True, enforce_detection=False)[0]["embedding"]
+    embed = DeepFace.represent(img_path=img, model_name="Facenet", enforce_detection=False)[0]["embedding"]
     return l2_normalizer.transform(np.array(embed).reshape(1, -1))[0]
 
 

@@ -81,7 +81,7 @@
                         Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
                     </button>
                 </div>
-                <div class="flex">
+                <div class="flex justify-between items-start">
                     <div>
                         <div x-data x-show="$store.reception.verify" x-transition:enter.duration.500ms
                             class=" p-16 py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
@@ -102,6 +102,9 @@
                             class="bg-red-700 bg-opacity-45 max-w-[350px] text-white mt-5 p-2 rounded-lg">
                             問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                         </div>
+                    </div>
+                    <div x-data x-show="$store.reception.showQrAlert" class="text-white">
+                        please qr code
                     </div>
                 </div>
                 <div>
@@ -157,9 +160,11 @@
         let prevY;
         let prevWidth;
         let prevHeight;
+        let tk
 
         function onFaceDetectionResult(result) {
             const detection = result.detections[0]
+
             if (detection) {
 
                 let boundingBox = detection.boundingBox;
@@ -167,16 +172,14 @@
                 let height = Math.floor((boundingBox.height * canvas.clientHeight * 2));
                 let x = Math.floor((boundingBox.xCenter - (boundingBox.width * 1.5)) * canvas.clientWidth);
                 let y = Math.floor((boundingBox.yCenter - boundingBox.height * 2) * canvas.clientHeight);
+                facebox.style.display = "block"
 
-
-                if (Math.abs(x - prevX) < 50) {
+                if (Math.abs(x - prevX)  < 30) {
                     x = prevX
                     y = prevY
                     width = prevWidth
                     height = prevHeight
-
                     if (Alpine.store("reception").faceRegonization) {
-                        facebox.style.display = "block"
                         Alpine.store("reception").recognizeFace()
                     }
                 }
@@ -237,6 +240,7 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                showQrAlert: false,
                 faceRegonization: true,
                 loader: false,
                 failCount: 0,
@@ -264,9 +268,7 @@
                         'ws://' + window.location.host + '/ws/attendance/1/'
                     );
                     this.chatSocket.onopen = function () {
-                        setTimeout(() => {
-                            reception.socketReady = true
-                        }, 3000)
+                        reception.socketReady = true
                     }
 
                     this.chatSocket.onmessage = function (e) {
@@ -279,6 +281,7 @@
                             if (reception.failCount === 2) {
                                 reception.faceRegonization = false
                                 facebox.style.display = "none"
+                                reception.showQrAlert = true
                             } else {
                                 reception.failCount = reception.failCount + 1
                             }
@@ -344,12 +347,11 @@
                     if (!this.loader && this.socketReady) {
                         this.loader = true
                         const base64 = canvas.toDataURL();
-                        this.chatSocket.send(JSON.stringify({ "image_url": base64 ,  "qr_code" : false}))
+                        this.chatSocket.send(JSON.stringify({ "image_url": base64, "qr_code": false }))
                     }
 
                 },
                 checkQR() {
-                    console.log("ssfsf")
                     const base64 = canvas.toDataURL();
                     this.chatSocket.send(JSON.stringify({ "image_url": base64, qr_code: true }))
                 },
