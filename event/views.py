@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from .models import *
 from django.http import HttpResponseServerError,JsonResponse
 # Create your views here.
@@ -22,18 +22,24 @@ def index(request):
 
     return render(request,"event/index.html",context)
 
-# def edit(request,id):
-#     if request.method == 'POST':
-#         event = Event.objects.get(pk=id)
-#         event.name = request.POST.get('name')
-#         event.starttime = request.POST.get('starttime')
-#         event.endtime = request.POST.get('endtime')
-#         event.venue = request.POST.get('venue')
-#         event.organizer = request.POST.get('organizer')
-#         event.memo = request.POST.get('memo')
-#         event.save()
-#         return JsonResponse({'message': 'Event updated successfully.'})
-#     else:
-#         event = Event.objects.get(pk=id)
-#         context = {'event': event}
-#         return render(request, 'edit_event.html', context)
+def edit(request,id):
+    event=get_object_or_404(Event,id=id)
+    if request.method == 'POST':
+        event.name = request.POST.get('name')
+        event.starttime = request.POST.get('starttime')
+        event.endtime = request.POST.get('endtime')
+        event.venue = request.POST.get('venue')
+        event.organizer = request.POST.get('organizer')
+        event.memo = request.POST.get('memo')
+        event.save()
+        return JsonResponse({'message': 'Event updated successfully.'})
+    else:
+        context = {
+         'name': event.name,
+        'starttime': event.starttime,
+        'endtime': event.endtime,
+        'venue': event.venue,
+        'memo': event.memo,
+        'organizer': event.organizer.id
+        }
+        return JsonResponse(context)

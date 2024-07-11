@@ -2,425 +2,620 @@
 {% csrf_token %}
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
-<div class="px-5">
-    <div class="mb-4">
-        <h2 class="text-2xl">Event</h2>
-    </div>
-    
-    <div class="flex justify-start pb-4">
+
+<div class="mb-4 bg-gray-200 px-1 py-5">
+    <h2 class="text-2xl ">EVENT</h2>
+    <span class="">Event registration</span>
+</div>
+<div class="px-5 py-5">
+    <div class="flex justify-start pb-4 px-5">
         <div class="relative">
-            <button  data-modal-target="#crud-modal" data-modal-toggle="#crud-modal" class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded mb-6">+ Create Row</button>
-            <div id="dropdown-menu" class="absolute z-10 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg hidden">
+            <button data-modal-target="#crud-modal" data-modal-toggle="#crud-modal"
+                class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded mb-6">+ Create Row</button>
+            <div id="dropdown-menu"
+                class="absolute z-10 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg hidden">
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 1</a>
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 2</a>
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 3</a>
             </div>
         </div>
-        
+
     </div>
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-4 px-5">
         <div class="flex justify-start pb-4 mr-3">
-            <select id="pagination" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" style="width: 200px;">
+            <select id="pagination"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                style="width: 200px;">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
             </select>
-           <p class="pt-2 ml-2">show pages</p>
+            <p class="pt-2 ml-2">show pages</p>
         </div>
-    <div class="flex justify-end pb-4 mr-3">
-    <div class="ml-4">
-        
-        <input type="text" placeholder="Search..." class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+        <div class="flex justify-end pb-4 mr-3">
+            <div class="ml-4">
+
+                <input id="searchInput" type="text" placeholder="Search..."
+                    class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+            </div>
+        </div>
     </div>
-    </div>
-    </div>
-    <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+    <div class="overflow-x-auto relative shadow-md sm:rounded-lg px-5">
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="p-4">
                         <div class="flex items-center">
-                           
+
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center">
                             Event ID
-                        
+
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center">
-                            <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
-                              </svg></a>
-                         Event Name
+                            <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                                </svg></a>
+                            Event Name
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
-                      
-                       <div class="flex items-center">
-                        <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
-                          </svg></a>
-                          period
-                    </div>
+
+                        <div class="flex items-center">
+                            <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                                </svg></a>
+                            period
+                        </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
-                  
-                       <div class="flex items-center">
-                        <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
-                          </svg></a>
-                          attender
-                    </div>
+
+                        <div class="flex items-center">
+                            <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                                </svg></a>
+                            attender
+                        </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
-                   
-                     <div class="flex items-center">
-                        <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
-                          </svg></a>
-                          status
-                      
-                    </div>
+
+                        <div class="flex items-center">
+                            <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                                </svg></a>
+                            status
+
+                        </div>
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                {% for e in event  %}
+            <tbody id="eventsList">
+                {% for e in event %}
 
-                <tr id="eventRow{{ e.id }}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <tr data-status="Open"
+                    class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="w-4 p-4 py-4 col-span-2">
                         <div class="flex items-center">
-                             <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded" onclick="editEvent('{{ e.id }}')">Edit</button>
+                            <button
+                                class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 edit-button"
+                                data-event-id="{{ e.id }}">Detail</button>
                         </div>
                     </td>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    <th scope="row" class="px-6 py-4  text-gray-900 whitespace-nowrap dark:text-white">
                         {{ e.id }}
                     </th>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    <td class="event-name px-6 py-4  text-gray-900 whitespace-nowrap dark:text-white">
                         {{ e.name }}
                     </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    <td class="px-6 py-4  text-gray-900 whitespace-nowrap dark:text-white">
                         {{ e.start_time }} - {{ e.end_time }}
                     </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        0/46
+                    <td class="px-6 py-4  text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ e.participant_count }}/46
                     </td>
                     <td class="px-6 py-4">
-                        
+                        <span class="status-text"></span>
                     </td>
                 </tr>
-                <!-- <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <td class="w-4 p-4">
-                        <div class="flex items-center">
-                            <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">Edit</button>
-                        </div>
-                    </td>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    4
-                    </th>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  Event 2
-                    </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Laptop PC
-                    </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        $1999
-                    </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                   
-                    </td>
-                </tr>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <td class="w-4 p-4">
-                        <div class="flex items-center">
-                            <button class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">Edit</button>
-                        </div>
-                    </td>
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        3
-                    </th>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                     Event 3
-                    </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Accessories
-                    </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        $99
-                    </td>
-                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    
-                    </td>
-                </tr> -->
+               
                 {% endfor %}
             </tbody>
         </table>
+
         <!-- Create Event -->
-        <div id="crud-modal" tabindex="-1" aria-hidden="false" aria-labelledby="modal-title" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-700 h-500 mt-9"  role="dialog" aria-modal="true">
-            <div class="relative p-4 w-full max-w-md">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <div id="crud-modal" tabindex="-1" aria-hidden="false" aria-labelledby="modal-title"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50" role="dialog"
+            aria-modal="true">
+            <div class="relative p-4 w-full max-w-md" style="max-width: 500px;">
+
                 <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                    
-                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
+
+                    <div
+                        class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
                         <h3 class="text-2xl text-white">
-                         Add Event
+                            Register Event
                         </h3>
-                        <button type="button" id="modalCloseButton" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-close="crud-modal">
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        <button type="button" id="modalCloseButton"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            data-modal-close="crud-modal">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                             </svg>
                             <span class="sr-only">Close modal</span>
                         </button>
                     </div>
-                 
+
                     <form class="p-4 md:p-5" x-data="addmodal" x-clover-form="submit" x-ref="form">
                         {% csrf_token %}
                         <div class="grid gap-4">
                             <div class="flex justify-between items-center ">
-                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">Name</label>
-                                <input x-clover-verify type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name">
-                              
+                                <label for="name"
+                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">Name</label>
+                                <input x-clover-verify type="text" name="name" id="name"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Type event name">
+
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.name"></span>
 
                             <div class="flex justify-between items-center ">
-                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">Start Time</label>
-                                <input type="datetime-local" name="starttime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
-                                
+                                <label for="period"
+                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">Start
+                                    Time</label>
+                                <input x-clover-verify type="datetime-local" name="starttime" id="period"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Type event period">
+
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.starttime"></span>
                             <div class="flex justify-between items-center ">
-                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">End time</label>
-                                <input type="datetime-local" name="endtime" id="period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period">
-                               
+                                <label for="period"
+                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">End
+                                    time</label>
+                                <input type="datetime-local" name="endtime" id="period"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Type event period">
+
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.endtime"></span>
                             <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
-                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue">
-                               
+                                <label for="venue"
+                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
+                                <input type="text" name="venue" id="venue"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Type event venue">
+
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.venue"></span>
 
                             <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9">Organizer</label>
-                                <select name="organizer" id="organizer" class="block w-full p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <label for="venue"
+                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-9">Organizer</label>
+                                <select name="organizer" id="organizer"
+                                    class="block w-full p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     {% for u in user %}
                                     <option value="{{u.id}}">{{ u.username }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <span class="text-red-600 pl-24" x-text="errors.organizer"></span>
-        
+
                             <div class="flex justify-between items-center mb-5">
-                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Memo</label>
-                                <textarea id="memo" name="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
+                                <label for="memo"
+                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Memo</label>
+                                <textarea id="memo" name="memo" rows="4"
+                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    placeholder="Write event memo here"></textarea>
                             </div>
                             <span class="text-red-600 pl-24 pb-11" x-text="errors.memo"></span>
                         </div>
                         <div class="flex justify-end pb-4 mt-5">
-                        <button type="submit" class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
-                            Add new event
-                        </button>
-                        <button id="CloseButton" type="button" class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-modal-close="crud-modal">
-                            cancel
-                        </button>
-                    </div>
-                    </form>
-                    </div>
-                </div>
-            </div>
-        </div> 
-        <!-- Edit Event -->
-        <div id="edit-modal" tabindex="-1" aria-hidden="false" aria-labelledby="modal-title" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-700 h-500 mt-9"  role="dialog" aria-modal="true">
-            <div class="relative p-4 w-full max-w-md">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                    
-                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
-                        <h3 class="text-2xl text-white">
-                         Edit Event
-                        </h3>
-                        <button type="button" id="modalCloseButton" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
-                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                            </svg>
-                            <span class="sr-only">Close modal</span>
-                        </button>
-                    </div>
-                 
-                    <form class="p-4 md:p-5" class="editmodal">
-                        <div class="grid gap-4">
-                            <div class="flex justify-between items-center ">
-                                <label for="name" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >Name</label>
-                                <input type="text" name="name" id="edit-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event name" >
-                            </div><br>
-
-                            <div class="flex justify-between items-center ">
-                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >start time</label>
-                                <input type="text" name="starttime" id="edit-period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" >
-                            </div><br>
-
-                            <div class="flex justify-between items-center ">
-                                <label for="period" class="block  text-sm font-medium text-gray-900 dark:text-white mr-14" >end time</label>
-                                <input type="text" name="endtime" id="edit-period" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event period" >
-                            </div><br>
-
-                            <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" >Venue</label>
-                                <input type="text" name="venue" id="venue" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event venue">
-                            </div><br>
-
-                            <div class="flex justify-between items-center ">
-                                <label for="venue" class="block text-sm font-medium text-gray-900 dark:text-white mr-9" >Organizer</label>
-
-                                <input type="text" name="organizer" id="organizer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type event organizer" >
-                            </div><br>
-        
-                            <div class="flex justify-between items-center mb-5">
-                                <label for="memo" class="block text-sm font-medium text-gray-900 dark:text-white mr-14" >Memo</label>
-                                <textarea id="memo" name="memo" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write event memo here"></textarea>
-                            </div>
+                            <button type="submit"
+                                class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
+                                Add new event
+                            </button>
+                            <button id="CloseButton" type="button"
+                                class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                data-modal-close="crud-modal">
+                                cancel
+                            </button>
                         </div>
-                        <div class="flex justify-end pb-4 mt-5">
-                        <button type="submit" class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
-                         Edit event
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Event -->
+    <div id="edit-modal" tabindex="-1" aria-hidden="false" aria-labelledby="modal-title"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 " role="dialog"
+        aria-modal="true">
+        <div class="relative p-4 w-full max-w-md" style="max-width: 500px;">
+
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+
+                <div
+                    class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
+                    <h3 class="text-2xl text-white">
+                        Update Event
+                    </h3>
+                    <button type="button" id="modalCloseButton"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+
+                <form class="p-4 md:p-5" x-data="editform" x-clover-form="submit" x-ref="form">
+                    {% csrf_token %}
+                    <div class="grid gap-4">
+                        <div class="flex justify-between items-center ">
+                            <label for="name"
+                                class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">Name</label>
+                            <input type="text" x-clover-verify name="name" id="edit-name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="Type event name">
+                        </div>
+                        <span class="text-red-600 pl-24" x-text="errors.name"></span>
+
+
+                        <div class="flex justify-between items-center ">
+                            <label for="period"
+                                class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">start
+                                time</label>
+                            <input type="datetime-local" x-clover-verify name="starttime" id="edit-starttime" value="{{ starttime }}"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="Type event period">
+                        </div>
+                        <span class="text-red-600 pl-24" x-text="errors.starttime"></span>
+
+
+                        <div class="flex justify-between items-center ">
+                            <label for="period"
+                                class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">end time</label>
+                            <input type="datetime-local" name="endtime" id="edit-endtime"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="Type event period" value="endtime">
+                        </div>
+                        <span class="text-red-600 pl-24" x-text="errors.endtime"></span>
+
+                        <div class="flex justify-between items-center ">
+                            <label for="venue"
+                                class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
+                            <input type="text" name="venue" id="edit-venue"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="Type event venue">
+                        </div>
+                        <span class="text-red-600 pl-24" x-text="errors.venue"></span>
+
+                        <div class="flex justify-between items-center ">
+                            <label for="venue"
+                                class="block text-sm font-medium text-gray-900 dark:text-white mr-9">Organizer</label>
+                            <select name="organizer" id="organizer"
+                                class="block w-full p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                {% for u in user %}
+                                <option value="{{u.id}}">{{ u.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <span class="text-red-600 pl-24" x-text="errors.organizer"></span>
+
+                        <div class="flex justify-between items-center mb-5">
+                            <label for="memo"
+                                class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Memo</label>
+                            <textarea id="memo" name="memo" rows="4"
+                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Write event memo here"></textarea>
+                        </div>
+                        <span class="text-red-600 pl-24 pb-13" x-text="errors.memo"></span>
+
+                    </div>
+                    <div class="flex justify-end pb-4 mt-5">
+                        <button type="submit"
+                            class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
+                            Edit event
                         </button>
-                        <button id="editclose" type="button" class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center" data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
+                        <button id="editclose" type="button"
+                            class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
                             cancel
                         </button>
                     </div>
-                    </form>
-                    </div>
-                </div>
+                </form>
             </div>
-        </div> 
-
-        <div class="mt-4 flex justify-end py-3 px-3">
-            showing to results
-            <span class="ml-2 inline-flex">
-                <button class="px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
-                <button class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
-                <button class="px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
-            </span>
         </div>
     </div>
 </div>
+
+<div id="pagination" class="mt-4 flex justify-end py-3 px-3">
+    <span id="showingResults">Showing results for page 1 </span>
+    <span class="ml-2 inline-flex" id="paginationControls">
+        <button id="prevBtn"
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
+        <button id="pageBtn"
+            class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
+        <button id="nextBtn"
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
+    </span>
+</div>
+<div id="pageButtons"></div>
+</div>
+</div>
 {% endblock content %}
-{% block script  %}
+{% block script %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    let editId;
+    document.addEventListener('DOMContentLoaded', function () {
         const modalOpenButtons = document.querySelectorAll('[data-modal-toggle]');
         const modalCloseButtons = document.getElementById("modalCloseButton");
         const modal = document.getElementById('crud-modal');
         const close = document.getElementById('CloseButton');
-
+        const openedit = document.querySelectorAll('.edit-button')
+        const editmodal = document.getElementById('edit-modal')
         modalOpenButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 const targetModal = document.querySelector(this.getAttribute('data-modal-target'));
                 targetModal.classList.remove('hidden');
                 targetModal.setAttribute('aria-hidden', 'false');
-               
             });
         });
+
+
+        openedit.forEach(button => {
+            button.addEventListener('click', function (e) {
+                editId = button.dataset.eventId
+                editmodal.classList.remove('hidden');
+            });
+        });
+
         function closeModal() {
-        modal.classList.add('hidden'); 
-        modal.setAttribute('aria-hidden', 'true'); 
-    }
-
-    modalCloseButtons.addEventListener('click', function() {
-        closeModal();
-    });
-
-    close.addEventListener('click',function(){
-        closeModal();
-    });
-
-    });
-   // Function to open edit modal and populate with event data
-function editEvent(eventId) {
-    
-    let eventData = {
-        id: eventId,
-        name: "Sample Event",
-        period: "2024-07-04 10:00 AM - 2024-07-04 12:00 PM",
-        venue: "Sample Venue",
-        organizer: "Sample Organizer",
-        memo: "Sample Memo"
-    };
-
-    // Populate edit modal fields with event data
-    document.getElementById('edit-modal').classList.remove('hidden');
-    document.getElementById('edit-name').value = eventData.name;
-    document.getElementById('edit-period').value = eventData.period;
-    document.getElementById('edit-venue').value = eventData.venue;
-    document.getElementById('edit-organizer').value = eventData.organizer;
-    document.getElementById('edit-memo').value = eventData.memo;
-
-    // Add event ID to form data for submission or further processing
-    document.getElementById('edit-event-id').value = eventId;
-}
-
-function closeModal() {
-        edit_modal.classList.add('hidden'); 
-        edit_modal.setAttribute('aria-hidden', 'true'); 
-    }
-
-
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-}
-
-function submitEditForm() {
-
-    closeModal('edit-modal');
-}
-document.addEventListener('alpine:init', () => {
-    Alpine.data('addmodal', () => ({
-        rule:{
-        name : [Clover.rule.required()],
-        starttime:[Clover.rule.required()],
-        endtime:[Clover.rule.required()],
-        venue:[Clover.rule.required()],
-        organizer:[Clover.rule.required()],
-        memo:[Clover.rule.required()],
-        },
-        errors : {},
-        async submit() {
-            this.errors = {}
-            const form = this.$refs.form
-            const { valid, errors } = Clover.form({ form, rule:this.rule});
-            if (valid) {
-                try {
-                    const res = await fetch("", {
-                        method: "POST",
-                        body: new FormData(form),
-                    })
-
-
-                    if (!res.ok) {
-                        throw res
-                    }
-
-                    const response = await res.json()
-
-                    window.location.href = ""
-
-                } catch (error) {
-                    console.log(error)
-                }
-            } else {
-                this.errors = errors
-            }
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
         }
 
-    }))
+        modalCloseButtons.addEventListener('click', function () {
+            closeModal();
+        });
+
+        close.addEventListener('click', function () {
+            closeModal();
+        });
+
+
+    });
+
+
+        // Add event ID to form data for submission or further processing
+      
+    // Function to open edit modal and populate with event data
+
+    // function editEvent(eventId) {
+
+    //     // let eventData = {
+    //     //     id: eventId,
+    //     //     name: "Sample Event",
+    //     //     starttime:"22-10-2022",
+    //     //     endtime:"wwewe",
+    //     //     venue:  "document.getElementById('edit-venue')",
+    //     //     organizer: "Sample Organizer",
+    //     //     memo: "Sample Memo"
+    //     // };
+
+    //     // Populate edit modal fields with event data
+    //     document.getElementById('edit-modal').classList.remove('hidden');
+    //     // document.getElementById('edit-name').value = eventData.name;
+    //     // document.getElementById('edit-start').value = eventData.starttime;
+    //     // document.getElementById('edit-end').value = eventData.endtime;
+    //     // document.getElementById('edit-venue').value = eventData.venue;
+    //     // document.getElementById('edit-organizer').value = eventData.organizer;
+    //     // document.getElementById('edit-memo').value = eventData.memo;
+
+    //     // Add event ID to form data for submission or further processing
+    //     // document.getElementById('edit-event-id').value = eventId;
+    // }
+
+    function closeModal() {
+        edit_modal.classList.add('hidden');
+        edit_modal.setAttribute('aria-hidden', 'true');
+    }
+
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function submitEditForm() {
+
+        closeModal('edit-modal');
+    }
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('addmodal', () => ({
+            rule: {
+                name: [Clover.rule.required()],
+                starttime: [Clover.rule.required()],
+                endtime: [Clover.rule.required()],
+                venue: [Clover.rule.required()],
+                organizer: [Clover.rule.required()],
+                memo: [Clover.rule.required()],
+            },
+            errors: {},
+            async submit() {
+                this.errors = {}
+                const form = this.$refs.form
+                const { valid, errors } = Clover.form({ form, rule: this.rule });
+                if (valid) {
+                    try {
+                        const res = await fetch("", {
+                            method: "POST",
+                            body: new FormData(form),
+                        })
+
+
+                        if (!res.ok) {
+                            throw res
+                        }
+
+                        const response = await res.json()
+
+                     
+
+                        window.location.href = ""
+
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } else {
+                    this.errors = errors
+                }
+            }
+
+        }))
+    })
+   
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('editform', () => ({
+            rule: {
+                name: [Clover.rule.required()],
+                starttime: [Clover.rule.required()],
+                endtime: [Clover.rule.required()],
+                venue: [Clover.rule.required()],
+                organizer: [Clover.rule.required()],
+                memo: [Clover.rule.required()],
+            },
+            errors: {},
+            async submit() {
+                this.errors = {}
+                const form = this.$refs.form
+                // const { valid, errors } = Clover.form({ form, rule:this.rule});
+                if (!Object.keys(this.errors).length) {
+                    try {
+                        const res = await fetch(`updateevent/${editId}/`, {
+                            method: "POST",
+                            body: new FormData(form),
+                        })
+
+
+                        if (!res.ok) {
+                            throw res
+                        }
+
+                        const response = await res.json()
+                    
+
+                        window.location.href = ""
+
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+            }
+
+        }))
+        
     })
 
-</script>
-{% endblock script  %}
+    const searchInput = document.getElementById('searchInput');
 
+    searchInput.addEventListener('input', function () {
+        const searchTerm = searchInput.value.toLowerCase();
+        const eventRows = document.querySelectorAll('#eventsList tr');
+
+        eventRows.forEach(row => {
+            const eventName = row.querySelector('.event-name');
+            const eventID = row.querySelector('th')
+            if (eventName && eventID) {
+                const eventNameText = eventName.textContent.toLowerCase();
+                const eventIdText = eventID.textContent.toLowerCase();
+                if (eventNameText.includes(searchTerm) || eventIdText.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const totalPages = 10;
+        let currentPage = 1;
+
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageBtn = document.getElementById('pageBtn');
+
+
+        const updatePagination = () => {
+
+            pageBtn.textContent = currentPage;
+            showingResults.textContent = `Showing results for page ${currentPage}`;
+
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        };
+
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePagination();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePagination();
+            }
+        });
+
+
+        updatePagination();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        document.querySelectorAll('tr[data-status]').forEach(row => {
+
+            const status = row.getAttribute('data-status');
+
+            const statusSpan = row.querySelector('.status-text');
+
+
+            if (status === 'Open') {
+                statusSpan.textContent = 'Open';
+                statusSpan.classList.add('bg-blue-500', 'text-white');
+            } else if (status === 'Closed') {
+                statusSpan.textContent = 'Closed';
+                statusSpan.classList.add('bg-red-600', 'text-white');
+            } else {
+                statusSpan.textContent = 'Unknown';
+                statusSpan.classList.add('bg-gray-100', 'text-gray-800');
+            }
+
+
+            statusSpan.classList.add('px-2', 'py-1', 'rounded-full');
+        });
+    });
+
+</script>
+{% endblock script %}
