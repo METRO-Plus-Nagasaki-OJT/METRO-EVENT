@@ -94,7 +94,7 @@ class ImageConsumer(WebsocketConsumer):
         if not qr:
             face = capture_face(image)
             encode = get_encode(face)
-            pred = verify(encode, 0.8)
+            pred = verify(encode, 0.5)
             unknown = check_unknown(encode)
             if pred == None and unknown:
                 success_message = False

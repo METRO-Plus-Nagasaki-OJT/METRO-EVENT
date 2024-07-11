@@ -162,6 +162,19 @@
         let prevHeight;
         let tk
 
+
+        const setFPS = () => {
+            let lastTime = 0
+            return ({ fps, currentTime = Date.now() }) => {
+                const interval = 1000 / fps;
+                const elapsed = currentTime - lastTime;
+                const con = elapsed >= interval;
+                lastTime = currentTime;
+                return con;
+            }
+        }
+
+
         function onFaceDetectionResult(result) {
             const detection = result.detections[0]
 
@@ -174,14 +187,21 @@
                 let y = Math.floor((boundingBox.yCenter - boundingBox.height * 2) * canvas.clientHeight);
                 facebox.style.display = "block"
 
-                if (Math.abs(x - prevX)  < 30) {
+                if (Math.abs(x - prevX) < 100) {
                     x = prevX
                     y = prevY
                     width = prevWidth
                     height = prevHeight
-                    if (Alpine.store("reception").faceRegonization) {
-                        Alpine.store("reception").recognizeFace()
+                    if (!tk) {
+                        tk = setTimeout(() => {
+                            if (Alpine.store("reception").faceRegonization) {
+                                Alpine.store("reception").recognizeFace()
+                            }
+                        }, 1000)
                     }
+                } else {
+                    clearTimeout(tk)
+                    tk = undefined
                 }
 
                 facebox.style.right = `${x}px`;
@@ -197,6 +217,7 @@
             } else {
                 facebox.style.display = "none"
                 Alpine.store("reception").loader = false
+                Alpine.store("reception").failCount = 0
                 Alpine.store("reception").faceRegonization = true
                 Alpine.store("reception").verify = false
             }
@@ -295,17 +316,6 @@
                             video.srcObject = stream;
 
                             const reception = this
-
-
-                            const setFPS = () => {
-                                let lastTime = 0
-                                return ({ fps, currentTime }) => {
-                                    const interval = 1000 / fps;
-                                    const con = currentTime - lastTime >= interval
-                                    lastTime = currentTime
-                                    return con
-                                }
-                            }
 
                             const drawCanvs = async function (currentTime) {
                                 width = canvas.width = video.videoWidth;
