@@ -24,7 +24,7 @@ encoding_dict = load_pickle("./embeddings/encodings.pkl")
 qr_reader = QReader()
 
 def get_encode(img):
-    embed = DeepFace.represent(img_path=img, model_name="Facenet", anti_spoofing=True, enforce_detection=False)[0]["embedding"]
+    embed = DeepFace.represent(img_path=img, model_name="Facenet", enforce_detection=False)[0]["embedding"]
     return l2_normalizer.transform(np.array(embed).reshape(1, -1))[0]
 
 
@@ -94,7 +94,7 @@ class ImageConsumer(WebsocketConsumer):
         if not qr:
             face = capture_face(image)
             encode = get_encode(face)
-            pred = verify(encode, 0.8)
+            pred = verify(encode, 0.5)
             unknown = check_unknown(encode)
             if pred == None and unknown:
                 success_message = False
