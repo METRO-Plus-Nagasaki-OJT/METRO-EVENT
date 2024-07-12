@@ -33,19 +33,22 @@ def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
     return similarity, similarity > (1 - threshold)
 
 def load_mls():
-    # model_lists = ["isolationforest.pkl", "oneclasssvm.pkl", "ellipticenvelope.pkl"]
-    # models = []
-    # for i in range(len(model_lists)):
-    #     print(model_lists[i])
-    #     models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
-    model = load_pickle("./embeddings/isolationforest.pkl")
-    return model
+    model_lists = ["isolationforest copy.pkl", "oneclasssvm copy.pkl", "ellipticenvelope copy.pkl"]
+    models = []
+    for i in range(len(model_lists)):
+        models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
+    # model = load_pickle("./embeddings/isolationforest.pkl")
+    return models
 
 def check_unknown(encode):
     l_o_models = load_mls()
-    result = l_o_models.predict([encode])[0]
-    print(result)
-    return True if result == -1 else False
+    results = []
+    for i in l_o_models:
+        results.append(i.predict([encode])[0])
+    print(results)
+    count = Counter(results)
+    most_common_element = count.most_common(1)[0][0]
+    return True if most_common_element == -1 else False
 
 def read_qr(img):
     rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -94,7 +97,7 @@ class ImageConsumer(WebsocketConsumer):
         if not qr:
             face = capture_face(image)
             encode = get_encode(face)
-            pred = verify(encode, 0.8)
+            pred = verify(encode, 0.5)
             unknown = check_unknown(encode)
             if pred == None and unknown:
                 success_message = False
