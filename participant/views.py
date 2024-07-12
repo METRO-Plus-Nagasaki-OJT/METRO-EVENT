@@ -97,6 +97,7 @@ def update_participant(request, participant_id):
         
         # Retrieve data from POST request
         name = request.POST.get('editname')
+        print("adadad",name)
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
         dob = request.POST.get('editdob')
