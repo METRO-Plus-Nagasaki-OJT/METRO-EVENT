@@ -4,7 +4,7 @@
 
 Clover is a JavaScript validation library designed to work seamlessly with Alpine.js. It provides various validation rules and can be easily integrated into forms to validate user input.
 
-## Using Clover Validation Without Alpine.js
+## Using Clover Validation Without Alpine.js (not stable)
 
 If you're not using Alpine.js and want to validate form data using Clover, you can directly call the validation functions in your script.
 
@@ -112,9 +112,12 @@ Clover provides several built-in validation rules which can be applied to form f
 -   mail(message): Validates the field against an email format.
 -   password(message): Validates the field to contain at least - one letter and one number.
 -   string(message): Ensures the field is a string.
--   enum(list, message): Validates the field to match one of the - values in the provided list.
+-   enum({ list }, message): Validates the field to match one of the - values in the provided list.
 -   number(message): Ensures the field contains only numbers.
 -   custom(message, callback): Allows for custom validation logic.
+-   sameWith({ name: ["confirmPassword"] }): Validates that the field's value matches the value of the confirmPassword field.
+-   min({ target: "string", amount: 8 }): Validates that the string field has a minimum length of 8 characters.
+-   max({ target: "number", amount: 100 }): Validates that the numeric field has a value less than or equal to 100.
 
 ### Example Usage
 

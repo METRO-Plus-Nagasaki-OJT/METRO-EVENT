@@ -18,7 +18,7 @@
     <!-- Events Dropdown -->
     <div class="mb-4 flex items-center">
         <label for="events" class="mr-2 text-sm font-medium text-gray-700">Select Event:</label>
-        <select id="events"
+        <select id="events" name="event"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
             {% for event in events %}
             <option value="{{ event.id }}">{{ event.name }}</option>
@@ -36,8 +36,8 @@
     <!-- Register Modal -->
     <div id="participantModal" x-data="participantModal"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-        <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" x-clover-form="submit" action="{% url 'participant' %}"
-            method="post">
+        <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" enctype="multipart/form-data" x-clover-form="submit"
+            action="{% url 'participant' %}" method="post">
             {% csrf_token %}
             <div class="bg-blue-500 px-4 py-4">
                 <h3 class="text-xl mb-4 text-white pt-3">Register New Participant</h3>
@@ -45,8 +45,9 @@
             <div class="flex flex-wrap -mx-2">
                 <!-- Image Container -->
                 <div class="w-full sm:w-1/3 p-2 pt-5">
-                    <div id="imageContainer" class="border border-gray-300 h-[400px] flex items-center justify-center">
-                        <img id="capturedImage" class="h-full w-full object-cover"
+                    <div id="imageContainer" name="imageContainer"
+                        class="border border-gray-300 h-[400px] flex items-center justify-center">
+                        <img id="capturedImage" name="capturedImage" class="h-full w-full object-cover"
                             src="{% static 'common/Rosie.jpg' %}">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
@@ -85,7 +86,7 @@
                         </div>
                         <div>
                             <label for="seat_no" class="block text-sm font-medium text-gray-700">SeatNo</label>
-                            <input type="text" id="seat_no" name="ptno" x-clover-verify
+                            <input type="text" id="seat_no" name="seat_no" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.seat_no" class="text-red-600"></span>
                         </div>
@@ -98,9 +99,9 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Gender</label>
                             <div class="mt-1 flex pt-4">
-                                <input type="radio" id="male" name="gender" value="male" class="mr-1" checked>
+                                <input type="radio" id="male" name="gender" value="1" class="mr-1" checked>
                                 <label for="male" class="mr-4">Male</label>
-                                <input type="radio" id="female" name="gender" value="female" class="mr-1">
+                                <input type="radio" id="female" name="gender" value="0" class="mr-1">
                                 <label for="female">Female</label>
                             </div>
                         </div>
@@ -122,7 +123,7 @@
                         </div>
                         <div>
                             <label for="phone_2" class="block text-sm font-medium text-gray-700">PhNo2</label>
-                            <input type="text" id="phone_2"
+                            <input type="text" id="phone_2" name="phone_2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
 
@@ -140,7 +141,17 @@
                     </div>
                 </div>
 
-
+                <!-- Register Confirmation Modal -->
+                <div id="ConfirmationModal"
+                    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+                    <div class="bg-white p-5 rounded-lg w-full sm:w-1/3">
+                        <h3 class="text-xl mb-4 text-gray-700">You Are Registered!</h3>
+                        <div class="flex justify-end space-x-4">
+                            <button id="confirmRegister" type="button"
+                                class="text-white bg-gray-700 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">OK</button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Register and Cancel Buttons -->
                 <div class="mt-4 flex justify-end w-full">
@@ -156,6 +167,7 @@
     <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
         <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" x-data="editModal" x-clover-form="submit">
+            {% csrf_token %}
             <div class="bg-blue-500 px-4 py-4">
                 <h3 class="text-xl mb-4 text-white pt-3">Update Details</h3>
             </div>
@@ -180,7 +192,7 @@
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
                             @click="triggerFileInput">Upload Image</button>
                         <button id="deleteEditImage" type="button"
-                            class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
+                            class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
                             @click="deleteEditImage">Delete Image</button>
                     </div>
                 </div>
@@ -216,21 +228,21 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Gender</label>
                             <div class="mt-1 flex pt-4">
-                                <input type="radio" id="editmale" name="gender" value="male" class="mr-1" checked>
+                                <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
                                 <label for="editmale" class="mr-4">Male</label>
-                                <input type="radio" id="editfemale" name="gender" value="female" class="mr-1">
+                                <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
                                 <label for="editfemale">Female</label>
                             </div>
                         </div>
                         <div>
                             <label for="editrole" class="block text-sm font-medium text-gray-700">Role</label>
-                            <select id="editrole" name="editrole" x-clover-verify
+                            <select id="editrole" name="editrole"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
                             </select>
-                            <span x-text="errors.editoccupation" class="text-red-600"></span>
+                            <span x-text="errors.editrole" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="editphone_1" class="block text-sm font-medium text-gray-700">PhNo1</label>
@@ -265,9 +277,11 @@
                         <h3 class="text-xl mb-4 text-gray-700">Are you sure you want to delete your information?</h3>
                         <div class="flex justify-end space-x-4">
                             <button id="confirmDelete" type="button"
-                                class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5">Yes</button>
+                                class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5"
+                                @click="confirmDelete">Yes</button>
                             <button id="cancelDelete" type="button"
-                                class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                                class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
+                                @click="hideDeleteConfirmation">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -277,8 +291,8 @@
                     <button id="updateParticipant" type="submit"
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Update</button>
 
-                    <button id="deleteEdit"
-                        class=" bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 text-red-600">Delete</button>
+                    <button id="deleteEdit" type="button"
+                        class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Delete</button>
 
                     <button id="cancelEdit" type="button"
                         class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
@@ -424,12 +438,13 @@
         openEditButtons.forEach(button => {
             button.addEventListener('click', function () {
                 const participantId = button.getAttribute('data-participant-id');
+                window.currentParticipantId = participantId
                 if (!participantId) {
                     console.error('Participant ID attribute is missing or invalid.');
                     return;
                 }
 
-                console.log('Participant ID:', participantId); // Log the participantId
+                console.log('Participant ID:', participantId); 
 
                 const url = `/participant/get_participant_data/${participantId}/`;
 
@@ -441,20 +456,18 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Fetched data:', data); // Log the fetched data
+                        console.log('Fetched data:', data); 
 
-                        // Update edit modal fields with fetched data
                         document.getElementById('editname').value = data.name || '';
                         document.getElementById('editemail').value = data.email || '';
                         document.getElementById('editseat_no').value = data.seat_no || '';
                         document.getElementById('editdob').value = data.dob || '';
-                        document.getElementById('editphone_1').value = data.phone1 || '';
-                        document.getElementById('editphone_2').value = data.phone2 || '';
+                        document.getElementById('editphone_1').value = data.phone_1 || '';
+                        document.getElementById('editphone_2').value = data.phone_2 || '';
                         document.getElementById('editmemo').value = data.memo || '';
                         document.getElementById('editaddress').value = data.address || '';
                         document.getElementById('editrole').value = data.role || '';
 
-                        // Handle radio button selection based on data.gender
                         if (data.gender === 'male') {
                             document.getElementById('male').checked = true;
                         } else if (data.gender === 'female') {
@@ -464,17 +477,15 @@
                             document.getElementById('female').checked = false;
                         }
 
-                        // Update image preview if data.image_url is provided
                         const editImgContainer = document.getElementById('editimageContainer');
                         editImgContainer.innerHTML = '';
-                        if (data.image_url) {
+                        if (data.image_data) {
                             const img = document.createElement('img');
-                            img.src = data.image_url;
+                            img.src = `data:image/jpeg;base64,${data.image_data}`;
                             img.classList.add('h-full', 'w-full', 'object-cover');
                             editImgContainer.appendChild(img);
                         }
 
-                        // Show edit modal
                         editModal.classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching participant data:', error));
@@ -526,29 +537,43 @@
             },
             errors: {},
             async submit() {
-                this.errors = {}
                 const form = this.$el
-                if (!Object.keys(errors).length) {
+                const formData = new FormData(form)
+                const eventDropdown = document.getElementById('events')
+
+                // Check if eventDropdown exists and append its value
+                if (eventDropdown && eventDropdown.value) {
+                    formData.append("event", eventDropdown.value)
+                } else {
+                    this.errors.event = "Event is required"
+                    return
+                }
+
+                if (!Object.keys(this.errors).length) {
                     try {
                         const res = await fetch("", {
                             method: "POST",
-                            body: new FormData(form),
+                            body: formData,
                         })
-
 
                         if (!res.ok) {
                             throw res
                         }
 
                         const response = await res.json()
-
-                        window.location.href = ""
+                        if (response.status === 'success') {
+                            // window.location.href = ""
+                            this.showConfirmation()
+                        } else {
+                            console.log(response.message)
+                        }
 
                     } catch (error) {
                         console.log(error)
                     }
+
                 } else {
-                    this.errors = errors
+                    console.log(this.errors)
                 }
             },
 
@@ -578,13 +603,24 @@
                     this.captureCanvas.height = this.videoElement.videoHeight;
                     context.drawImage(this.videoElement, 0, 0, this.captureCanvas.width, this.captureCanvas.height);
 
-                    const img = document.createElement('img');
-                    img.src = this.captureCanvas.toDataURL('image/jpeg');
-                    img.classList.add('h-full', 'w-full', 'object-cover');
-                    document.getElementById('imageContainer').innerHTML = '';
-                    document.getElementById('imageContainer').appendChild(img);
+                    // Convert canvas image to Blob
+                    this.captureCanvas.toBlob(blob => {
+                        const file = new File([blob], 'captured_image.jpeg', { type: 'image/jpeg' });
 
-                    this.stopCamera();
+                        const fileList = new DataTransfer();
+                        fileList.items.add(file);
+
+                        const fileInput = document.getElementById('fileInput');
+                        fileInput.files = fileList.files;
+
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(file);
+                        img.classList.add('h-full', 'w-full', 'object-cover');
+                        document.getElementById('imageContainer').innerHTML = '';
+                        document.getElementById('imageContainer').appendChild(img);
+
+                        this.stopCamera();
+                    }, 'image/jpg');
                 }
             },
 
@@ -627,8 +663,21 @@
                 image.src = "/public/common/Rosie.jpg"
                 imageContainer.appendChild(image)
 
-            }
+            },
 
+            showConfirmation() {
+                document.getElementById('ConfirmationModal').classList.remove('hidden');
+            },
+            hideConfirmation() {
+                document.getElementById('ConfirmationModal').classList.add('hidden');
+            },
+            confirmRegister() {
+                this.hideConfirmation();
+                window.location.href = "/participant";
+            },
+            init() {
+                document.getElementById('confirmRegister').addEventListener('click', this.confirmRegister.bind(this));
+            }
 
         }))
 
@@ -642,14 +691,58 @@
                 editemail: [Clover.rule.mail()],
                 editseat_no: [Clover.rule.required()],
                 editdob: [Clover.rule.required()],
-                editoccupation: [Clover.rule.required()],
-                editphone1: [Clover.rule.required()],
+                editrole: [Clover.rule.required()],
+                editphone_1: [Clover.rule.required()],
                 editaddress: [Clover.rule.required()],
             },
-            errors: {},
-            submit() {
+            errors: {
 
             },
+            async submit() {
+                const form = this.$el
+                const formData = new FormData(form)
+                const eventDropdown = document.getElementById('events')
+
+                // Check if eventDropdown exists and append its value
+                if (eventDropdown && eventDropdown.value) {
+                    formData.append("event", eventDropdown.value)
+                } else {
+                    this.errors.event = "Event is required"
+                    return
+                }
+
+                if (!Object.keys(this.errors).length) {
+                    try {
+                        const res = await fetch(`participant/update/${currentParticipantId}/`, {
+                            method: "POST",
+                            body: formData,
+                        })
+
+                        if (!res.ok) {
+                            throw res
+                        }
+
+                        const response = await res.json()
+                        if (response.status === 'success') {
+                            alert("Your Information is Updated!")
+                            // window.location.href = "participant/"
+                        } else {
+                            console.log(response.message)
+                        }
+
+                    } catch (error) {
+                        console.log(error)
+                    }
+
+                } else {
+                    console.log(this.errors)
+                }
+            },
+
+            showConfirmation() {
+                document.getElementById('ConfirmationModal').classList.remove('hidden');
+            },
+
             initCamera() {
                 this.videoElement = document.createElement('video');
                 this.captureCanvas = document.getElementById('editcaptureCanvas');
@@ -676,11 +769,24 @@
                     this.captureCanvas.height = this.videoElement.videoHeight;
                     context.drawImage(this.videoElement, 0, 0, this.captureCanvas.width, this.captureCanvas.height);
 
-                    const img = document.createElement('img');
-                    img.src = this.captureCanvas.toDataURL('image/jpeg');
-                    img.classList.add('h-full', 'w-full', 'object-cover');
-                    document.getElementById('editimageContainer').innerHTML = '';
-                    document.getElementById('editimageContainer').appendChild(img);
+                    // Convert canvas image to Blob
+                    this.captureCanvas.toBlob(blob => {
+                        const file = new File([blob], 'captured_image.jpeg', { type: 'image/jpeg' });
+
+                        const fileList = new DataTransfer();
+                        fileList.items.add(file);
+
+                        const editfileInput = document.getElementById('editfileInput');
+                        editfileInput.files = fileList.files;
+
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(file);
+                        img.classList.add('h-full', 'w-full', 'object-cover');
+                        document.getElementById('editimageContainer').innerHTML = '';
+                        document.getElementById('editimageContainer').appendChild(img);
+
+                        this.stopCamera();
+                    }, 'image/jpg');
 
                     this.stopCamera();
                 }
@@ -734,12 +840,30 @@
                 document.getElementById('deleteConfirmationModal').classList.add('hidden');
             },
 
-            confirmDelete() {
+            confirmDelete(participantId) {
                 this.hideDeleteConfirmation();
-                // Perform the delete action here
-                console.log('Delete confirmed');
-            },
 
+                const url = `/participant/delete/${window.currentParticipantId}/`;
+
+                fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': "{{ csrf_token  }}"
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        window.location.href = "/participant";
+                    })
+                    .catch(error => {
+                        console.error('Error deleting participant:', error);
+                    });
+            },
             init() {
                 document.getElementById('deleteEdit').addEventListener('click', this.showDeleteConfirmation.bind(this));
                 document.getElementById('confirmDelete').addEventListener('click', this.confirmDelete.bind(this));
