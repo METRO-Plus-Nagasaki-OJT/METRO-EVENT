@@ -4,7 +4,7 @@
 
 Clover is a JavaScript validation library designed to work seamlessly with Alpine.js. It provides various validation rules and can be easily integrated into forms to validate user input.
 
-## Using Clover Validation Without Alpine.js
+## Using Clover Validation Without Alpine.js (not stable)
 
 If you're not using Alpine.js and want to validate form data using Clover, you can directly call the validation functions in your script.
 
