@@ -48,18 +48,14 @@ const Clover = {
                 return { value: false };
             };
         },
-        enum: function (message) {
-            return function (list) {
-                return function (field, val) {
-                    return {
-                        rule: 'enum',
-                        value: list.includes(val)
-                            ? false
-                            : message ||
-                              `The ${field} must be include in ${list.join(
-                                  ','
-                              )}`,
-                    };
+        enum: function ({ list }, message) {
+            return function (field, val) {
+                return {
+                    rule: 'enum',
+                    value: list.includes(val)
+                        ? false
+                        : message ||
+                          `The ${field} must be include in ${list.join(',')}`,
                 };
             };
         },
@@ -75,6 +71,60 @@ const Clover = {
                 return { value: false };
             };
         },
+        min({ target, amount }, message) {
+            return function (field, value) {
+                if (target === 'string') {
+                    if (value.length < amount) {
+                        return {
+                            rule: 'min',
+                            value:
+                                message ||
+                                `The ${field} must be minimum ${amount} characters.`,
+                        };
+                    }
+                }
+
+                if (target === 'number') {
+                    if (value < parseInt(amount)) {
+                        return {
+                            rule: 'min',
+                            value:
+                                message ||
+                                `The ${field} must be greater or equal ${amount}.`,
+                        };
+                    }
+                }
+
+                return { value: false };
+            };
+        },
+        max({ target, amount }, message) {
+            return function (field, value) {
+                if (target === 'string') {
+                    if (value.length > amount) {
+                        return {
+                            rule: 'max',
+                            value:
+                                message ||
+                                `The ${field} must be maximum ${amount} characters.`,
+                        };
+                    }
+                }
+
+                if (target === 'number') {
+                    if (value > parseInt(amount)) {
+                        return {
+                            rule: 'max',
+                            value:
+                                message ||
+                                `The ${field} must be not be greater than ${amount}.`,
+                        };
+                    }
+                }
+
+                return { value: false };
+            };
+        },
         custom: function (message, cb) {
             return function (field, val) {
                 return { rule: 'custom', value: message || cb(field, val) };
@@ -86,6 +136,24 @@ const Clover = {
         file: function (message, extension = []) {
             return function (field, val) {
                 return { rule: 'file', value: message || cb(field, val) };
+            };
+        },
+        sameWith: function ({ name = [] }, message) {
+            return function (field, val, el) {
+                if (el) {
+                    const form = el.closest('form');
+                    if (!name.every((el) => form.elements[el].value === val)) {
+                        return {
+                            rule: 'sameWith',
+                            value:
+                                message ||
+                                `The ${field} must be same with ${name.join(
+                                    ','
+                                )}`,
+                        };
+                    }
+                }
+                return { value: false };
             };
         },
     },
@@ -122,7 +190,7 @@ const Clover = {
 document.addEventListener('alpine:init', () => {
     Alpine.directive(
         'clover-verify',
-        function (el, { value, modifiers, expression }, { cleanup, evaluate }) {
+        (el, { value, modifiers, expression }, { cleanup, evaluate }) => {
             let timeout;
             const name = value || el.getAttribute('name');
             let handler = () => {
@@ -144,7 +212,6 @@ document.addEventListener('alpine:init', () => {
                             break;
                         }
                     }
-
                     if (error) {
                         errors[name] = error;
                     } else {
@@ -159,11 +226,11 @@ document.addEventListener('alpine:init', () => {
                 el.removeEventListener('input', handler);
             });
         }
-    );
+    ).before('bind');
 
     Alpine.directive(
         'clover-form',
-        function (el, { value, modifiers, expression }, { cleanup, evaluate }) {
+        (el, { value, modifiers, expression }, { cleanup, evaluate }) => { 
             const errors = evaluate('errors');
             const checkRule = value || 'rule';
             const handler = function (e) {
@@ -171,17 +238,20 @@ document.addEventListener('alpine:init', () => {
                 const rule = evaluate(checkRule);
                 for (let name in rule) {
                     for (let r of rule[name]) {
-                        const e = r(
-                            name,
-                            el.getAttribute('type') === 'file'
-                                ? el.elements[name].files
-                                : el.elements[name].value
-                        );
-                        if (e.value) {
-                            errors[name] = e.value;
-                            break;
-                        } else {
-                            delete errors[name];
+                        if (el.elements[name]) {
+                            const e = r(
+                                name,
+                                el.getAttribute('type') === 'file'
+                                    ? el.elements[name].files
+                                    : el.elements[name].value,
+                                el.elements[name]
+                            );
+                            if (e.value) {
+                                errors[name] = e.value;
+                                break;
+                            } else {
+                                delete errors[name];
+                            }
                         }
                     }
                 }

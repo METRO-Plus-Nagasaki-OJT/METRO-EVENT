@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import base64
 import binascii
+from django.core.paginator import Paginator
 
 @csrf_exempt
 def participant(request):
@@ -50,11 +51,20 @@ def participant(request):
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
-        participants = Participant.objects.all()
+        participants = Participant.objects.all().order_by('-created_at')
         events = Event.objects.all()
-        
-        return render(request, 'participant/participant.html', context={'participants': participants, 'events': events})
 
+        # Handling pagination
+        per_page = request.GET.get('per_page', 10)
+        paginator = Paginator(participants, per_page)
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
+
+        return render(request, 'participant/participant.html', context={
+            'page': page,
+            'events': events,
+            'per_page': per_page,
+        })
 
 @csrf_exempt
 def get_participant_data(request, participant_id):
@@ -97,6 +107,7 @@ def update_participant(request, participant_id):
         
         # Retrieve data from POST request
         name = request.POST.get('editname')
+        print("adadad",name)
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
         dob = request.POST.get('editdob')
