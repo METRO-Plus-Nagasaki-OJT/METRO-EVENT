@@ -310,15 +310,15 @@
         <select id="pagination"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
             style="width: 200px;">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
+            <option value="10" {% if per_page is "10" %}selected{% endif %}>10</option>
+            <option value="20" {% if per_page is "20" %}selected{% endif %}>20</option>
+            <option value="50" {% if per_page is "50" %}selected{% endif %}>50</option>
         </select>
     </div>
     <div class="relative flex items-center mx-auto">
         <input type="text" id="search"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pl-10"
-            placeholder="Search by name or ID">
+            placeholder="Search by name">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg aria-hidden="true" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd"
@@ -350,9 +350,9 @@
                 <th scope="col" class="py-3 px-6">Status</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="ptList">
             <!-- Loop through participants to generate rows -->
-            {% for participant in participants %}
+            {% for participant in page.object_list %}
             <tr class="bg-white border-b">
                 <td class="py-4 px-6">
                     <button
@@ -360,7 +360,7 @@
                         data-participant-id="{{ participant.id }}">Details</button>
                 </td>
                 <td class="py-4 px-6">{{ participant.id }}</td>
-                <td class="py-4 px-6">{{ participant.name }}</td>
+                <td class="py-4 px-6 participant-name">{{ participant.name }}</td>
                 <td class="py-4 px-6">{{ participant.seat_no }}</td>
                 <td class="py-4 px-6">{{ participant.dob }}</td>
                 <td class="py-4 px-6">{{ participant.phone_1 }}</td>
@@ -375,13 +375,13 @@
 <div class="flex justify-between items-center mt-4 px-5">
     <div class="text-sm text-gray-700">
         Showing <span class="font-medium">{{ page.start_index }}</span> to <span class="font-medium">{{
-            page.end_index }}</span> of <span class="font-medium">{{ page.total_count }}</span> results
+            page.end_index}}</span> of <span class="font-medium">{{ page.paginator.count }}</span> results
     </div>
     <nav aria-label="Page navigation">
         <ul class="inline-flex items-center -space-x-px">
             {% if page.has_previous %}
             <li>
-                <a href="?page={{ page.previous_page_number }}"
+                <button onclick="navigatePage('{{ page.previous_page_number }}')"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
                     <span class="sr-only">Previous</span>
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -389,19 +389,20 @@
                             d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z"
                             clip-rule="evenodd" />
                     </svg>
-                </a>
+                </button>
             </li>
             {% endif %}
             {% for num in page.paginator.page_range %}
             <li>
-                <a href="?page={{ num }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{
-                    num }}</a>
+                <button onclick="navigatePage('{{ num }}')"
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
+                    {{ num }}
+                </button>
             </li>
             {% endfor %}
             {% if page.has_next %}
             <li>
-                <a href="?page={{ page.next_page_number }}"
+                <button onclick="navigatePage('{{ page.next_page_number }}')"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
                     <span class="sr-only">Next</span>
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -409,7 +410,7 @@
                             d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z"
                             clip-rule="evenodd" />
                     </svg>
-                </a>
+                </button>
             </li>
             {% endif %}
         </ul>
@@ -432,6 +433,72 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+        const paginationSelect = document.getElementById('pagination');
+        paginationSelect.value = "{{ per_page }}"; // Set initial value from Django template
+
+        paginationSelect.addEventListener('change', function () {
+            const perPage = paginationSelect.value;
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('per_page', perPage);
+            window.location.search = urlParams.toString();
+        });
+
+        function navigatePage(pageNumber) {
+            const perPage = paginationSelect.value;
+            const url = `?page=${pageNumber}&per_page=${perPage}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    updateParticipantTable(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updateParticipantTable(data) {
+            const ptList = document.getElementById('ptList');
+            ptList.innerHTML = ''; // Clear existing table rows
+
+            data.participants.forEach(participant => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b';
+                tr.innerHTML = `
+                <td class="py-4 px-6">
+                    <button class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 open-edit-modal"
+                            data-participant-id="${participant.id}">Details</button>
+                </td>
+                <td class="py-4 px-6">${participant.id}</td>
+                <td class="py-4 px-6 participant-name">${participant.name}</td>
+                <td class="py-4 px-6">${participant.seat_no}</td>
+                <td class="py-4 px-6">${participant.dob}</td>
+                <td class="py-4 px-6">${participant.phone_1}</td>
+                <td class="py-4 px-6">${participant.status}</td>
+            `;
+                ptList.appendChild(tr);
+            });
+
+            // Update pagination info
+            const pageInfo = document.querySelector('.text-sm.text-gray-700');
+            pageInfo.innerHTML = `
+            Showing <span class="font-medium">${data.page.start_index}</span>
+            to <span class="font-medium">${data.page.end_index}</span>
+            of <span class="font-medium">${data.page.paginator.count}</span> results
+        `;
+        }
+
+        // Event listeners for pagination buttons
+        const paginationButtons = document.querySelectorAll('.pagination-button');
+        paginationButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const pageNumber = button.dataset.pageNumber;
+                navigatePage(pageNumber);
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
         const openEditButtons = document.querySelectorAll('.open-edit-modal');
         const editModal = document.getElementById('editModal');
 
@@ -444,7 +511,7 @@
                     return;
                 }
 
-                console.log('Participant ID:', participantId); 
+                console.log('Participant ID:', participantId);
 
                 const url = `/participant/get_participant_data/${participantId}/`;
 
@@ -456,7 +523,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Fetched data:', data); 
+                        console.log('Fetched data:', data);
 
                         document.getElementById('editname').value = data.name || '';
                         document.getElementById('editemail').value = data.email || '';
@@ -529,7 +596,7 @@
             rule: {
                 name: [Clover.rule.required()],
                 email: [Clover.rule.mail()],
-                seat_no: [Clover.rule.required()],
+                seat_no: [Clover.rule.required(), Clover.rule.number()],
                 dob: [Clover.rule.required()],
                 role: [Clover.rule.required()],
                 phone_1: [Clover.rule.required()],
@@ -725,7 +792,7 @@
                         const response = await res.json()
                         if (response.status === 'success') {
                             alert("Your Information is Updated!")
-                            // window.location.href = "participant/"
+                            window.location.href = "/participant"
                         } else {
                             console.log(response.message)
                         }
@@ -870,7 +937,31 @@
                 document.getElementById('cancelDelete').addEventListener('click', this.hideDeleteConfirmation.bind(this));
             }
 
+
+
         }))
+
+        const searchInput = document.getElementById('search');
+
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            const ptRows = document.querySelectorAll('#ptList tr');
+
+            ptRows.forEach(row => {
+                const ptName = row.querySelector('.participant-name');
+                const ptID = row.querySelector('td:nth-child(4)');
+
+                if (ptName && ptID) {
+                    const ptNameText = ptName.textContent.toLowerCase();
+                    const ptIdText = ptID.textContent.toLowerCase();
+                    if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        });
     })
 
 </script>
