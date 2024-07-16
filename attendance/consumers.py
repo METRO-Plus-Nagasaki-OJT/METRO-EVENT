@@ -13,7 +13,7 @@ import os
 from qreader import QReader
 from .face_capture import capture_face
 
-l2_normalizer = Normalizer("l2")
+# l2_normalizer = Normalizer("l2")
 
 def load_pickle(path):
     with open(path, "rb") as f:
@@ -24,8 +24,8 @@ encoding_dict = load_pickle("./embeddings/encodings.pkl")
 qr_reader = QReader()
 
 def get_encode(img):
-    embed = DeepFace.represent(img_path=img, model_name="Facenet", enforce_detection=False)[0]["embedding"]
-    return l2_normalizer.transform(np.array(embed).reshape(1, -1))[0]
+    re_img = cv2.resize(cv2.imread(image, cv2.IMREAD_ANYCOLOR),(160, 160))
+    return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018")[0]["embedding"]
 
 
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
@@ -64,9 +64,9 @@ def verify(encode, threshold):
             best_matched = name
     if best_matched and highest_similarity > threshold:
         print(best_matched)
-        return best_matched
+        return True
     else:
-        return None
+        return False
 
 
 class ImageConsumer(WebsocketConsumer):
@@ -97,9 +97,9 @@ class ImageConsumer(WebsocketConsumer):
         if not qr:
             face = capture_face(image)
             encode = get_encode(face)
-            pred = verify(encode, 0.5)
+            pred = verify(encode, 0.7)
             unknown = check_unknown(encode)
-            if pred == None and unknown:
+            if pred == False or unknown:
                 success_message = False
             elif pred and not unknown:
                 success_message = True
