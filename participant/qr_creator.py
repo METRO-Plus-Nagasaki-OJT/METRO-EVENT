@@ -9,7 +9,7 @@ from email.mime.image import MIMEImage
 import os
 
 def create_qr(id):
-    logo_path = "../common/present_hub_logo.png"
+    logo_path = "common/present_hub_logo.png"
     logo = Image.open(logo_path)
     basewidth = 100
     wpercent = (basewidth/float(logo.size[0]))
@@ -26,16 +26,16 @@ def create_qr(id):
        (QRimg.size[1] - logo.size[1]) // 2)
     QRimg.paste(logo, pos, mask=logo)
     
-    QRimg.save('../common/QR.png')
+    QRimg.save('common/QR.png')
 
 def send_qr(email):
     smtp_server = "smtp.gmail.com"
-    port = 587
+    port = 465
     sender_email = "presenthub.co.24@gmail.com"
     password = "legend@rypurojecto322"
     subject = "Test Email from Present Hub"
     body = "This is a test email sent from a Present Hub."
-    image_path = "../common/QR.png"
+    image_path = "common/QR.png"
     message = MIMEMultipart()
     message["From"] = sender_email
     message["To"] = email
@@ -45,16 +45,14 @@ def send_qr(email):
         mime_image = MIMEImage(image_file.read())
         mime_image.add_header('Content-Disposition', f'attachment; filename="{image_path.split("/")[-1]}"')
         message.attach(mime_image)
-    try:
         server = smtplib.SMTP(smtp_server, port)
+    try:
         server.starttls()
         server.login(sender_email, password)
         server.sendmail(sender_email, email, message.as_string())
         print("Email sent successfully!")
-
     except Exception as e:
-        print(f"Error: {e}")
-
+        print(f"Failed to send email: {e}")
     finally:
         server.quit()
         if os.path.exists(image_path):

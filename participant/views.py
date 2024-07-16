@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 import base64
 import binascii
 from django.core.paginator import Paginator
+from .qr_creator import create_qr, send_qr
 
 @csrf_exempt
 def participant(request):
@@ -47,7 +48,8 @@ def participant(request):
             profile=profile 
         )
         participant.save()
-
+        create_qr(participant.id)
+        send_qr(email)
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
