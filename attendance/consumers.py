@@ -13,6 +13,7 @@ import os
 from qreader import QReader
 from .face_capture import capture_face
 from event.models import Event
+from django.utils import timezone
 
 # l2_normalizer = Normalizer("l2")
 
@@ -114,5 +115,7 @@ class ImageConsumer(WebsocketConsumer):
             is_qr = True
             success_message = True
             qr_code = read_qr(image)[0]
+            now = timezone.now()
+            events = Event.objects.filter(end_time__gt=now).all().get()
 
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))
