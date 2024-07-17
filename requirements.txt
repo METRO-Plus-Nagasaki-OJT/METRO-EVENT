@@ -1,0 +1,5 @@
+numpy==1.26.4
+deepface
+tensorflow==2.10.0
+scikit-learn
+scipy

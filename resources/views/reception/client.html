@@ -8,14 +8,49 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}?{% now 'U' %}">
     <script src="{% static 'js/mediapipe.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
     <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
+    <style>
+        @keyframes example {
+            0% {
+                top: 0%;
+            }
 
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0%;
+            }
+        }
+
+        .x {
+            animation: example 5s linear infinite;
+            position: absolute;
+            height: 2px;
+            left: 3%;
+            right: 3%;
+            background-color: wheat;
+
+        }
+    </style>
 </head>
 
 <body>
-    <div class="relative min-h-screen">
-        <video id="webcam" hidden autoplay></video>
+    <div class="relative min-h-screen overflow-hidden">
+        <video id="webcam" autoplay hidden class="absolute-full object-cover scale-x-[-1]"></video>
         <canvas id="canvas" class="absolute-full object-cover"></canvas>
+        <div class="transition-[0.5s]  z-50  absolute hidden" id="face-box" style="transform: translate(-50%,50%);">
+            <div class="w-full h-full relative bg-opacity-40 p-5">
+                <div class="border x"></div>
+                <div class="size-20 absolute border-t-8 border-l-8 left-0 top-0"></div>
+                <div class="size-20 absolute border-t-8 border-r-8 right-0 top-0"></div>
+                <div class="size-20 absolute border-l-8 border-b-8 left-0 bottom-0"></div>
+                <div class="size-20 absolute border-r-8 border-b-8 right-0 bottom-0"></div>
+            </div>
+        </div>
         <div class="bg-red-700 absolute-full bg-opacity-50  flex justify-center items-center"
             x-transition.duration.500ms x-data x-cloak x-show="$store.reception.showMessage">
             <div class="min-w-[500px] max-w-[1000px] text-white text-center">
@@ -46,24 +81,30 @@
                         Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
                     </button>
                 </div>
-                <div class="pl-10">
-                    <div x-data x-show="$store.reception.verify"
-                        class="w-[300px] h-[300px]  py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
-                        <div></div>
-                        <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-32 fill-white">
-                                <path fill-rule="evenodd"
-                                    d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
-                                    clip-rule="evenodd" />
-                            </svg>
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div x-data x-show="$store.reception.verify" x-transition:enter.duration.500ms
+                            class=" p-16 py-5 px-20 space-y-5 text-white rounded-[5px] bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
+                            <div></div>
+                            <div class="w-[100px] h-[100px] bg-lime-500 rounded-full flex justify-center items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-32 fill-white">
+                                    <path fill-rule="evenodd"
+                                        d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="text-2xl text-center">
+                                <div>山田様</div>
+                                <div>1年○○○○療法</div>
+                            </div>
                         </div>
-                        <div class="text-2xl text-center">
-                            <div>山田様</div>
-                            <div>1年○○○○療法</div>
+                        <div x-data x-show="false"
+                            class="bg-red-700 bg-opacity-45 max-w-[350px] text-white mt-5 p-2 rounded-lg">
+                            問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                         </div>
                     </div>
-                    <div class="bg-red-700 max-w-[350px] text-white mt-5 p-2 rounded-lg">
-                        問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
+                    <div x-data x-show="$store.reception.showQrAlert" class="text-white">
+                        please qr code
                     </div>
                 </div>
                 <div>
@@ -72,19 +113,34 @@
         </div>
     </div>
     <script>
+
+
+        let mode = true;
+        let timeout;
+
         const canvas = document.getElementById("canvas")
         const context = canvas.getContext('2d');
         const video = document.getElementById('webcam');
         const bc = new BroadcastChannel("p_hub_reception");
-        const fps = 30;
-        const interval = 1000 / fps;
+        const facebox = document.getElementById("face-box")
+
         const hands = new Hands({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
         });
 
-        let lastTime = 0;
-        let mode = true;
-        let timeout;
+
+        const faceDetection = new FaceDetection({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4/${file}`;
+            }
+        });
+
+
+        faceDetection.setOptions({
+            model: 'short',
+            minDetectionConfidence: 0.8
+        });
+
 
         hands.setOptions({
             maxNumHands: 1,
@@ -100,12 +156,83 @@
             }
         }
 
+        let prevX;
+        let prevY;
+        let prevWidth;
+        let prevHeight;
+        let tk
+
+
+        const setFPS = () => {
+            let lastTime = 0
+            return ({ fps, currentTime = Date.now() }) => {
+                const interval = 1000 / fps;
+                const elapsed = currentTime - lastTime;
+                const con = elapsed >= interval;
+                lastTime = currentTime;
+                return con;
+            }
+        }
+
+
+        function onFaceDetectionResult(result) {
+            const detection = result.detections[0]
+
+            if (detection) {
+
+                let boundingBox = detection.boundingBox;
+                let width = Math.floor((boundingBox.width * canvas.clientWidth * 1.5));
+                let height = Math.floor((boundingBox.height * canvas.clientHeight * 2));
+                let x = Math.floor((boundingBox.xCenter - (boundingBox.width * 1.5)) * canvas.clientWidth);
+                let y = Math.floor((boundingBox.yCenter - boundingBox.height * 2) * canvas.clientHeight);
+                facebox.style.display = "block"
+
+                if (Math.abs(x - prevX) < 100) {
+                    x = prevX
+                    y = prevY
+                    width = prevWidth
+                    height = prevHeight
+                    if (!tk) {
+                        tk = setTimeout(() => {
+                            if (Alpine.store("reception").faceRegonization) {
+                                Alpine.store("reception").recognizeFace()
+                            }
+                        }, 1000)
+                    }
+                } else {
+                    clearTimeout(tk)
+                    tk = undefined
+                }
+
+                facebox.style.right = `${x}px`;
+                facebox.style.top = `${y}px`;
+
+                facebox.style.width = `${width}px`
+                facebox.style.height = `${height}px`
+
+                prevX = x
+                prevY = y
+                prevWidth = width
+                prevHeight = height
+            } else {
+                facebox.style.display = "none"
+                Alpine.store("reception").loader = false
+                Alpine.store("reception").failCount = 0
+                Alpine.store("reception").faceRegonization = true
+                Alpine.store("reception").verify = false
+            }
+
+        }
+
+
+        faceDetection.onResults(onFaceDetectionResult);
+
         function onResults(results) {
             const landmarks = results.multiHandLandmarks[0]
             landmarks?.forEach(function (l) {
-                const x = l.x * canvas.clientWidth
-                const y = l.y * canvas.clientHeight
-                if (x > 0 && x < 200 && y > 0 && y < 200) {
+                const x = l.x
+                const y = l.y
+                if (x > 0 && x.toFixed(1) < 0.3 && y > 0 && y.toFixed(1) < 0.3) {
                     if (!timeout) {
                         mode = !mode
                         bc.postMessage(JSON.stringify({ mode }))
@@ -134,11 +261,17 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                showQrAlert: false,
+                faceRegonization: true,
+                loader: false,
+                failCount: 0,
                 time: null,
                 mode: true,
-                verify: true,
+                chatSocket: null,
+                verify: false,
                 showMessage: false,
                 message: null,
+                socketReady: false,
                 messages: [
                     { content: "問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手" },
                     { content: "権んりをき大軽ど界細ひ外球ワイセラ女新カメソ社74着テ立遊ぴなむ月治ナカヱヒ展掲ぱゅ務銃うどよク陳火んリ利致こクべ英将ぜお本痛傾ーリぶ。購67状締拳5近ぶょ排掲ケ急掲ムコ上7健ロ台検ぞきス団著前方ネ報焼のだとび謝意チオ想安メウ融写壮憶ッ。力ずざえび略省年か制年クキソエ終工決ワキケ学隆じだふ期7混ぞリぐゆ所位コネヱ性体断どかぽ都後ネケツミ都最額拠セキサ端心とぼゆに" },
@@ -146,43 +279,91 @@
                 ],
                 webcamStream: null,
                 init() {
+                    const reception = this
                     this.connectClient()
                     this.message = this.messages[0].content
                     setInterval(() => {
                         this.time = `${this.currentDate()} ${this.currentTime()}`
                     }, 1000)
+                    this.chatSocket = new WebSocket(
+                        'ws://' + window.location.host + '/ws/attendance/1/'
+                    );
+                    this.chatSocket.onopen = function () {
+                        reception.socketReady = true
+                    }
+
+                    this.chatSocket.onmessage = function (e) {
+                        const data = JSON.parse(e.data)
+                        if (data.success) {
+                            reception.verify = true
+                            reception.failCount = 0
+                        } else if (reception.failCount <= 2) {
+                            reception.loader = false
+                            if (reception.failCount === 2) {
+                                reception.faceRegonization = false
+                                facebox.style.display = "none"
+                                reception.showQrAlert = true
+                            } else {
+                                reception.failCount = reception.failCount + 1
+                            }
+                        }
+                    }
                 },
                 connectClient() {
-                    navigator.mediaDevices.getUserMedia({ video: true })
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                         .then(stream => {
                             webcamStream = stream;
                             video.srcObject = stream;
+
+                            const reception = this
+
                             const drawCanvs = async function (currentTime) {
-                                width = canvas.width = canvas.clientWidth;
-                                height = canvas.height = canvas.clientHeight;
-                                context.save()
+                                width = canvas.width = video.videoWidth;
+                                height = canvas.height = video.videoHeight;
+                                context.save();
                                 context.scale(-1, 1);
                                 context.drawImage(video, -width, 0, width, height);
 
-                                if (currentTime - lastTime >= interval) {
-                                    await hands.send({ image: video });
-                                    lastTime = currentTime;
+                                if (setFPS({ fps: 1, currentTime }) && width > 10 && !reception.loader && !reception.faceRegonization) {
+                                    const imageData = context.getImageData(0, 0, width, height)
+                                    const code = jsQR(imageData.data, imageData.width, imageData.height)
+                                    if (code) {
+                                        reception.loader = true
+                                        reception.checkQR()
+                                    }
                                 }
+
+                                if (setFPS({ fps: 30, currentTime })) {
+                                    await hands.send({ image: video });
+                                    await faceDetection.send({ image: video });
+
+                                }
+
                                 context.restore()
                                 requestAnimationFrame(drawCanvs)
                             }
-                            drawCanvs()
+                            requestAnimationFrame(drawCanvs)
                         })
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
                         });
-
-
                 },
                 disconnectClient() {
                     if (webcamStream) {
                         webcamStream.getTracks().forEach(track => track.stop());
                     }
+                },
+                recognizeFace() {
+                    if (!this.loader && this.socketReady) {
+                        this.loader = true
+                        const base64 = canvas.toDataURL();
+                        this.chatSocket.send(JSON.stringify({ "image_url": base64, "qr_code": false }))
+                    }
+
+                },
+                checkQR() {
+                    const base64 = canvas.toDataURL();
+                    this.chatSocket.send(JSON.stringify({ "image_url": base64, qr_code: true }))
                 },
                 currentDate() {
                     const now = new Date();
