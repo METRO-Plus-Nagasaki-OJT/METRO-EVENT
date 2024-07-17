@@ -12,7 +12,7 @@ from collections import Counter
 import os
 from qreader import QReader
 from .face_capture import capture_face
-from event.models import Event
+from participant.models import Participant
 from django.utils import timezone
 
 # l2_normalizer = Normalizer("l2")
@@ -27,7 +27,7 @@ qr_reader = QReader()
 
 def get_encode(img):
     re_img = cv2.resize(img,(160, 160))
-    return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018")[0]["embedding"]
+    return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False)[0]["embedding"]
 
 
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
@@ -62,7 +62,6 @@ def verify(encode, threshold):
     best_matched = None
     for name, embedding in encoding_dict.items():
         similarity, is_match = compare_embeddings_cosine(encode, embedding[0])
-        print(f"The face of {name} is {similarity} similar to current face.")
         if similarity > highest_similarity:
             highest_similarity = similarity
             best_matched = name
@@ -114,9 +113,14 @@ class ImageConsumer(WebsocketConsumer):
                     success_message = True
         else:
             is_qr = True
-            success_message = True
-            qr_code = read_qr(image)[0]
-            now = timezone.now()
-            events = Event.objects.filter(end_time__gt=now).all().get()
+            qr_code = read_qr(image)
+            if qr_code is None:
+                success_message = False
+            else:
+                now = timezone.now()
+                p_in_ongoing_events = Participant.objects.filter(event__end_time__gt=now)
+                participant_ids = list(p_in_ongoing_events.values_list('id', flat=True))
+                if qr_code[0] in participant_ids:
+                    success_message = True
 
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))
