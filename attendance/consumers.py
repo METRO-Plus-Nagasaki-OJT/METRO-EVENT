@@ -61,7 +61,8 @@ def verify(encode, threshold):
     highest_similarity = -1
     best_matched = None
     for name, embedding in encoding_dict.items():
-        similarity, is_match = compare_embeddings_cosine(encode, embedding)
+        similarity, is_match = compare_embeddings_cosine(encode, embedding[0])
+        print(f"The face of {name} is {similarity} similar to current face.")
         if similarity > highest_similarity:
             highest_similarity = similarity
             best_matched = name
@@ -105,7 +106,7 @@ class ImageConsumer(WebsocketConsumer):
                 success_message = False
             else:
                 encode = get_encode(face)
-                pred = verify(encode, 0.7)
+                pred = verify(encode, 0.8)
                 unknown = check_unknown(encode)
                 if pred == False or unknown:
                     success_message = False
