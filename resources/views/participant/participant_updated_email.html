@@ -1,0 +1,16 @@
+{% extends "dashboard/master.html" %}
+{% load static %}
+
+{% block content %}
+<p>Dear {{ participant.name }},</p>
+    
+<p>Your information has been updated:</p>
+
+<ul>
+    <li>Name: {{ participant.name }}</li>
+    <li>Email: {{ participant.email }}</li>
+    <li>Seat No: {{ participant.seat_no }}</li>
+</ul>
+
+<p>Thank you!</p>
+{% endblock content %}

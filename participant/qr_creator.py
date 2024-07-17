@@ -55,5 +55,6 @@ def send_qr(receipient_email, subject, body, has_image=False, image_path=None):
 
     finally:
         server.quit()
-        if os.path.exists(image_path):
-            os.remove(image_path)
+        if has_image:
+            if os.path.exists(image_path):
+                os.remove(image_path)
