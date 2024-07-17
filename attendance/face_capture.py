@@ -9,5 +9,4 @@ def capture_face(img):
         face = img[y:y+h, x:x+w]
         return face
     except IndexError:
-        print("Index out of range error!")
-        pass
+        return False

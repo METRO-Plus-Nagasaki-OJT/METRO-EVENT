@@ -12,6 +12,7 @@ from collections import Counter
 import os
 from qreader import QReader
 from .face_capture import capture_face
+from event.models import Event
 
 # l2_normalizer = Normalizer("l2")
 
@@ -69,6 +70,8 @@ def verify(encode, threshold):
     else:
         return False
 
+def check_qr(qr_data):
+    ...
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
@@ -97,16 +100,19 @@ class ImageConsumer(WebsocketConsumer):
         is_qr = False
         if not qr:
             face = capture_face(image)
-            encode = get_encode(face)
-            pred = verify(encode, 0.7)
-            unknown = check_unknown(encode)
-            if pred == False or unknown:
+            if not face:
                 success_message = False
-            elif pred and not unknown:
-                success_message = True
+            else:
+                encode = get_encode(face)
+                pred = verify(encode, 0.7)
+                unknown = check_unknown(encode)
+                if pred == False or unknown:
+                    success_message = False
+                elif pred and not unknown:
+                    success_message = True
         else:
             is_qr = True
             success_message = True
             qr_code = read_qr(image)[0]
-            print(qr_code)
+
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))

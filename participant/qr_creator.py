@@ -30,9 +30,9 @@ def create_qr(id):
 
 def send_qr(email):
     smtp_server = "smtp.gmail.com"
-    port = 465
+    port = 587
     sender_email = "presenthub.co.24@gmail.com"
-    password = "legend@rypurojecto322"
+    password = "qcst ncki wour pfjk"
     subject = "Test Email from Present Hub"
     body = "This is a test email sent from a Present Hub."
     image_path = "common/QR.png"
@@ -45,14 +45,16 @@ def send_qr(email):
         mime_image = MIMEImage(image_file.read())
         mime_image.add_header('Content-Disposition', f'attachment; filename="{image_path.split("/")[-1]}"')
         message.attach(mime_image)
-        server = smtplib.SMTP(smtp_server, port)
     try:
+        server = smtplib.SMTP(smtp_server, port)
         server.starttls()
         server.login(sender_email, password)
         server.sendmail(sender_email, email, message.as_string())
         print("Email sent successfully!")
+
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(f"Error: {e}")
+
     finally:
         server.quit()
         if os.path.exists(image_path):
