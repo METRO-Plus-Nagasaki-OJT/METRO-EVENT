@@ -290,6 +290,16 @@
                                 <span x-text="errors.editaddress" class="text-red-600"></span>
                             </div>
                         </div>
+                        <div>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="emailNotificationCheckbox" class="sr-only peer" checked>
+                                <div
+                                    class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
+                                </div>
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Turn on to send
+                                    email about updated information!!</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
@@ -352,8 +362,10 @@
         <button
             class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Search</button>
     </div>
-    <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
-        class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+    <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white bg-blue-600 hover:bg-blue-700 
+        focus:ring-4 focus:outline-none focus:ring-blue-300 
+        font-medium rounded-lg text-sm px-5 py-2.5 
+        text-center inline-flex items-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
         type="button">
         Dropdown button
         <svg class="w-4 h-4 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -418,7 +430,7 @@
 </div>
 
 <!-- Pagination Controls -->
-<div class="flex justify-between items-center mt-4 px-5">
+<div class="flex justify-between items-center mt-4 px-5" style="padding-bottom: 20px;">
     <div class="text-sm text-gray-700">
         Showing <span class="font-medium">{{ page.start_index }}</span> to
         <span class="font-medium">{{ page.end_index}}</span> of
@@ -782,6 +794,9 @@
                     return
                 }
 
+                const emailNotificationCheckbox = document.getElementById('emailNotificationCheckbox');
+                const sendEmailNotification = emailNotificationCheckbox.checked;
+
                 if (!Object.keys(this.errors).length) {
                     try {
                         const res = await fetch(`participant/update/${currentParticipantId}/`, {
@@ -793,10 +808,16 @@
                             throw res
                         }
 
-                        const response = await res.json()
+                        const response = await res.json();
+
                         if (response.status === 'success') {
                             alert("Your Information is Updated!")
-                            window.location.href = "/participant"
+
+                            if (sendEmailNotification && response.updatedInfo && response.updatedInfo.email) {
+                                this.sendEmailNotification(response.updatedInfo.email);
+                            }
+
+                            window.location.href = "/participant";
                         } else {
                             console.log(response.message)
                         }
@@ -807,6 +828,27 @@
 
                 } else {
                     console.log(this.errors)
+                }
+            },
+
+            async sendEmailNotification(email) {
+                const formData = new FormData();
+                formData.append('email', email);
+
+                try {
+                    const res = await fetch('/send_update_notification/', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!res.ok) {
+                        throw res;
+                    }
+
+                    console.log("Email notification sent successfully!");
+
+                } catch (error) {
+                    console.error('Error sending email notification:', error);
                 }
             },
 

@@ -7,6 +7,7 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
+from django.shortcuts import HttpResponse
 
 @csrf_exempt
 def participant(request):
@@ -146,8 +147,23 @@ def update_participant(request, participant_id):
         participant.event = event
         participant.profile = profile
         
-        participant.save() 
+        participant.save()
 
-        return JsonResponse({'status': 'success'})
-    
+        # Prepare response data
+        response_data = {
+            'status': 'success',
+            'updatedInfo': {
+                'email': participant.email,
+            }
+        }
+
+        return JsonResponse(response_data)
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def send_update_notification(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        send_qr(email)  
+        return HttpResponse(status=200)
+    return HttpResponse(status=400)
