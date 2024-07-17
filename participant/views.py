@@ -9,6 +9,8 @@ from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
 from attendance.face_capture import capture_face, get_encode
 import numpy as np
+import cv2
+import pickle as pkl
 
 @csrf_exempt
 def participant(request):
@@ -32,7 +34,10 @@ def participant(request):
             profile = request.FILES["fileInput"]
             img = base64.b64encode(profile.read())
             profile = img.decode('utf-8')
-            np_img = np.frombuffer(img, dtype=np.uint8)
+            np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+            face, detection_status = capture_face(np_img)
+            if detection_status == True:
+                
             
         else:
             profile = None
@@ -53,7 +58,7 @@ def participant(request):
         )
         participant.save()
         create_qr(participant.id)
-        send_qr(email)
+        send_qr(email, "", "", True, 'common/QR.png')
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
