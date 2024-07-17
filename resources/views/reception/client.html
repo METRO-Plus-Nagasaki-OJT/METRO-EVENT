@@ -105,8 +105,9 @@
                             問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                         </div>
                     </div>
-                    <div x-data x-transition:enter.duration.500ms x-show="$store.reception.showQrAlert"
-                        class="p-5 border text-white items-center">
+                    <div x-data x-transition:enter.duration.500ms x-transition:leave.duration.500ms
+                        x-show="$store.reception.currentState === $store.reception.state().QR_DECETION"
+                        class="p-7  text-white items-center bg-green-400 bg-opacity-45 rounded-lg">
                         <div class="flex justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6/12 text-white">
@@ -116,8 +117,9 @@
                                     d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
                             </svg>
                         </div>
-                        <div class="text-center">
-                            The face detection fail use the qr code
+                        <div class="text-center font-semibold text-lg">
+                            顔認識が失敗したため、<br>
+                            代わりにQRコードを使用してください
                         </div>
                     </div>
                 </div>
@@ -179,13 +181,14 @@
             }
         });
 
-        const FPS1 = setFPS(1)
-        const FPS30 = setFPS(30)
+        const fps1 = setFPS(1)
+        const fps30 = setFPS(30)
+
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
-                showQrAlert: false,
-                faceRegonization: true,
+                qrLoader: false,
+                currentState: false,
                 loader: false,
                 failCount: 0,
                 time: null,
@@ -200,9 +203,16 @@
                     { content: "権んりをき大軽ど界細ひ外球ワイセラ女新カメソ社74着テ立遊ぴなむ月治ナカヱヒ展掲ぱゅ務銃うどよク陳火んリ利致こクべ英将ぜお本痛傾ーリぶ。購67状締拳5近ぶょ排掲ケ急掲ムコ上7健ロ台検ぞきス団著前方ネ報焼のだとび謝意チオ想安メウ融写壮憶ッ。力ずざえび略省年か制年クキソエ終工決ワキケ学隆じだふ期7混ぞリぐゆ所位コネヱ性体断どかぽ都後ネケツミ都最額拠セキサ端心とぼゆに" },
                     { content: "同とぽゃ早50持スし碁7策ナモヒ禁事にう買財ふっ袋止ドざぱご立67議忘チアム択原にンつへ年単構満ねとイッ。著39増ホユスリ仙無フおい誌速ワミノ長層ヒ朝勧ヨ社問にー交試サオメス業終ウヲシヒ大喫なゅ防生ぽふッレ較5速覧皇仲儀ざぎ。明ニカ果人ヲヘ進別すこげ世横はい言袋ケ医選ほ出維モヤセヒ制毎ヱタ最供そにおい央撲フ疑会キマ禁採ナヨクタ滋防大トせ教練クもず文更投温うむ要旨傑摯晋こ。" }
                 ],
+                state() {
+                    return {
+                        FACE_DECTION: "FACE_DETECTION",
+                        QR_DECETION: "QR_DECETION",
+                    }
+                },
                 webcamStream: null,
                 init() {
-                    const reception = this
+
+                    this.currentState = this.state().QR_DECETION
                     this.message = this.messages[0].content
 
                     setInterval(() => {
@@ -246,6 +256,7 @@
                         let prevWidth;
                         let prevHeight;
                         let timeout
+                        let resetTimeout;
 
                         return (result) => {
 
@@ -253,29 +264,27 @@
 
                             if (detection) {
                                 let boundingBox = detection.boundingBox;
-                                let width = Math.floor((boundingBox.width * canvas.width) * 5);
-                                let height = Math.floor((boundingBox.height * canvas.height) * 5);
+                                let width = Math.floor((boundingBox.width * canvas.clientWidth) * 1.5);
+                                let height = Math.floor((boundingBox.height * canvas.clientHeight) * 1.8);
                                 let x = Math.floor((boundingBox.xCenter * canvas.clientWidth) - width / 2)
-                                let y = Math.floor((boundingBox.yCenter * canvas.clientHeight) - height / 2) * 0.8;
-
-                                facebox.style.display = !this.faceRegonization ? "none" : "block"
+                                let y = Math.floor((boundingBox.yCenter * canvas.clientHeight) - height / 2);
 
                                 if (Math.abs(x - prevX) < 15) {
                                     x = prevX
                                     y = prevY
                                     width = prevWidth
                                     height = prevHeight
-                                    if (!timeout) {
+                                    if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION) {
+                                        facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                         timeout = setTimeout(() => {
-                                            timeout = undefined
-                                            if (this.faceRegonization) {
-                                                this.recognizeFace()
-                                            }
+                                            timeout = null
+                                            this.loader = true
+                                            this.recognizeFace(canvas.toDataURL())
                                         }, 300)
                                     }
                                 } else {
                                     clearTimeout(timeout)
-                                    timeout = undefined
+                                    timeout = null
                                 }
 
                                 facebox.style.right = `${x}px`;
@@ -288,13 +297,16 @@
                                 prevY = y
                                 prevWidth = width
                                 prevHeight = height
+                                clearTimeout(resetTimeout)
+                                resetTimeout = null
+
                             } else {
-                                facebox.style.display = "none"
-                                this.loader = false
-                                this.failCount = 0
-                                this.faceRegonization = true
-                                this.verify = false
-                                this.showQrAlert = false
+                                if (!resetTimeout) {
+                                    resetTimeout = setTimeout(() => {
+                                        resetTimeout = null
+                                        this.reset()
+                                    }, 2000)
+                                }
                             }
 
                         }
@@ -304,44 +316,66 @@
                     faceDetection.onResults(onFaceDetectionResult());
                     hands.onResults(onHandResults());
                 },
+                reset() {
+                    facebox.style.display = "none"
+                    this.loader = false
+                    this.failCount = 0
+                    this.currentState = this.state().FACE_DECTION
+                    this.verify = false
+                },
                 connectSocket() {
-                    const reception = this
-
                     this.socket = new WebSocket(
                         'ws://' + window.location.host + '/ws/attendance/1/'
                     );
 
                     this.socket.onopen = () => {
-                        reception.socketReady = true
+                        this.socketReady = true
                     }
 
                     this.socket.onclose = (e) => {
                         console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
                         setTimeout(() => {
-                            reception.socket.connect();
+                            this.connectSocket();
                         }, 1000);
                     };
 
                     this.socket.onerror = (err) => {
                         console.error('Socket encountered error: ', err.message, 'Closing socket');
-                        reception.socket.close();
+                        this.socket.close();
                     };
 
                     this.socket.onmessage = (e) => {
                         const data = JSON.parse(e.data)
+
                         if (data.success) {
-                            reception.verify = true
-                            reception.failCount = 0
-                        } else if (reception.failCount <= 2) {
-                            reception.loader = false
-                            if (reception.failCount === 2) {
-                                reception.faceRegonization = false
-                                facebox.style.display = "none"
-                                reception.showQrAlert = true
-                            } else {
-                                reception.failCount = reception.failCount + 1
-                            }
+                            facebox.style.display = "none"
+                            this.verify = true
+                            return
                         }
+
+                        if (data.qr_code) {
+                            Toastify({
+                                text: "未承認のQRコードです。",
+                                duration: 3000,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                    background: "red",
+                                    fontSize: '36px',
+                                    borderRadius: "5px"
+                                },
+                            }).showToast();
+                        }
+
+                        this.loader = false
+
+                        if (this.failCount === 2) {
+                            this.currentState = this.state().QR_DECETION
+                            facebox.style.display = "none"
+                            return
+                        }
+
+                        this.failCount = this.failCount + 1
                     }
                 },
                 connectCamera() {
@@ -349,9 +383,6 @@
                         .then(stream => {
                             webcamStream = stream;
                             video.srcObject = stream;
-
-                            const reception = this
-
                             const drawCanvs = async (currentTime) => {
                                 width = canvas.width = video.videoWidth;
                                 height = canvas.height = video.videoHeight;
@@ -359,33 +390,25 @@
                                 context.scale(-1, 1);
                                 context.drawImage(video, -width, 0, width, height);
 
-                                const rectX = -canvas.width; // Adjusted x-coordinate to place the rectangle on the right
-                                const rectY = 120;
-                                const rectWidth = 200;
-                                const rectHeight = 100;
-
-                                context.fillStyle = 'blue'; // Fill color
-                                context.fillRect(rectX, rectY, rectWidth, rectHeight); // (x, y, width, height)
-
-                                // Optionally, draw a border
-                                context.strokeStyle = 'red'; // Border color
-                                context.lineWidth = 2; // Border width
-                                context.strokeRect(rectX, rectY, rectWidth, rectHeight); 
-
-                                if (FPS1(currentTime)) {
-                                    await hands.send({ image: video });
-                                    if (width && !reception.loader && !reception.faceRegonization) {
+                                if (width && this.socketReady) {
+                                    if (fps1(currentTime)) {
+                                        await hands.send({ image: video });
                                         const imageData = context.getImageData(0, 0, width, height)
-                                        const code = jsQR(imageData.data, imageData.width, imageData.height)
-                                        if (code) {
-                                            reception.loader = true
-                                            reception.checkQR()
+                                        const qr = jsQR(imageData.data, imageData.width, imageData.height)
+
+                                        if (qr && !this.qrLoader) {
+                                            this.qrLoader = true
+                                            this.checkQR(canvas.toDataURL())
+                                        }
+
+                                        if (!qr) {
+                                            this.qrLoader = false
                                         }
                                     }
-                                }
 
-                                if (FPS30(currentTime)) {
-                                    await faceDetection.send({ image: video });
+                                    if (fps30(currentTime) && !this.qrLoader) {
+                                        await faceDetection.send({ image: video });
+                                    }
                                 }
 
                                 context.restore()
@@ -402,16 +425,11 @@
                         webcamStream.getTracks().forEach(track => track.stop());
                     }
                 },
-                recognizeFace() {
-                    if (!this.loader && this.socketReady) {
-                        this.loader = true
-                        const base64 = canvas.toDataURL();
-                        this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false }))
-                    }
+                recognizeFace(base64) {
+                    this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false }))
 
                 },
-                checkQR() {
-                    const base64 = canvas.toDataURL();
+                checkQR(base64) {
                     this.socket.send(JSON.stringify({ "image_url": base64, qr_code: true }))
                 },
                 currentDate() {
