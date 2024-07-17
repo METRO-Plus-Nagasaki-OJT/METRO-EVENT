@@ -7,6 +7,8 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
+from attendance.face_capture import capture_face, get_encode
+import numpy as np
 
 @csrf_exempt
 def participant(request):
@@ -28,8 +30,10 @@ def participant(request):
         # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
             profile = request.FILES["fileInput"]
-            img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')
+            img = base64.b64encode(profile.read())
+            profile = img.decode('utf-8')
+            np_img = np.frombuffer(img, dtype=np.uint8)
+            
         else:
             profile = None
 
