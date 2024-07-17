@@ -94,7 +94,10 @@ def get_participant_data(request, participant_id):
             'address': participant.address,
             'role': participant.role,
             'gender': participant.gender,
+            'created_at': participant.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_at': participant.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'image_data': base64.b64encode(profile_data).decode('utf-8') if profile_data else None,
+            'editPf': bool(participant.profile),
         }
         return JsonResponse(data)
 
@@ -113,7 +116,6 @@ def update_participant(request, participant_id):
         
         # Retrieve data from POST request
         name = request.POST.get('editname')
-        print("adadad",name)
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
         dob = request.POST.get('editdob')
@@ -130,11 +132,11 @@ def update_participant(request, participant_id):
         if 'editfileInput' in request.FILES:
             profile = request.FILES["editfileInput"]
             img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')  # Encode image to base64
+            profile = base64.b64encode(img).decode('utf-8')  
         else:
-            profile = participant.profile  # Use existing profile if no new image provided
+            profile = participant.profile  
 
-        # Update the fields of the existing participant object
+        # Update 
         participant.name = name
         participant.email = email
         participant.seat_no = seat_no
