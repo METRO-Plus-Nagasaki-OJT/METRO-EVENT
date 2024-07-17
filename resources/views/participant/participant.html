@@ -2,9 +2,14 @@
 {% extends "dashboard/master.html" %}
 {% load static %}
 
-{% block title %}Participant Management{% endblock %}
+{% block title %}Participant Management{% endblock title %}
 
 {% block content %}
+
+{% block css %}
+<script src="{% static 'js/download.js' %}"></script>
+
+{% endblock css %}
 <!-- Container -->
 
 <div class="mb-4 bg-gray-200 px-1 py-5">
@@ -48,7 +53,7 @@
                     <div id="imageContainer" name="imageContainer"
                         class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <img id="capturedImage" name="capturedImage" class="h-full w-full object-cover"
-                            src="{% static 'common/Rosie.jpg' %}">
+                            src="{% static 'common/default.jpg' %}">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="cameraButton" type="button"
@@ -109,9 +114,9 @@
                             <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                             <select id="role" name="role" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
+                                <option value="1">Student</option>
+                                <option value="2">Staff</option>
+                                <option value="3">Guest</option>
                             </select>
                             <span x-text="errors.role" class="text-red-600"></span>
                         </div>
@@ -177,7 +182,7 @@
                     <div id="editimageContainer"
                         class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <img id="editcapturedImage" class="h-full w-full object-cover"
-                            src="{% static 'common/Rosie.jpg' %}">
+                            src="{% static 'common/default.jpg' %}">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="editCameraButton" @click="initCamera" type="button"
@@ -198,7 +203,7 @@
                 </div>
 
                 <!-- Input Fields -->
-                <div class="w-full sm:w-2/3 p-2 pt-5">
+                <div class="w-full sm:w-2/3 p-7">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
@@ -213,11 +218,9 @@
                             <span x-text="errors.editemail" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="editseat_no"
-                                class="block text-sm font-medium text-gray-700">ParticipantNo</label>
-                            <input type="text" id="editseat_no" name="editseat_no" x-clover-verify
+                            <label for="editseat_no" class="block text-sm font-medium text-gray-700">SeatNo</label>
+                            <input type="text" id="editseat_no" name="editseat_no"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.editseat_no" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="editdob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
@@ -225,24 +228,31 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editdob" class="text-red-600"></span>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Gender</label>
-                            <div class="mt-1 flex pt-4">
-                                <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
-                                <label for="editmale" class="mr-4">Male</label>
-                                <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
-                                <label for="editfemale">Female</label>
+                        <div class="col-span-2 grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                <div class="mt-1 flex pt-4">
+                                    <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
+                                    <label for="editmale" class="mr-4">Male</label>
+                                    <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
+                                    <label for="editfemale">Female</label>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <label for="editrole" class="block text-sm font-medium text-gray-700">Role</label>
-                            <select id="editrole" name="editrole"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                            <span x-text="errors.editrole" class="text-red-600"></span>
+                            <div>
+                                <label for="editpf" class="block text-sm font-medium text-gray-700">Profile</label>
+                                <input type="text" id="editpf" name="editpf" disabled
+                                    class="mt-1 block w-[200px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="editrole" class="block text-sm font-medium text-gray-700">Role</label>
+                                <select id="editrole" name="editrole"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="1">Student</option>
+                                    <option value="2">Staff</option>
+                                    <option value="3">Guest</option>
+                                </select>
+                                <span x-text="errors.editrole" class="text-red-600"></span>
+                            </div>
                         </div>
                         <div>
                             <label for="editphone_1" class="block text-sm font-medium text-gray-700">PhNo1</label>
@@ -255,17 +265,30 @@
                             <input type="text" id="editphone_2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
-
-                        <div class="sm:col-span-2 mt-4">
-                            <label for="editmemo" class="block text-sm font-medium text-gray-700">Memo</label>
-                            <textarea id="editmemo" rows="2"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        <div class="col-span-2 grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="editStart" class="block text-sm font-medium text-gray-700">StartDate</label>
+                                <input id="editStart" rows="2" type="text" disabled
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="editEnd" class="block text-sm font-medium text-gray-700">EndDate</label>
+                                <input id="editEnd" rows="2" name="editEnd" type="text" disabled
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
                         </div>
-                        <div class="sm:col-span-2 mt-4">
-                            <label for="editaddress" class="block text-sm font-medium text-gray-700">Address</label>
-                            <textarea id="editaddress" rows="2" name="editaddress" x-clover-verify
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                            <span x-text="errors.editaddress" class="text-red-600"></span>
+                        <div class="col-span-2 grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="editmemo" class="block text-sm font-medium text-gray-700">Memo</label>
+                                <textarea id="editmemo" rows="2"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label for="editaddress" class="block text-sm font-medium text-gray-700">Address</label>
+                                <textarea id="editaddress" rows="2" name="editaddress" x-clover-verify
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                                <span x-text="errors.editaddress" class="text-red-600"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -329,16 +352,39 @@
         <button
             class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Search</button>
     </div>
-    <div class="relative flex items-center mx-end">
-        <button
-            class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Download
-            CSV</button>
+    <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
+        class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+        type="button">
+        Dropdown button
+        <svg class="w-4 h-4 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 4 4 4-4" />
+        </svg>
+    </button>
+
+    <!-- Dropdown menu -->
+    <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+            <li>
+                <a href="#" id="downloadCSV"
+                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                    Download CSV
+                </a>
+            </li>
+            <li>
+                <a href="#" id="downloadPP"
+                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                    Download PowerPoint
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
 
 <!-- Participants Table -->
 <div class="overflow-x-auto relative shadow-md sm:rounded-lg px-5">
-    <table class="w-full text-sm text-left text-gray-500">
+    <table class="w-full text-sm text-left text-gray-500" id="participantTable">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
                 <th scope="col" class="py-3 px-6 w-4"></th>
@@ -374,13 +420,15 @@
 <!-- Pagination Controls -->
 <div class="flex justify-between items-center mt-4 px-5">
     <div class="text-sm text-gray-700">
-        Showing <span class="font-medium">{{ page.start_index }}</span> to <span class="font-medium">{{page.end_index}}</span> of <span class="font-medium">{{ page.paginator.count }}</span> results
+        Showing <span class="font-medium">{{ page.start_index }}</span> to
+        <span class="font-medium">{{ page.end_index}}</span> of
+        <span class="font-medium">{{ page.paginator.count }}</span> results
     </div>
     <nav aria-label="Page navigation">
         <ul class="inline-flex items-center -space-x-px">
             {% if page.has_previous %}
             <li>
-                <button onclick="navigatePage('{{ page.previous_page_number }}')"
+                <a href="?page={{ page.previous_page_number }}&per_page={{ per_page }}"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
                     <span class="sr-only">Previous</span>
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -388,20 +436,19 @@
                             d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z"
                             clip-rule="evenodd" />
                     </svg>
-                </button>
+                </a>
             </li>
             {% endif %}
             {% for num in page.paginator.page_range %}
             <li>
-                <button onclick="navigatePage('{{ num }}')"
+                <a href="?page={{ num }}&per_page={{ per_page }}"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
-                    {{ num }}
-                </button>
+                    {{ num }}</a>
             </li>
             {% endfor %}
             {% if page.has_next %}
             <li>
-                <button onclick="navigatePage('{{ page.next_page_number }}')"
+                <a href="?page={{ page.next_page_number }}&per_page={{ per_page }}"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
                     <span class="sr-only">Next</span>
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -409,14 +456,17 @@
                             d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z"
                             clip-rule="evenodd" />
                     </svg>
-                </button>
+                </a>
             </li>
             {% endif %}
         </ul>
     </nav>
 </div>
 </div>
+{% endblock content %}
 
+
+{% block script %}
 <script>
     //Register Modal handling
     const openModalButton = document.getElementById('openModal');
@@ -440,60 +490,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('per_page', perPage);
             window.location.search = urlParams.toString();
-        });
-
-        function navigatePage(pageNumber) {
-            const perPage = paginationSelect.value;
-            const url = `?page=${pageNumber}&per_page=${perPage}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    updateParticipantTable(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-
-        function updateParticipantTable(data) {
-            const ptList = document.getElementById('ptList');
-            ptList.innerHTML = ''; // Clear existing table rows
-
-            data.participants.forEach(participant => {
-                const tr = document.createElement('tr');
-                tr.className = 'bg-white border-b';
-                tr.innerHTML = `
-                <td class="py-4 px-6">
-                    <button class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 open-edit-modal"
-                            data-participant-id="${participant.id}">Details</button>
-                </td>
-                <td class="py-4 px-6">${participant.id}</td>
-                <td class="py-4 px-6 participant-name">${participant.name}</td>
-                <td class="py-4 px-6">${participant.seat_no}</td>
-                <td class="py-4 px-6">${participant.dob}</td>
-                <td class="py-4 px-6">${participant.phone_1}</td>
-                <td class="py-4 px-6">${participant.status}</td>
-            `;
-                ptList.appendChild(tr);
-            });
-
-            // Update pagination info
-            const pageInfo = document.querySelector('.text-sm.text-gray-700');
-            pageInfo.innerHTML = `
-            Showing <span class="font-medium">${data.page.start_index}</span>
-            to <span class="font-medium">${data.page.end_index}</span>
-            of <span class="font-medium">${data.page.paginator.count}</span> results
-        `;
-        }
-
-        // Event listeners for pagination buttons
-        const paginationButtons = document.querySelectorAll('.pagination-button');
-        paginationButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const pageNumber = button.dataset.pageNumber;
-                navigatePage(pageNumber);
-            });
         });
     });
 
@@ -533,6 +529,8 @@
                         document.getElementById('editmemo').value = data.memo || '';
                         document.getElementById('editaddress').value = data.address || '';
                         document.getElementById('editrole').value = data.role || '';
+                        document.getElementById('editStart').value = data.created_at || '';
+                        document.getElementById('editEnd').value = data.updated_at || '';
 
                         if (data.gender === 'male') {
                             document.getElementById('male').checked = true;
@@ -550,6 +548,13 @@
                             img.src = `data:image/jpeg;base64,${data.image_data}`;
                             img.classList.add('h-full', 'w-full', 'object-cover');
                             editImgContainer.appendChild(img);
+                        }
+
+                        const editProfileField = document.getElementById('editpf');
+                        if (data.editPf) {
+                            editProfileField.value = 'True';
+                        } else {
+                            editProfileField.value = 'False';
                         }
 
                         editModal.classList.remove('hidden');
@@ -726,7 +731,7 @@
                 const imgContainer = document.getElementById('imageContainer');
                 imgContainer.innerHTML = '';
                 const image = new Image()
-                image.src = "/public/common/Rosie.jpg"
+                image.src = "/public/common/default.jpg"
                 imageContainer.appendChild(image)
 
             },
@@ -894,7 +899,7 @@
                 const editImgContainer = document.getElementById('editimageContainer');
                 editImgContainer.innerHTML = '';
                 const image = new Image()
-                image.src = "/public/common/Rosie.jpg"
+                image.src = "/public/common/default.jpg"
                 editImgContainer.appendChild(image)
             },
 
@@ -961,8 +966,87 @@
                 }
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdownButton = document.getElementById('dropdownDefaultButton');
+            const dropdownMenu = document.getElementById('dropdown');
+
+            dropdownButton.addEventListener('click', function () {
+                dropdownMenu.classList.toggle('hidden');
+            });
+
+            window.addEventListener('click', function (event) {
+                if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+
+            // Handle CSV download
+            const downloadCSV = document.getElementById('downloadCSV');
+            downloadCSV.addEventListener('click', function () {
+                downloadTableAsCSV('participantTable', 'participants.csv');
+            });
+
+            // Handle PowerPoint download
+            const downloadPP = document.getElementById('downloadPP');
+            downloadPP.addEventListener('click', function () {
+                downloadTableAsPPT('participantTable', 'participants.pptx');
+            });
+        });
+
+        function downloadTableAsCSV(tableId, filename) {
+            let csv = [];
+            const rows = document.querySelectorAll(`#${tableId} tr`);
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = [];
+                const cols = rows[i].querySelectorAll('td, th');
+
+                for (let j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                }
+
+                csv.push(row.join(','));
+            }
+
+            const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv' });
+
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(csvBlob);
+            downloadLink.download = filename;
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        function downloadTableAsPPT(tableId, filename) {
+            const pptx = new pptxgen();
+            const slide = pptx.addSlide();
+
+            const rows = document.querySelectorAll(`#${tableId} tr`);
+            const data = [];
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td, th');
+                const rowData = [];
+                cells.forEach(cell => {
+                    rowData.push(cell.innerText);
+                });
+                data.push(rowData);
+            });
+
+            slide.addTable(data, {
+                x: 0.5, y: 0.5,
+                colW: [1.5, 3, 1.5, 1.5],
+                border: { pt: '1', color: '000000' },
+                fill: 'F1F1F1',
+                fontSize: 12
+            });
+
+            pptx.writeFile({ fileName: filename });
+        }
     })
 
 </script>
-
-{% endblock %}
+{% endblock script %}

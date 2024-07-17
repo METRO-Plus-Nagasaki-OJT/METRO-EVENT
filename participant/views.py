@@ -7,6 +7,10 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
+from attendance.face_capture import capture_face, get_encode
+import numpy as np
+import cv2
+import pickle as pkl
 
 @csrf_exempt
 def participant(request):
@@ -28,8 +32,13 @@ def participant(request):
         # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
             profile = request.FILES["fileInput"]
-            img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')
+            img = base64.b64encode(profile.read())
+            profile = img.decode('utf-8')
+            np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+            face, detection_status = capture_face(np_img)
+            if detection_status == True:
+                
+            
         else:
             profile = None
 
@@ -49,7 +58,7 @@ def participant(request):
         )
         participant.save()
         create_qr(participant.id)
-        send_qr(email)
+        send_qr(email, "", "", True, 'common/QR.png')
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
@@ -90,7 +99,10 @@ def get_participant_data(request, participant_id):
             'address': participant.address,
             'role': participant.role,
             'gender': participant.gender,
+            'created_at': participant.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_at': participant.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'image_data': base64.b64encode(profile_data).decode('utf-8') if profile_data else None,
+            'editPf': bool(participant.profile),
         }
         return JsonResponse(data)
 
@@ -109,7 +121,6 @@ def update_participant(request, participant_id):
         
         # Retrieve data from POST request
         name = request.POST.get('editname')
-        print("adadad",name)
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
         dob = request.POST.get('editdob')
@@ -126,11 +137,11 @@ def update_participant(request, participant_id):
         if 'editfileInput' in request.FILES:
             profile = request.FILES["editfileInput"]
             img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')  # Encode image to base64
+            profile = base64.b64encode(img).decode('utf-8')  
         else:
-            profile = participant.profile  # Use existing profile if no new image provided
+            profile = participant.profile  
 
-        # Update the fields of the existing participant object
+        # Update 
         participant.name = name
         participant.email = email
         participant.seat_no = seat_no
