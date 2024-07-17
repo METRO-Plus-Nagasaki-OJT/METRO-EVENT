@@ -38,7 +38,7 @@ def participant(request):
             np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
             face, detection_status = capture_face(np_img)
             if detection_status == True:
-                
+                ...
             
         else:
             profile = None
@@ -116,6 +116,14 @@ def delete_participant(request, participant_id):
     else:
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Participant
+from event.models import Event
+from .qr_creator import create_qr, send_qr
+
+@csrf_exempt
 def update_participant(request, participant_id):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, id=participant_id)
@@ -131,18 +139,19 @@ def update_participant(request, participant_id):
         phone_2 = request.POST.get('editphone_2')
         memo = request.POST.get('editmemo')
         address = request.POST.get('editaddress')
-        event_id = request.POST.get('event') 
+        event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
+        email_status = request.POST.get('email_status')
 
         # Handle base64-encoded image data if provided
         if 'editfileInput' in request.FILES:
             profile = request.FILES["editfileInput"]
             img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')  
+            profile = base64.b64encode(img).decode('utf-8')
         else:
-            profile = participant.profile  
+            profile = participant.profile
 
-        # Update 
+        # Update participant fields
         participant.name = name
         participant.email = email
         participant.seat_no = seat_no
@@ -155,24 +164,20 @@ def update_participant(request, participant_id):
         participant.address = address
         participant.event = event
         participant.profile = profile
-        
+
+        # Save participant object
         participant.save()
 
-        # Prepare response data
-        response_data = {
-            'status': 'success',
-            'updatedInfo': {
-                'email': participant.email,
-            }
-        }
+        # Send email notification if email_status is true
+        if email_status == 'true':
+            send_update_notification(email)
 
-        return JsonResponse(response_data)
+        return JsonResponse({'status': 'success', 'message': 'Participant updated successfully!'})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-def send_update_notification(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        send_qr(email)  
-        return HttpResponse(status=200)
-    return HttpResponse(status=400)
+def send_update_notification(email):
+    # Example: Modify send_qr to send an update notification email
+    send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
+
+

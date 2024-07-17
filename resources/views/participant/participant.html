@@ -796,7 +796,7 @@
 
                 const emailNotificationCheckbox = document.getElementById('emailNotificationCheckbox');
                 const sendEmailNotification = emailNotificationCheckbox.checked;
-
+                formData.append("email_status", sendEmailNotification)
                 if (!Object.keys(this.errors).length) {
                     try {
                         const res = await fetch(`participant/update/${currentParticipantId}/`, {
@@ -814,6 +814,7 @@
                             alert("Your Information is Updated!")
 
                             if (sendEmailNotification && response.updatedInfo && response.updatedInfo.email) {
+                                console.log(response.updatedInfo)
                                 this.sendEmailNotification(response.updatedInfo.email);
                             }
 
@@ -828,27 +829,6 @@
 
                 } else {
                     console.log(this.errors)
-                }
-            },
-
-            async sendEmailNotification(email) {
-                const formData = new FormData();
-                formData.append('email', email);
-
-                try {
-                    const res = await fetch('/send_update_notification/', {
-                        method: 'POST',
-                        body: formData,
-                    });
-
-                    if (!res.ok) {
-                        throw res;
-                    }
-
-                    console.log("Email notification sent successfully!");
-
-                } catch (error) {
-                    console.error('Error sending email notification:', error);
                 }
             },
 
