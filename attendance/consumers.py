@@ -99,8 +99,8 @@ class ImageConsumer(WebsocketConsumer):
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         is_qr = False
         if not qr:
-            face = capture_face(image)
-            if not face:
+            face, status = capture_face(image)
+            if status == False:
                 success_message = False
             else:
                 encode = get_encode(face)

@@ -7,6 +7,6 @@ def capture_face(img):
         detection = DeepFace.extract_faces(img, detector_backend="centerface", enforce_detection=False)[0]
         x, y, w, h = detection['facial_area']['x'], detection['facial_area']['y'], detection['facial_area']['w'], detection['facial_area']['h']
         face = img[y:y+h, x:x+w]
-        return face
+        return face, True
     except IndexError:
-        return False
+        return None, False
