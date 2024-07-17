@@ -5,13 +5,11 @@ import numpy as np
 import cv2
 import base64
 import pickle as pkl
-from deepface import DeepFace
 from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
-import os
 from qreader import QReader
-from .face_capture import capture_face
+from .face_capture import capture_face, get_encode
 from participant.models import Participant
 from django.utils import timezone
 
@@ -24,10 +22,6 @@ def load_pickle(path):
 
 encoding_dict = load_pickle("./embeddings/encodings_2fn.pkl")
 qr_reader = QReader()
-
-def get_encode(img):
-    re_img = cv2.resize(img,(160, 160))
-    return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False)[0]["embedding"]
 
 
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
@@ -71,8 +65,6 @@ def verify(encode, threshold):
     else:
         return False
 
-def check_qr(qr_data):
-    ...
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
@@ -93,7 +85,7 @@ class ImageConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         img_base64, qr = text_data_json["image_url"], text_data_json["qr_code"]
-        success_message = None
+        success_message = False
         base64_data = img_base64.split(",")[1]
         byte_data = base64.b64decode(base64_data)
         img_np = np.fromstring(byte_data, np.uint8)
