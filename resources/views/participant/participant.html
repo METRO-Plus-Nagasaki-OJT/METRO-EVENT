@@ -48,7 +48,7 @@
                     <div id="imageContainer" name="imageContainer"
                         class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <img id="capturedImage" name="capturedImage" class="h-full w-full object-cover"
-                            src="{% static 'common/Rosie.jpg' %}">
+                            src="{% static 'common/default.jpg' %}">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="cameraButton" type="button"
@@ -109,9 +109,9 @@
                             <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                             <select id="role" name="role" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
+                                <option value="1">Student</option>
+                                <option value="2">Staff</option>
+                                <option value="3">Guest</option>
                             </select>
                             <span x-text="errors.role" class="text-red-600"></span>
                         </div>
@@ -177,7 +177,7 @@
                     <div id="editimageContainer"
                         class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <img id="editcapturedImage" class="h-full w-full object-cover"
-                            src="{% static 'common/Rosie.jpg' %}">
+                            src="{% static 'common/default.jpg' %}">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="editCameraButton" @click="initCamera" type="button"
@@ -198,7 +198,7 @@
                 </div>
 
                 <!-- Input Fields -->
-                <div class="w-full sm:w-2/3 p-2 pt-5">
+                <div class="w-full sm:w-2/3 p-7">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
@@ -213,11 +213,9 @@
                             <span x-text="errors.editemail" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="editseat_no"
-                                class="block text-sm font-medium text-gray-700">ParticipantNo</label>
-                            <input type="text" id="editseat_no" name="editseat_no" x-clover-verify
+                            <label for="editseat_no" class="block text-sm font-medium text-gray-700">SeatNo</label>
+                            <input type="text" id="editseat_no" name="editseat_no"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.editseat_no" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="editdob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
@@ -225,24 +223,31 @@
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editdob" class="text-red-600"></span>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Gender</label>
-                            <div class="mt-1 flex pt-4">
-                                <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
-                                <label for="editmale" class="mr-4">Male</label>
-                                <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
-                                <label for="editfemale">Female</label>
+                        <div class="col-span-2 grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                <div class="mt-1 flex pt-4">
+                                    <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
+                                    <label for="editmale" class="mr-4">Male</label>
+                                    <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
+                                    <label for="editfemale">Female</label>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <label for="editrole" class="block text-sm font-medium text-gray-700">Role</label>
-                            <select id="editrole" name="editrole"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                            <span x-text="errors.editrole" class="text-red-600"></span>
+                            <div>
+                                <label for="editpf" class="block text-sm font-medium text-gray-700">Profile</label>
+                                <input type="text" id="editpf" name="editpf" disabled
+                                    class="mt-1 block w-[200px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="editrole" class="block text-sm font-medium text-gray-700">Role</label>
+                                <select id="editrole" name="editrole"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="1">Student</option>
+                                    <option value="2">Staff</option>
+                                    <option value="3">Guest</option>
+                                </select>
+                                <span x-text="errors.editrole" class="text-red-600"></span>
+                            </div>
                         </div>
                         <div>
                             <label for="editphone_1" class="block text-sm font-medium text-gray-700">PhNo1</label>
@@ -255,17 +260,30 @@
                             <input type="text" id="editphone_2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
-
-                        <div class="sm:col-span-2 mt-4">
-                            <label for="editmemo" class="block text-sm font-medium text-gray-700">Memo</label>
-                            <textarea id="editmemo" rows="2"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                        <div class="col-span-2 grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="editStart" class="block text-sm font-medium text-gray-700">StartDate</label>
+                                <input id="editStart" rows="2" type="text" disabled
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="editEnd" class="block text-sm font-medium text-gray-700">EndDate</label>
+                                <input id="editEnd" rows="2" name="editEnd" type="text" disabled
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            </div>
                         </div>
-                        <div class="sm:col-span-2 mt-4">
-                            <label for="editaddress" class="block text-sm font-medium text-gray-700">Address</label>
-                            <textarea id="editaddress" rows="2" name="editaddress" x-clover-verify
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                            <span x-text="errors.editaddress" class="text-red-600"></span>
+                        <div class="col-span-2 grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="editmemo" class="block text-sm font-medium text-gray-700">Memo</label>
+                                <textarea id="editmemo" rows="2"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label for="editaddress" class="block text-sm font-medium text-gray-700">Address</label>
+                                <textarea id="editaddress" rows="2" name="editaddress" x-clover-verify
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                                <span x-text="errors.editaddress" class="text-red-600"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -343,11 +361,13 @@
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
             <li>
                 <a href="#"
-                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Download CSV</a>
+                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Download
+                    CSV</a>
             </li>
             <li>
                 <a href="#"
-                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Download PowerPoint</a>
+                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Download
+                    PowerPoint</a>
             </li>
         </ul>
     </div>
@@ -391,9 +411,9 @@
 <!-- Pagination Controls -->
 <div class="flex justify-between items-center mt-4 px-5">
     <div class="text-sm text-gray-700">
-        Showing <span class="font-medium">{{ page.start_index }}</span>
-        to <span class="font-medium">{{ page.end_index}}</span> of <span class="font-medium">{{ page.paginator.count
-            }}</span> results
+        Showing <span class="font-medium">{{ page.start_index }}</span> to
+        <span class="font-medium">{{ page.end_index}}</span> of
+        <span class="font-medium">{{ page.paginator.count }}</span> results
     </div>
     <nav aria-label="Page navigation">
         <ul class="inline-flex items-center -space-x-px">
@@ -413,8 +433,8 @@
             {% for num in page.paginator.page_range %}
             <li>
                 <a href="?page={{ num }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{
-                    num }}</a>
+                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
+                    {{ num }}</a>
             </li>
             {% endfor %}
             {% if page.has_next %}
@@ -460,6 +480,7 @@
             window.location.search = urlParams.toString();
         });
     });
+
     document.addEventListener('DOMContentLoaded', function () {
         const openEditButtons = document.querySelectorAll('.open-edit-modal');
         const editModal = document.getElementById('editModal');
@@ -496,6 +517,8 @@
                         document.getElementById('editmemo').value = data.memo || '';
                         document.getElementById('editaddress').value = data.address || '';
                         document.getElementById('editrole').value = data.role || '';
+                        document.getElementById('editStart').value = data.created_at || '';
+                        document.getElementById('editEnd').value = data.updated_at || '';
 
                         if (data.gender === 'male') {
                             document.getElementById('male').checked = true;
@@ -513,6 +536,13 @@
                             img.src = `data:image/jpeg;base64,${data.image_data}`;
                             img.classList.add('h-full', 'w-full', 'object-cover');
                             editImgContainer.appendChild(img);
+                        }
+
+                        const editProfileField = document.getElementById('editpf');
+                        if (data.editPf) {
+                            editProfileField.value = 'True';
+                        } else {
+                            editProfileField.value = 'False';
                         }
 
                         editModal.classList.remove('hidden');
@@ -689,7 +719,7 @@
                 const imgContainer = document.getElementById('imageContainer');
                 imgContainer.innerHTML = '';
                 const image = new Image()
-                image.src = "/public/common/Rosie.jpg"
+                image.src = "/public/common/default.jpg"
                 imageContainer.appendChild(image)
 
             },
@@ -857,7 +887,7 @@
                 const editImgContainer = document.getElementById('editimageContainer');
                 editImgContainer.innerHTML = '';
                 const image = new Image()
-                image.src = "/public/common/Rosie.jpg"
+                image.src = "/public/common/default.jpg"
                 editImgContainer.appendChild(image)
             },
 
