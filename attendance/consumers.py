@@ -12,20 +12,22 @@ from collections import Counter
 import os
 from qreader import QReader
 from .face_capture import capture_face
+from participant.models import Participant
+from django.utils import timezone
 
-l2_normalizer = Normalizer("l2")
+# l2_normalizer = Normalizer("l2")
 
 def load_pickle(path):
     with open(path, "rb") as f:
         pklrick = pkl.load(f)
     return pklrick
 
-encoding_dict = load_pickle("./embeddings/encodings.pkl")
+encoding_dict = load_pickle("./embeddings/encodings_2fn.pkl")
 qr_reader = QReader()
 
 def get_encode(img):
-    embed = DeepFace.represent(img_path=img, model_name="Facenet", anti_spoofing=True, enforce_detection=False)[0]["embedding"]
-    return l2_normalizer.transform(np.array(embed).reshape(1, -1))[0]
+    re_img = cv2.resize(img,(160, 160))
+    return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False)[0]["embedding"]
 
 
 def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
@@ -33,19 +35,23 @@ def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
     return similarity, similarity > (1 - threshold)
 
 def load_mls():
-    # model_lists = ["isolationforest.pkl", "oneclasssvm.pkl", "ellipticenvelope.pkl"]
+    # model_lists = ["isolationforest copy.pkl", "oneclasssvm copy.pkl", "ellipticenvelope copy.pkl"]
     # models = []
     # for i in range(len(model_lists)):
-    #     print(model_lists[i])
     #     models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
-    model = load_pickle("./embeddings/isolationforest.pkl")
+    model = load_pickle("./embeddings/isolationforest copy 2.pkl")
     return model
 
 def check_unknown(encode):
-    l_o_models = load_mls()
-    result = l_o_models.predict([encode])[0]
-    print(result)
-    return True if result == -1 else False
+    model = load_mls()
+    pred = model.predict([encode])[0]
+    # results = []
+    # for i in l_o_models:
+    #     results.append(i.predict([encode])[0])
+    # print(results)
+    # count = Counter(results)
+    # most_common_element = count.most_common(1)[0][0]
+    return True if pred == -1 else False
 
 def read_qr(img):
     rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -55,16 +61,18 @@ def verify(encode, threshold):
     highest_similarity = -1
     best_matched = None
     for name, embedding in encoding_dict.items():
-        similarity, is_match = compare_embeddings_cosine(encode, embedding)
+        similarity, is_match = compare_embeddings_cosine(encode, embedding[0])
         if similarity > highest_similarity:
             highest_similarity = similarity
             best_matched = name
     if best_matched and highest_similarity > threshold:
         print(best_matched)
-        return best_matched
+        return True
     else:
-        return None
+        return False
 
+def check_qr(qr_data):
+    ...
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
@@ -92,17 +100,27 @@ class ImageConsumer(WebsocketConsumer):
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         is_qr = False
         if not qr:
-            face = capture_face(image)
-            encode = get_encode(face)
-            pred = verify(encode, 0.8)
-            unknown = check_unknown(encode)
-            if pred == None and unknown:
+            face, status = capture_face(image)
+            if status == False:
                 success_message = False
-            elif pred and not unknown:
-                success_message = True
+            else:
+                encode = get_encode(face)
+                pred = verify(encode, 0.8)
+                unknown = check_unknown(encode)
+                if pred == False or unknown:
+                    success_message = False
+                elif pred and not unknown:
+                    success_message = True
         else:
             is_qr = True
-            success_message = True
-            qr_code = read_qr(image)[0]
-            print(qr_code)
+            qr_code = read_qr(image)
+            if qr_code is None:
+                success_message = False
+            else:
+                now = timezone.now()
+                p_in_ongoing_events = Participant.objects.filter(event__end_time__gt=now)
+                participant_ids = list(p_in_ongoing_events.values_list('id', flat=True))
+                if qr_code[0] in participant_ids:
+                    success_message = True
+
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))
