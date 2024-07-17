@@ -28,28 +28,26 @@ def create_qr(id):
     
     QRimg.save('common/QR.png')
 
-def send_qr(email):
+def send_qr(receipient_email, subject, body, has_image=False, image_path=None):
     smtp_server = "smtp.gmail.com"
     port = 587
     sender_email = "presenthub.co.24@gmail.com"
     password = "qcst ncki wour pfjk"
-    subject = "Test Email from Present Hub"
-    body = "This is a test email sent from a Present Hub."
-    image_path = "common/QR.png"
     message = MIMEMultipart()
     message["From"] = sender_email
-    message["To"] = email
+    message["To"] = receipient_email
     message["Subject"] = subject 
     message.attach(MIMEText(body, "plain"))
-    with open(image_path, "rb") as image_file:
-        mime_image = MIMEImage(image_file.read())
-        mime_image.add_header('Content-Disposition', f'attachment; filename="{image_path.split("/")[-1]}"')
-        message.attach(mime_image)
+    if has_image:
+        with open(image_path, "rb") as image_file:
+            mime_image = MIMEImage(image_file.read())
+            mime_image.add_header('Content-Disposition', f'attachment; filename="{image_path.split("/")[-1]}"')
+            message.attach(mime_image)
     try:
         server = smtplib.SMTP(smtp_server, port)
         server.starttls()
         server.login(sender_email, password)
-        server.sendmail(sender_email, email, message.as_string())
+        server.sendmail(sender_email, receipient_email, message.as_string())
         print("Email sent successfully!")
 
     except Exception as e:
