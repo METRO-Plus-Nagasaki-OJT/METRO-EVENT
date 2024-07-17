@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Message
 from django.http import JsonResponse
 from event.models import Event
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def message_view(request):
@@ -31,3 +32,19 @@ def message_view(request):
         events = Event.objects.all()
 
     return render(request, 'message/message.html', context = {'messages': messages, 'events': events})
+
+def get_message_details(request, message_id):
+    if request.method == 'GET':
+        message = get_object_or_404(Message, id = message_id)
+        #event = get_object_or_404(Event, id = event_id)
+        detail = {
+            "id": message.id,
+            "subject": message.subject,
+            "content": message.content,
+            "startDate": message.startDate,
+            "endDate": message.endDate,
+            "type": message.type,
+            #"createdDate": event.created_at.isoformat(),
+            #"finishedDate": event.updated_at.isoformat()
+        }
+        return JsonResponse(detail)
