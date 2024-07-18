@@ -16,7 +16,7 @@ def index(request):
             event=Event(name=name,start_time=start,end_time=end,venue=venue,memo=memo,admin=organizer)
             event.save()
             return JsonResponse({"success":"True"})
-    events = Event.objects.annotate(participant_count=Count('participant'))
+    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance') )
     context={
         "event":events,
         "user":User.objects.all()
