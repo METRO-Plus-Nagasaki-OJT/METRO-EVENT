@@ -11,7 +11,7 @@ def get_data():
     encodings = load_pickle("embeddings/attendance_embeddings.pkl")
     embeddings = []
     for label, data in encodings.items():
-        embeddings.append(data)
+        embeddings.append([data])
 
 def train_unknown_classifier():
     data = get_data()

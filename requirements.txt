@@ -3,3 +3,9 @@ deepface
 tensorflow==2.10.0
 scikit-learn
 scipy
+django
+daphne
+channels
+qreader
+qrcode
+pillow
