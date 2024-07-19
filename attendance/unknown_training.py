@@ -1,5 +1,5 @@
 import pickle as pkl
-from face_capture import load_pickle, save_embeddings
+from attendance.face_capture import load_pickle, save_embeddings
 from participant.models import Participant
 from sklearn.ensemble import IsolationForest
 
