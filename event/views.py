@@ -1,6 +1,7 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from .models import *
 from django.http import HttpResponseServerError,JsonResponse
+from django.db.models import Count
 # Create your views here.
 def index(request):
     
@@ -15,8 +16,9 @@ def index(request):
             event=Event(name=name,start_time=start,end_time=end,venue=venue,memo=memo,admin=organizer)
             event.save()
             return JsonResponse({"success":"True"})
+    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance') )
     context={
-        "event":Event.objects.all(),
+        "event":events,
         "user":User.objects.all()
     }
 

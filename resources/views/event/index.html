@@ -31,7 +31,7 @@
                 <option value="50">50</option>
             </select>
             <p class="pt-2 ml-2">show pages</p>
-        </div>
+        </div>      
         <div class="flex justify-end pb-4 mr-3">
             <div class="ml-4">
 
@@ -123,7 +123,7 @@
                         {{ e.start_time }} - {{ e.end_time }}
                     </td>
                     <td class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ e.participant_count }}/46
+                        {{ e.attendance_count }} / {{ e.participant_count }}
                     </td>
                     <td class="px-7 py-4">
                         <span class="status-text"></span>
@@ -150,7 +150,7 @@
                         </h3>
                         <button type="button" id="modalCloseButton"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                            data-modal-close="crud-modal">
+                            data-modal-close="crud-modal" onclick="resetForm(); closeModal();">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -160,7 +160,7 @@
                         </button>
                     </div>
 
-                    <form class="p-4 md:p-5" x-data="addmodal" x-clover-form="submit" x-ref="form">
+                    <form id="eventForm" class="p-4 md:p-5" x-data="addmodal" x-clover-form="submit" x-ref="form">
                         {% csrf_token %}
                         <div class="grid gap-4">
                             <div class="flex justify-between items-center ">
@@ -171,28 +171,30 @@
                                     placeholder="Type event name">
 
                             </div>
-                            <span class="text-red-600 pl-24" x-text="errors.name"></span>
+                            <span class="text-red-600 pl-24 error-message" x-text="errors.name"></span>
 
                             <div class="flex justify-between items-center ">
                                 <label for="period"
                                     class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">Start
                                     Time</label>
-                                <input x-clover-verify type="datetime-local" name="starttime" id="period"
+                                <input x-clover-verify type="datetime-local" name="starttime" id="starttime"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Type event period">
+                                    placeholder="Type event period" onchange="validateTime()">
 
                             </div>
-                            <span class="text-red-600 pl-24" x-text="errors.starttime"></span>
+                            <span class="text-red-600 pl-24 error-message" x-text="errors.starttime"></span>
+                           
                             <div class="flex justify-between items-center ">
                                 <label for="period"
                                     class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">End
                                     time</label>
-                                <input type="datetime-local" name="endtime" id="period"
+                                <input type="datetime-local" name="endtime" id="endtime"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Type event period">
+                                    placeholder="Type event period" onchange="validateTime()">
 
                             </div>
-                            <span class="text-red-600 pl-24" x-text="errors.endtime"></span>
+                            <span class="text-red-600 pl-24 error-message" x-text="errors.endtime"></span>
+                            <span id="time-error" class="text-red-600 text-sm mt-1 pl-24 error-message"></span>
                             <div class="flex justify-between items-center ">
                                 <label for="venue"
                                     class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
@@ -201,7 +203,8 @@
                                     placeholder="Type event venue">
 
                             </div>
-                            <span class="text-red-600 pl-24" x-text="errors.venue"></span>
+                            <span class="text-red-600 pl-24 error-message" x-text="errors.venue"></span>
+    
 
                             <div class="flex justify-between items-center ">
                                 <label for="venue"
@@ -213,7 +216,7 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <span class="text-red-600 pl-24" x-text="errors.organizer"></span>
+                            <span class="text-red-600 pl-24 error-message" x-text="errors.organizer"></span>
 
                             <div class="flex justify-between items-center mb-5">
                                 <label for="memo"
@@ -222,8 +225,19 @@
                                     class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="Write event memo here"></textarea>
                             </div>
-                            <span class="text-red-600 pl-24 pb-11" x-text="errors.memo"></span>
+                            <span class="text-red-600 pl-24 pb-11 error-message" x-text="errors.memo"></span>
                         </div>
+
+                        <div id="ConfirmationModal"
+                        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+                        <div class="bg-white p-5 rounded-lg w-full sm:w-1/3">
+                            <h3 class="text-xl mb-4 text-gray-700">You Are Registered!</h3>
+                            <div class="flex justify-end space-x-4">
+                                <button id="confirmRegister" type="button"
+                                    class="text-white bg-gray-700 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">OK</button>
+                            </div>
+                        </div>
+                    </div>
                         <div class="flex justify-end pb-4 mt-5">
                             <button type="submit"
                                 class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
@@ -232,10 +246,11 @@
                             
                             <button id="CloseButton" type="button"
                                 class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                data-modal-close="crud-modal">
+                                data-modal-close="crud-modal" onclick="resetForm(); closeModal();">
                                 cancel
                             </button>
                         </div>
+                       
                     </form>
                 </div>
             </div>
@@ -264,7 +279,7 @@
                         </svg>
                         <span class="sr-only">Close modal</span>
                     </button>
-                </div>
+                </div>  
 
                 <form class="p-4 md:p-5" x-data="editform" x-clover-form="submit" x-ref="form">
                     {% csrf_token %}
@@ -287,9 +302,7 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" readonly>
                         </div>
-                        <span class="text-red-600 pl-24" x-text="errors.editstarttime"></span>
-
-
+                        <span></span>
                         <div class="flex justify-between items-center ">
                             <label for="period"
                                 class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">end time</label>
@@ -297,7 +310,7 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" value="endtime" readonly >
                         </div>
-                        <span class="text-red-600 pl-24" x-text="errors.editendtime"></span>
+                        <span></span>
 
                         <div class="flex justify-between items-center ">
                             <label for="venue"
@@ -333,28 +346,29 @@
                         <label for="period"
                             class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">start
                             time</label>
-                        <input type="datetime-local" x-clover-verify name="editstarttime" id="edit-starttime" value="{{ starttime }}"
+                        <input type="datetime-local" x-clover-verify name="editstarttime" id="editstarttime" value="{{ starttime }}"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="Type event period">
-                    </div><br>
+                            placeholder="Type event period" onchange="editvalidateTime()">
+                            
+                    </div>
+                    <span class="text-red-600 pl-24" x-text="errors.editstarttime"></span>
 
                     <div class="flex justify-between items-center ">
                         <label for="period"
                             class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">end
                             time</label>
-                        <input type="datetime-local" x-clover-verify name="editendtime" id="edit-starttime" value="{{ starttime }}"
+                        <input type="datetime-local" x-clover-verify name="editendtime" id="editendtime" value="{{ starttime }}"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="Type event period">
+                            placeholder="Type event period" onchange="editvalidateTime()" >
                     </div>
+                    <span class="text-red-600 pl-24" x-text="errors.editendtime"></span>
+                    <span id="timeerror" class="text-red-600 text-sm mt-1 pl-24"></span>
                     <div class="flex justify-end pb-4 mt-5">
                         <button type="submit"
                             class="text-white inline-flex items-center bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
                             Edit event
                         </button>
-                        <button type="button" id="delete"
-                            class="text-white inline-flex items-center bg-red-500 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3">
-                            Delete
-                        </button>
+                        
                         <button id="editclose" type="button".6
                             class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             data-modal-close="crud-modal" onclick="closeModal('edit-modal')">
@@ -393,6 +407,16 @@
 </div>
 <div id="pageButtons"></div>
 </div>
+<div id="ConfirmationModal"
+                    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+                    <div class="bg-white p-5 rounded-lg w-full sm:w-1/3">
+                        <h3 class="text-xl mb-4 text-gray-700">You Are Registered!</h3>
+                        <div class="flex justify-end space-x-4">
+                            <button id="confirmRegister" type="button"
+                                class="text-white bg-gray-700 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">OK</button>
+                        </div>
+                    </div>
+                </div>
 </div>
 {% endblock content %}
 {% block script %}
@@ -444,16 +468,31 @@
                         document.getElementById('edit-venue').value = data.venue || '';
                         document.getElementById('edit-organizer').selectedIndex = data.user_id - 1 || '';
                         document.getElementById('edit-memo').value = data.memo || '';
-                     
-
-                        
-                    
+                
                         // Show edit modal
                         editmodal.classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching data:', error));
             });
         });
+
+        function resetForm() {
+            
+        document.getElementById('eventForm').reset();  // Reset the form fields
+
+        const errorMessages = form.querySelectorAll('.error-message');
+        errorMessages.forEach(message => {
+            message.textContent = '';
+        });
+    }
+    document.getElementById('modalCloseButton').addEventListener('click', function() {
+        resetForm(); 
+        closeModal();
+    });
+    close.addEventListener('click',function(){
+        resetForm();
+        closeModal();
+    })
 
         function closeModal() {
             modal.classList.add('hidden');
@@ -600,55 +639,55 @@
         });
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+//  document.addEventListener('DOMContentLoaded', () => {
 
-        const totalPages = 10;
-        let currentPage = 1;
-
-
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const pageBtn = document.getElementById('pageBtn');
+//         const totalPages = 10;
+//         let currentPage = 1;
 
 
-        const updatePagination = () => {
-
-            pageBtn.textContent = currentPage;
-            showingResults.textContent = `Showing results for page ${currentPage}`;
-
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-        };
-        function fetchData(page) {
-        // Example fetch request
-        fetch(`/api/data?page=${page}`)
-            .then(response => response.json())
-            .then(data => {
-                // Process the data and update the page content
-                console.log(data);  // Log data for debugging
-                // TODO: Update your page content with the data
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    }
-
-        prevBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                updatePagination();
-                fetchData(currentPage);
-            }
-        });
-
-        nextBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                fetchData(currentPage);
-            }
-        });
+//         const prevBtn = document.getElementById('prevBtn');
+//         const nextBtn = document.getElementById('nextBtn');
+//         const pageBtn = document.getElementById('pageBtn');
 
 
-        updatePagination();
-    });
+//         const updatePagination = () => {
+
+//             pageBtn.textContent = currentPage;
+//             showingResults.textContent = `Showing results for page ${currentPage}`;
+
+//             prevBtn.disabled = currentPage === 1;
+//             nextBtn.disabled = currentPage === totalPages;
+//         };
+//         function fetchData(page) {
+//         // Example fetch request
+//         fetch(`/api/data?page=${page}`)
+//             .then(response => response.json())
+//             .then(data => {
+//                 // Process the data and update the page content
+//                 console.log(data);  // Log data for debugging
+//                 // TODO: Update your page content with the data
+//             })
+//             .catch(error => console.error('Error fetching data:', error));
+//     }
+
+//         prevBtn.addEventListener('click', () => {
+//             if (currentPage > 1) {
+//                 currentPage--;
+//                 updatePagination();
+//                 fetchData(currentPage);
+//             }
+//         });
+
+//         nextBtn.addEventListener('click', () => {
+//             if (currentPage < totalPages) {
+//                 currentPage++;
+//                 fetchData(currentPage);
+//             }
+//         });
+
+
+//         updatePagination();
+//     }); 
 
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -674,57 +713,261 @@
             statusSpan.classList.add('px-2', 'py-1', 'rounded-full');
         });
     });
-    document.addEventListener('DOMContentLoaded', () => {
-    const deleteModal = document.getElementById('deleteModal');
-    const deleteButton = document.getElementById('delete');
-    const cancelButton = document.getElementById('cancelDelete');
-    const confirmButton = document.getElementById('confirmDelete');
+  
 
-   
-    deleteButton.addEventListener('click', () => {
-        eventId = deleteButton.getAttribute('data-id');
-        deleteModal.classList.remove('hidden');
-    });
 
+    function validateTime() {
+        var startTimeInput = document.getElementById('starttime');
+        var endTimeInput = document.getElementById('endtime');
+        var timeError = document.getElementById('time-error');
+
+        // Parse the input values as Date objects
+        var startTime = new Date(startTimeInput.value);
+        var endTime = new Date(endTimeInput.value);
+
+        // Check if start time is less than end time
+        if (startTime >= endTime) {
+            timeError.textContent = "Start time must be before end time";
+            startTimeInput.setCustomValidity('Start time must be before end time');
+            endTimeInput.setCustomValidity('');
+        } else {
+            timeError.textContent = "";
+            startTimeInput.setCustomValidity('');
+            endTimeInput.setCustomValidity('');
+        }
+    }
+
+  
+    function editvalidateTime() {
+        var startTimeInput = document.getElementById('editstarttime');
+        var endTimeInput = document.getElementById('editendtime');
+        var timeError = document.getElementById('timeerror');
+
+        // Parse the input values as Date objects
+        var startTime = new Date(startTimeInput.value);
+        var endTime = new Date(endTimeInput.value);
+
+        // Check if start time is less than end time
+        if (startTime >= endTime) {
+            timeError.textContent = "Start time must be before end time";
+            startTimeInput.setCustomValidity('Start time must be before end time');
+            endTimeInput.setCustomValidity('');
+        } else {
+            timeError.textContent = "";
+            startTimeInput.setCustomValidity('');
+            endTimeInput.setCustomValidity('');
+        }
+    }
+
+    //   document.addEventListener('DOMContentLoaded', function () {
+    //     const paginationSelect = document.getElementById('pagination');
+    //     paginationSelect.value = "{{ per_page }}"; // Set initial value from Django template
+
+    //     paginationSelect.addEventListener('change', function () {
+    //         const perPage = paginationSelect.value;
+    //         const urlParams = new URLSearchParams(window.location.search);
+    //         urlParams.set('per_page', perPage);
+    //         window.location.search = urlParams.toString();
+    //     });
+
+    //     function navigatePage(pageNumber) {
+    //         const perPage = paginationSelect.value;
+    //         const url = `?page=${pageNumber}&per_page=${perPage}`;
+
+    //         fetch(url)
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 updateParticipantTable(data);
+    //             })
+    //             .catch(error => {
+    //                 console.error('Error:', error);
+    //             });
+    //     }
+
+    //     function updateParticipantTable(data) {
+    //         const ptList = document.getElementById('eventsList');
+    //         ptList.innerHTML = ''; // Clear existing table rows
+
+    //         data.participants.forEach(participant => {
+    //             const tr = document.createElement('tr');
+    //             tr.className = 'bg-white border-b';
+    //             tr.innerHTML = `
+    //             <td class="w-4 p-4 py-4 col-span-2">
+    //                 <div class="flex items-center">
+    //                     <button id="edit-button"
+    //                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 edit-button"
+    //                         data-event-id="{{ e.id }}">Detail</button>
+    //                 </div>
+    //             </td>
+    //             <th scope="row" class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
+    //                 ${ e.id }
+    //             </th>
+    //             <td class="event-name px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
+    //                 ${ e.name }
+    //             </td>
+    //             <td class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
+    //                 ${ e.start_time }$ - ${ e.end_time }
+    //             </td>
+    //             <td class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
+    //                 ${ e.participant_count }/46
+    //             </td>
+    //             <td class="px-7 py-4">
+    //                 <span class="status-text"></span>
+    //             </td>
+    //         `;
+    //             ptList.appendChild(tr);
+    //         });
+
+    //         // Update pagination info
+    //         const pageInfo = document.querySelector('.text-sm.text-gray-700');
+    //         pageInfo.innerHTML = `
+    //         Showing <span class="font-medium">${data.page.start_index}</span>
+    //         to <span class="font-medium">${data.page.end_index}</span>
+    //         of <span class="font-medium">${data.page.paginator.count}</span> results
+    //     `;
+    //     }
+
+    //     // Event listeners for pagination buttons
+    //     const paginationButtons = document.querySelectorAll('.pageButtons');
+    //     paginationButtons.forEach(button => {
+    //         button.addEventListener('click', function () {
+    //             const pageNumber = button.dataset.pageNumber;
+    //             navigatePage(pageNumber);
+    //         });
+    //     });
+    // });  
+    //  document.addEventListener('DOMContentLoaded', function () {
+    //     const perPageSelect = document.getElementById('pagination');
+    //     const prevBtn = document.getElementById('prevBtn');
+    //     const nextBtn = document.getElementById('nextBtn');
+    //     const showingResults = document.getElementById('showingResults');
+    //     let currentPage = 1;
+    //     let perPage = parseInt(perPageSelect.value, 10);
+    //     let totalPages = 5; // Example: update this dynamically based on your data
     
-    cancelButton.addEventListener('click', () => {
-        deleteModal.classList.add('hidden');
-    });
+    //     function updatePagination() {
+    //         showingResults.textContent = `Showing results for page ${currentPage}`;
+    //         prevBtn.disabled = currentPage === 1;
+    //         nextBtn.disabled = currentPage === totalPages;
+            
+    //         // Dynamically generate page buttons
+    //         const pageButtons = document.querySelectorAll('#paginationControls .page-Btn:not(#prevBtn):not(#nextBtn)');
+    //         pageButtons.forEach(btn => btn.remove());
+            
+    //         for (let i = 1; i <= totalPages; i++) {
+    //             const pageBtn = document.createElement('button');
+    //             pageBtn.textContent = i;
+    //             pageBtn.className = `px-3 py-1 border-t border-b border-gray-300 text-sm font-medium ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-500'} hover:bg-gray-50`;
+    //             pageBtn.addEventListener('click', () => {
+    //                 currentPage = i;
+    //                 updatePagination();
+    //                 fetchPageData(currentPage, perPage);
+    //             });
+    //             document.querySelector('#paginationControls').insertBefore(pageBtn, nextBtn);
+    //         }
+    //     }
+    
+    //     function fetchPageData(page, perPage) {
+    //         // Implement data fetching logic based on page and perPage
+    //         console.log(`Fetching data for page ${page} with ${perPage} items per page.`);
+    //         // e.g., fetch(`/api/data?page=${page}&per_page=${perPage}`).then(response => response.json()).then(data => updateTable(data));
+    //     }
+    
+    //     perPageSelect.addEventListener('change', (e) => {
+    //         perPage = parseInt(e.target.value, 10);
+    //         updatePagination();
+    //         fetchPageData(currentPage, perPage);
+    //     });
+    
+    //     prevBtn.addEventListener('click', () => {
+    //         if (currentPage > 1) {
+    //             currentPage--;
+    //             updatePagination();
+    //             fetchPageData(currentPage, perPage);
+    //         }
+    //     });
+    
+    //     nextBtn.addEventListener('click', () => {
+    //         if (currentPage < totalPages) {
+    //             currentPage++;
+    //             updatePagination();
+    //             fetchPageData(currentPage, perPage);
+    //         }
+    //     });
+    
+    //     updatePagination();
+    // });  
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     const paginationSelect = document.getElementById('pagination');
+    //     const rows = document.querySelectorAll('#eventsList tr');
 
-    // Confirm the delete action
-    confirmButton.addEventListener('click', () => {
-        if (eventId) {
-            fetch(`/deleteevent/${eventId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // Get the CSRF token from the form
-                },
-                body: JSON.stringify({ 'id': eventId }),  
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    console.log('Item deleted');
-                    // Redirect to the same page to refresh the content or use location.reload() to refresh the page
-                    window.location.reload();  
-                } else {
-                    console.error('Error:', data.error);
-                }
-                deleteModal.classList.add('hidden');
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-                deleteModal.classList.add('hidden');
+    //     function updateRowsPerPage() {
+    //         const rowsPerPage = parseInt(paginationSelect.value, 10);
+    //         rows.forEach((row, index) => {
+    //             row.style.display = (index < rowsPerPage) ? '' : 'none';
+    //         });
+    //     }
+
+    //     updateRowsPerPage();
+
+    //     paginationSelect.addEventListener('change', updateRowsPerPage);
+    // });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const rowsPerPageSelect = document.getElementById('pagination');
+        const rows = Array.from(document.querySelectorAll('#eventsList tr'));
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageBtn = document.getElementById('pageBtn');
+        const showingResults = document.getElementById('showingResults');
+        let currentPage = 1;
+        let rowsPerPage = parseInt(rowsPerPageSelect.value, 10);
+
+        function renderPagination() {
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            pageBtn.textContent = currentPage;
+            showingResults.textContent = `Showing results for page ${currentPage}`;
+
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        }
+
+        function updateTable() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            rows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
             });
         }
-    });
-});
 
+        function handlePageChange() {
+            renderPagination();
+            updateTable();
+        }
+
+        rowsPerPageSelect.addEventListener('change', (event) => {
+            rowsPerPage = parseInt(event.target.value, 10);
+            currentPage = 1;  // Reset to first page on rows per page change
+            handlePageChange();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                handlePageChange();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                handlePageChange();
+            }
+        });
+
+        
+        handlePageChange();
+    });
 </script>
 {% endblock script %}

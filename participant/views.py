@@ -11,6 +11,8 @@ from attendance.face_capture import capture_face, get_encode, load_pickle, save_
 from attendance.unknown_training import train_unknown_classifier
 import numpy as np
 import cv2
+import pickle as pkl
+from django.shortcuts import HttpResponse
 
 @csrf_exempt
 def participant(request):
@@ -120,6 +122,14 @@ def delete_participant(request, participant_id):
     else:
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Participant
+from event.models import Event
+from .qr_creator import create_qr, send_qr
+
+@csrf_exempt
 def update_participant(request, participant_id):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, id=participant_id)
@@ -135,18 +145,19 @@ def update_participant(request, participant_id):
         phone_2 = request.POST.get('editphone_2')
         memo = request.POST.get('editmemo')
         address = request.POST.get('editaddress')
-        event_id = request.POST.get('event') 
+        event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
+        email_status = request.POST.get('email_status')
 
         # Handle base64-encoded image data if provided
         if 'editfileInput' in request.FILES:
             profile = request.FILES["editfileInput"]
             img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')  
+            profile = base64.b64encode(img).decode('utf-8')
         else:
-            profile = participant.profile  
+            profile = participant.profile
 
-        # Update 
+        # Update participant fields
         participant.name = name
         participant.email = email
         participant.seat_no = seat_no
@@ -159,9 +170,20 @@ def update_participant(request, participant_id):
         participant.address = address
         participant.event = event
         participant.profile = profile
-        
-        participant.save() 
 
-        return JsonResponse({'status': 'success'})
-    
+        # Save participant object
+        participant.save()
+
+        # Send email notification if email_status is true
+        if email_status == 'true':
+            send_update_notification(email)
+
+        return JsonResponse({'status': 'success', 'message': 'Participant updated successfully!'})
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def send_update_notification(email):
+    # Example: Modify send_qr to send an update notification email
+    send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
+
+
