@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from deepface import DeepFace
 import pickle as pkl
+import os
 
 def capture_face(img):
     try:
@@ -27,3 +28,10 @@ def load_pickle(path):
 def save_embeddings(path, embeddings):
     with open(path, "wb") as f:
         pkl.dump(embeddings, f)
+
+def check_modelnembed(path, obj=None):
+    if os.path.exists(path):
+        load_pickle(path)
+    else:
+        save_embeddings(path, obj)
+        load_pickle(path)

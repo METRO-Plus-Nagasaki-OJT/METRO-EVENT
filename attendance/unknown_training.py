@@ -1,5 +1,5 @@
 import pickle as pkl
-from face_capture import load_pickle, save_embeddings
+from attendance.face_capture import load_pickle, save_embeddings
 from participant.models import Participant
 from sklearn.ensemble import IsolationForest
 
@@ -11,7 +11,7 @@ def get_data():
     encodings = load_pickle("embeddings/attendance_embeddings.pkl")
     embeddings = []
     for label, data in encodings.items():
-        embeddings.append(data)
+        embeddings.append([data])
 
 def train_unknown_classifier():
     data = get_data()
