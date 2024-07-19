@@ -62,10 +62,11 @@ def participant(request):
             if detection_status == True:
                 encoding = get_encode(face)
                 encoding[participant.id] = encoding
-            save_embeddings("embeddings/attendance_embeddings.pkl", encoding)
+                save_embeddings("embeddings/attendance_embeddings.pkl", encoding)
+                train_unknown_classifier()
+                print("Face embedding registered!")
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
-        train_unknown_classifier()
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':

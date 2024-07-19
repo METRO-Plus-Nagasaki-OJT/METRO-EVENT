@@ -9,13 +9,12 @@ from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
 from qreader import QReader
-from .face_capture import capture_face, get_encode, load_pickle
+from attendance.face_capture import capture_face, get_encode, check_modelnembed
 from participant.models import Participant
 from django.utils import timezone
 
-# l2_normalizer = Normalizer("l2")
+encoding_dict = check_modelnembed("embeddings/attendance_embeddings.pkl", {})
 
-encoding_dict = load_pickle("embeddings/attendance_embeddings.pkl")
 qr_reader = QReader()
 now = timezone.now()
 p_in_ongoing_events = Participant.objects.filter(event__end_time__gt=now)
@@ -30,7 +29,7 @@ def load_mls():
     # models = []
     # for i in range(len(model_lists)):
     #     models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
-    model = load_pickle("embeddings/unknown_classifier_isofor.pkl")
+    model = check_modelnembed("embeddings/unknown_classifier_isofor.pkl")
     return model
 
 def check_unknown(encode):
@@ -51,13 +50,16 @@ def read_qr(img):
 def verify(encode, threshold):
     highest_similarity = -1
     best_matched = None
-    for id, embedding in encoding_dict.items():
-        similarity = compare_embeddings_cosine(encode, embedding[0])
-        if similarity > highest_similarity:
-            highest_similarity = similarity
-            best_matched = id
-    if best_matched in participant_ids and highest_similarity > threshold:
-        return True
+    if len(encoding_dict) == 0:
+        for id, embedding in encoding_dict.items():
+            similarity = compare_embeddings_cosine(encode, embedding[0])
+            if similarity > highest_similarity:
+                highest_similarity = similarity
+                best_matched = id
+        if best_matched in participant_ids and highest_similarity > threshold:
+            return True
+        else:
+            return False
     else:
         return False
 
