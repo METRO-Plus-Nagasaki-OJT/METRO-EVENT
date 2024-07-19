@@ -7,10 +7,10 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
-from attendance.face_capture import capture_face, get_encode
+from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings
+from attendance.unknown_training import train_unknown_classifier
 import numpy as np
 import cv2
-import pickle as pkl
 
 @csrf_exempt
 def participant(request):
@@ -28,17 +28,14 @@ def participant(request):
         address = request.POST.get('address')
         event_id = request.POST.get('event') 
         event = get_object_or_404(Event, id=event_id)
+        embeddable = False
 
         # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
             profile = request.FILES["fileInput"]
             img = base64.b64encode(profile.read())
             profile = img.decode('utf-8')
-            np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
-            face, detection_status = capture_face(np_img)
-            if detection_status == True:
-                
-            
+            embeddable = True
         else:
             profile = None
 
@@ -57,8 +54,16 @@ def participant(request):
             profile=profile 
         )
         participant.save()
+        if embeddable:
+            np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+            face, detection_status = capture_face(np_img)
+            if detection_status == True:
+                encoding = get_encode(face)
+                encoding[participant.id] = encoding
+            save_embeddings("embeddings/attendance_embeddings.pkl", encoding)
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
+        train_unknown_classifier()
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':

@@ -9,31 +9,28 @@ from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
 from qreader import QReader
-from .face_capture import capture_face, get_encode
+from .face_capture import capture_face, get_encode, load_pickle
 from participant.models import Participant
 from django.utils import timezone
 
 # l2_normalizer = Normalizer("l2")
 
-def load_pickle(path):
-    with open(path, "rb") as f:
-        pklrick = pkl.load(f)
-    return pklrick
-
-encoding_dict = load_pickle("./embeddings/encodings_2fn.pkl")
+encoding_dict = load_pickle("embeddings/attendance_embeddings.pkl")
 qr_reader = QReader()
+now = timezone.now()
+p_in_ongoing_events = Participant.objects.filter(event__end_time__gt=now)
+participant_ids = list(p_in_ongoing_events.values_list('id', flat=True))
 
-
-def compare_embeddings_cosine(embedding1, embedding2, threshold=0.8):
+def compare_embeddings_cosine(embedding1, embedding2):
     similarity = 1 - cosine(embedding1, embedding2)
-    return similarity, similarity > (1 - threshold)
+    return similarity
 
 def load_mls():
     # model_lists = ["isolationforest copy.pkl", "oneclasssvm copy.pkl", "ellipticenvelope copy.pkl"]
     # models = []
     # for i in range(len(model_lists)):
     #     models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
-    model = load_pickle("./embeddings/isolationforest copy 2.pkl")
+    model = load_pickle("embeddings/unknown_classifier_isofor.pkl")
     return model
 
 def check_unknown(encode):
@@ -54,13 +51,12 @@ def read_qr(img):
 def verify(encode, threshold):
     highest_similarity = -1
     best_matched = None
-    for name, embedding in encoding_dict.items():
-        similarity, is_match = compare_embeddings_cosine(encode, embedding[0])
+    for id, embedding in encoding_dict.items():
+        similarity = compare_embeddings_cosine(encode, embedding[0])
         if similarity > highest_similarity:
             highest_similarity = similarity
-            best_matched = name
-    if best_matched and highest_similarity > threshold:
-        print(best_matched)
+            best_matched = id
+    if best_matched in participant_ids and highest_similarity > threshold:
         return True
     else:
         return False
@@ -108,10 +104,7 @@ class ImageConsumer(WebsocketConsumer):
             qr_code = read_qr(image)
             if qr_code is None:
                 success_message = False
-            else:
-                now = timezone.now()
-                p_in_ongoing_events = Participant.objects.filter(event__end_time__gt=now)
-                participant_ids = list(p_in_ongoing_events.values_list('id', flat=True))
+            else:         
                 if qr_code[0] in participant_ids:
                     success_message = True
 
