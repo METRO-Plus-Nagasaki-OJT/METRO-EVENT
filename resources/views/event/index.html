@@ -123,7 +123,7 @@
                         {{ e.start_time }} - {{ e.end_time }}
                     </td>
                     <td class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
-                        0 / {{ e.participant_count }}
+                        {{ e.attendance_count }} / {{ e.participant_count }}
                     </td>
                     <td class="px-7 py-4">
                         <span class="status-text"></span>
@@ -302,7 +302,7 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" readonly>
                         </div>
-                        <span class="text-red-600 pl-24" x-text=""></span>
+                        <span></span>
                         <div class="flex justify-between items-center ">
                             <label for="period"
                                 class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">end time</label>
@@ -310,7 +310,7 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" value="endtime" readonly >
                         </div>
-                        <span class="text-red-600 pl-24" x-text=""></span>
+                        <span></span>
 
                         <div class="flex justify-between items-center ">
                             <label for="venue"

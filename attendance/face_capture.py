@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from deepface import DeepFace
+import pickle as pkl
 
 def capture_face(img):
     try:
@@ -17,3 +18,12 @@ def capture_face(img):
 def get_encode(img):
     re_img = cv2.resize(img,(160, 160))
     return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False)[0]["embedding"]
+
+def load_pickle(path):
+    with open(path, "rb") as f:
+        pklrick = pkl.load(f)
+    return pklrick
+
+def save_embeddings(path, embeddings):
+    with open(path, "wb") as f:
+        pkl.dump(embeddings, f)
