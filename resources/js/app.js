@@ -182,9 +182,8 @@ const Clover = {
                             }
                         }
                     }
-
-                    return { value: false }
                 }
+                return { value: false }
             }
         }
     },
