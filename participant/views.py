@@ -184,7 +184,18 @@ def update_participant(request, participant_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def send_update_notification(email):
-    # Example: Modify send_qr to send an update notification email
     send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
+
+def participants_view(request):
+    per_page = request.GET.get('per_page', 10)
+    participants = Participant.objects.all() 
+    paginator = Paginator(participants, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'participants_table_body.html', {'page': page_obj})
+    
+    return render(request, 'participants.html', {'page': page_obj, 'per_page': per_page})
 
 
