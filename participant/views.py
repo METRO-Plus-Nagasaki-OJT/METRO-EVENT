@@ -57,9 +57,9 @@ def participant(request):
         )
         participant.save()
         if embeddable:
-            np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+            np_img = cv2.cvtColor(np.frombuffer(base64.b64decode(img), dtype=np.uint8), cv2.COLOR_RGB2BGR)
             face, detection_status = capture_face(np_img)
-            if detection_status == True:
+            if detection_status:
                 encoding = get_encode(face)
                 encoding[participant.id] = encoding
                 save_embeddings("embeddings/attendance_embeddings.pkl", encoding)
@@ -70,7 +70,16 @@ def participant(request):
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
+        search_term = request.GET.get('search', '')  # Get search term from query parameters
         participants = Participant.objects.all().order_by('-created_at')
+        if search_term:
+            participants = participants.filter(
+                name__icontains=search_term
+            ) | participants.filter(
+                seat_no__icontains=search_term
+            ) | participants.filter(
+                email__icontains=search_term
+            )
         events = Event.objects.all()
 
         # Handling pagination
@@ -83,7 +92,32 @@ def participant(request):
             'page': page,
             'events': events,
             'per_page': per_page,
+            'search_term': search_term  # Pass search term to template
         })
+
+def participants_view(request):
+    per_page = request.GET.get('per_page', 10)
+    search_term = request.GET.get('search', '')  # Get search term from query parameters
+
+    # Filter participants based on search term
+    participants = Participant.objects.all()
+    if search_term:
+        participants = participants.filter(
+            name__icontains=search_term
+        ) | participants.filter(
+            seat_no__icontains=search_term
+        ) | participants.filter(
+            email__icontains=search_term
+        )
+    
+    paginator = Paginator(participants, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'participants_table_body.html', {'page': page_obj})
+    
+    return render(request, 'participants.html', {'page': page_obj, 'per_page': per_page, 'search_term': search_term})
 
 @csrf_exempt
 def get_participant_data(request, participant_id):
