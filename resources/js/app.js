@@ -19,7 +19,7 @@ const Clover = {
                     value: val.match(regex)
                         ? false
                         : message ||
-                          `The  ${field}  does not match with mail format`,
+                        `The  ${field}  does not match with mail format`,
                 };
             };
         },
@@ -31,7 +31,7 @@ const Clover = {
                     value: val.match(regex)
                         ? false
                         : message ||
-                          `The ${field} must have a minimum of eight characters with at least one alphabet and one number`,
+                        `The ${field} must have a minimum of eight characters with at least one alphabet and one number`,
                 };
             };
         },
@@ -55,7 +55,7 @@ const Clover = {
                     value: list.includes(val)
                         ? false
                         : message ||
-                          `The ${field} must be include in ${list.join(',')}`,
+                        `The ${field} must be include in ${list.join(',')}`,
                 };
             };
         },
@@ -156,6 +156,37 @@ const Clover = {
                 return { value: false };
             };
         },
+        date: function ({ before, after }, message = {}) {
+            return function (field, value, el) {
+                if (el) {
+                    const form = el.closest("form")
+
+                    if (before) {
+                        const targetDate = new Date(value).getTime()
+                        const otherDate = new Date(form.elements[before].value).getTime()
+                        if (targetDate > otherDate) {
+                            return {
+                                rule: "date.before",
+                                value: message?.before || `The ${field} must be before  ${before}`
+                            }
+                        }
+                    }
+
+                    if (after) {
+                        const targetDate = new Date(value).getTime()
+                        const otherDate = new Date((form.elements[after].value)).getTime()
+                        if (otherDate > targetDate) {
+                            return {
+                                rule: "date.after",
+                                value: message?.before || `The ${field} must be after  ${after}`
+                            }
+                        }
+                    }
+
+                    return { value: false }
+                }
+            }
+        }
     },
     validate: function ({ rule, data }) {
         const errors = {};
@@ -230,7 +261,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.directive(
         'clover-form',
-        (el, { value, modifiers, expression }, { cleanup, evaluate }) => { 
+        (el, { value, modifiers, expression }, { cleanup, evaluate }) => {
             const errors = evaluate('errors');
             const checkRule = value || 'rule';
             const handler = function (e) {
@@ -241,7 +272,7 @@ document.addEventListener('alpine:init', () => {
                         if (el.elements[name]) {
                             const e = r(
                                 name,
-                                el.getAttribute('type') === 'file'
+                                el.elements[name].getAttribute('type') === 'file'
                                     ? el.elements[name].files
                                     : el.elements[name].value,
                                 el.elements[name]
