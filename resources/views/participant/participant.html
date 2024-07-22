@@ -506,21 +506,38 @@
         const paginationSelect = document.getElementById('pagination');
         const ptList = document.querySelector('#ptList');
         const paginationControls = document.querySelector('.flex.justify-between.items-center.mt-4.px-5');
+        const searchInput = document.getElementById('search');
 
-        // Set the initial value of the select dropdown
-        paginationSelect.value = "{{ per_page }}";
+        if (paginationSelect) {
+            paginationSelect.value = "{{ per_page }}";
+        }
 
-        // Event listener for the per-page select dropdown
-        paginationSelect.addEventListener('change', function () {
-            const perPage = paginationSelect.value;
-            updateTable(perPage);
-        });
+        if (paginationSelect) {
+            paginationSelect.addEventListener('change', function () {
+                const perPage = paginationSelect.value;
+                updateTable(perPage);
+            });
+        }
 
-        // Function to update table and pagination controls
-        function updateTable(perPage) {
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const searchTerm = searchInput.value.toLowerCase();
+                updateTable(null, searchTerm);
+            });
+        }
+
+
+        function updateTable(perPage = null, searchTerm = '') {
             const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('per_page', perPage);
-            urlParams.set('page', 1); // Reset to the first page when per_page changes
+
+            if (perPage) {
+                urlParams.set('per_page', perPage);
+                urlParams.set('page', 1); 
+            }
+
+            if (searchTerm) {
+                urlParams.set('search', searchTerm);
+            }
 
             fetch(`${window.location.pathname}?${urlParams.toString()}`, {
                 method: 'GET',
@@ -530,48 +547,65 @@
             })
                 .then(response => response.text())
                 .then(data => {
-                    // Update the table body and pagination controls
                     const newTableBody = new DOMParser().parseFromString(data, 'text/html').querySelector('#ptList').innerHTML;
                     const newPaginationControls = new DOMParser().parseFromString(data, 'text/html').querySelector('.flex.justify-between.items-center.mt-4.px-5').innerHTML;
 
-                    ptList.innerHTML = newTableBody;
-                    paginationControls.innerHTML = newPaginationControls;
+                    if (ptList) {
+                        ptList.innerHTML = newTableBody;
+                    }
 
-                    attachPaginationListeners();
+                    if (paginationControls) {
+                        paginationControls.innerHTML = newPaginationControls;
+                        attachPaginationListeners();
+                    }
                 })
                 .catch(error => console.error('Error:', error));
         }
 
-        // Function to attach event listeners to pagination controls
         function attachPaginationListeners() {
-            // Attach click event listeners to page numbers
+            const paginationControls = document.querySelector('.flex.justify-between.items-center.mt-4.px-5');
+            if (!paginationControls) {
+                console.log('Pagination controls not found.');
+                return;
+            }
+
             document.querySelectorAll('.page-number').forEach(pageNumber => {
                 pageNumber.addEventListener('click', function (e) {
                     e.preventDefault();
                     const page = this.dataset.page;
-                    updateTablePage(page);
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    updateTablePage(page, searchTerm);
                 });
             });
 
-            // Attach click event listener to the previous page button
-            document.querySelector('.prev-page').addEventListener('click', function (e) {
-                e.preventDefault();
-                const currentPage = parseInt(document.querySelector('.page-number.active').textContent);
-                updateTablePage(currentPage - 1);
-            });
+            const prevPageButton = document.querySelector('.prev-page');
+            if (prevPageButton) {
+                prevPageButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    updateTablePage(currentPage - 1, searchTerm);
+                });
+            }
 
-            // Attach click event listener to the next page button
-            document.querySelector('.next-page').addEventListener('click', function (e) {
-                e.preventDefault();
-                const currentPage = parseInt(document.querySelector('.page-number.active').textContent);
-                updateTablePage(currentPage + 1);
-            });
+            const nextPageButton = document.querySelector('.next-page');
+            if (nextPageButton) {
+                nextPageButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    updateTablePage(currentPage + 1, searchTerm);
+                });
+            }
         }
 
-        // Function to update table based on the page number
-        function updateTablePage(page) {
+        function updateTablePage(page, searchTerm = '') {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('page', page);
+
+            if (searchTerm) {
+                urlParams.set('search', searchTerm); 
+            }
 
             fetch(`${window.location.pathname}?${urlParams.toString()}`, {
                 method: 'GET',
@@ -581,21 +615,24 @@
             })
                 .then(response => response.text())
                 .then(data => {
-                    // Update the table body and pagination controls
                     const newTableBody = new DOMParser().parseFromString(data, 'text/html').querySelector('#ptList').innerHTML;
                     const newPaginationControls = new DOMParser().parseFromString(data, 'text/html').querySelector('.flex.justify-between.items-center.mt-4.px-5').innerHTML;
 
-                    ptList.innerHTML = newTableBody;
-                    paginationControls.innerHTML = newPaginationControls;
+                    if (ptList) {
+                        ptList.innerHTML = newTableBody;
+                    }
 
-                    attachPaginationListeners();
+                    if (paginationControls) {
+                        paginationControls.innerHTML = newPaginationControls;
+                        attachPaginationListeners();
+                    }
                 })
                 .catch(error => console.error('Error:', error));
         }
 
-        // Initialize pagination listeners
         attachPaginationListeners();
     });
+
 
     document.addEventListener('DOMContentLoaded', function () {
         const openEditButtons = document.querySelectorAll('.open-edit-modal');
@@ -1069,7 +1106,7 @@
                 const ptName = row.querySelector('.participant-name');
                 const ptID = row.querySelector('td:nth-child(4)');
 
-                if (ptName && ptID) {
+                if (ptName || ptID) {
                     const ptNameText = ptName.textContent.toLowerCase();
                     const ptIdText = ptID.textContent.toLowerCase();
                     if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
@@ -1079,6 +1116,11 @@
                     }
                 }
             });
+        });
+
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            updateTable(paginationSelect.value);
         });
 
         document.addEventListener('DOMContentLoaded', function () {
