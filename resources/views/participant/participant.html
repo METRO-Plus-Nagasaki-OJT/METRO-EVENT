@@ -343,7 +343,7 @@
         <select id="pagination"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
             style="width: 200px;">
-            <option value="10" {% if per_page is "10" %}selected{% endif %} selected>10</option>
+            <option value="10" {% if per_page is "10" %}selected{% endif %}>10</option>
             <option value="20" {% if per_page is "20" %}selected{% endif %}>20</option>
             <option value="50" {% if per_page is "50" %}selected{% endif %}>50</option>
         </select>
@@ -460,8 +460,8 @@
             {% else %}
             <li>
                 <a href="?page={{ i }}&per_page={{ per_page }}"
-                    class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">{{
-                    i }}</a>
+                    class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
+                    {{ i }}</a>
             </li>
             {% endif %}
             {% endfor %}
@@ -505,15 +505,32 @@
         const ptList = document.querySelector('#ptList');
         const paginationControls = document.querySelector('.flex.justify-between.items-center.mt-4.px-5');
         const searchInput = document.getElementById('search');
+        const eventSelect = document.getElementById('events');
 
-        if (paginationSelect) {
+        // Check if the page is reloaded
+        const isReload = performance.navigation.type === performance.navigation.TYPE_RELOAD;
+
+        // Retrieve per_page value from session storage and set it to the dropdown
+        const sessionPerPage = sessionStorage.getItem('per_page');
+        const storedPerPage = localStorage.getItem('per_page');
+        if (isReload && sessionPerPage && paginationSelect) {
+            paginationSelect.value = sessionPerPage;
+        } else if (paginationSelect) {
             paginationSelect.value = "{{ per_page }}";
         }
 
         if (paginationSelect) {
             paginationSelect.addEventListener('change', function () {
                 const perPage = paginationSelect.value;
+                sessionStorage.setItem('per_page', perPage);
                 updateTable(perPage);
+            });
+        }
+
+        if (eventSelect) {
+            eventSelect.addEventListener('change', function () {
+                const selectedEvent = eventSelect.value;
+                updateTable(null, null, selectedEvent);
             });
         }
 
@@ -524,17 +541,20 @@
             });
         }
 
-
-        function updateTable(perPage = null, searchTerm = '') {
+        function updateTable(perPage = null, searchTerm = '', event = null) {
             const urlParams = new URLSearchParams(window.location.search);
 
             if (perPage) {
                 urlParams.set('per_page', perPage);
-                urlParams.set('page', 1); 
+                urlParams.set('page', 1);
             }
 
             if (searchTerm) {
                 urlParams.set('search', searchTerm);
+            }
+
+            if (event) {
+                urlParams.set('event', event);
             }
 
             fetch(`${window.location.pathname}?${urlParams.toString()}`, {
@@ -554,25 +574,36 @@
 
                     if (paginationControls) {
                         paginationControls.innerHTML = newPaginationControls;
-                        attachPaginationListeners();
                     }
+
+                    attachListeners();
                 })
                 .catch(error => console.error('Error:', error));
         }
 
-        function attachPaginationListeners() {
-            const paginationControls = document.querySelector('.flex.justify-between.items-center.mt-4.px-5');
-            if (!paginationControls) {
-                console.log('Pagination controls not found.');
-                return;
-            }
+        function attachListeners() {
+            attachDetailsListeners();
+            attachPaginationListeners();
+        }
 
+        function attachDetailsListeners() {
+            document.querySelectorAll('.open-edit-modal').forEach(button => {
+                button.addEventListener('click', function () {
+                    const participantId = this.dataset.participantId;
+                    console.log(`Open modal for participant ID: ${participantId}`);
+                    // Add your code here to open the edit modal and populate it with participant details
+                });
+            });
+        }
+
+        function attachPaginationListeners() {
             document.querySelectorAll('.page-number').forEach(pageNumber => {
                 pageNumber.addEventListener('click', function (e) {
                     e.preventDefault();
                     const page = this.dataset.page;
                     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    updateTablePage(page, searchTerm);
+                    const event = eventSelect ? eventSelect.value : '';
+                    updateTablePage(page, searchTerm, event);
                 });
             });
 
@@ -582,7 +613,8 @@
                     e.preventDefault();
                     const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
                     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    updateTablePage(currentPage - 1, searchTerm);
+                    const event = eventSelect ? eventSelect.value : '';
+                    updateTablePage(currentPage - 1, searchTerm, event);
                 });
             }
 
@@ -592,17 +624,22 @@
                     e.preventDefault();
                     const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
                     const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    updateTablePage(currentPage + 1, searchTerm);
+                    const event = eventSelect ? eventSelect.value : '';
+                    updateTablePage(currentPage + 1, searchTerm, event);
                 });
             }
         }
 
-        function updateTablePage(page, searchTerm = '') {
+        function updateTablePage(page, searchTerm = '', event = '') {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('page', page);
 
             if (searchTerm) {
-                urlParams.set('search', searchTerm); 
+                urlParams.set('search', searchTerm);
+            }
+
+            if (event) {
+                urlParams.set('event', event);
             }
 
             fetch(`${window.location.pathname}?${urlParams.toString()}`, {
@@ -622,13 +659,14 @@
 
                     if (paginationControls) {
                         paginationControls.innerHTML = newPaginationControls;
-                        attachPaginationListeners();
                     }
+
+                    attachListeners();
                 })
                 .catch(error => console.error('Error:', error));
         }
 
-        attachPaginationListeners();
+        attachListeners();
     });
 
 
@@ -1104,7 +1142,7 @@
                 const ptName = row.querySelector('.participant-name');
                 const ptID = row.querySelector('td:nth-child(4)');
 
-                if (ptName && ptID) {
+                if (ptName || ptID) {
                     const ptNameText = ptName.textContent.toLowerCase();
                     const ptIdText = ptID.textContent.toLowerCase();
                     if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
