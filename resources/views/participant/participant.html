@@ -674,8 +674,9 @@
         const openEditButtons = document.querySelectorAll('.open-edit-modal');
         const editModal = document.getElementById('editModal');
 
-        openEditButtons.forEach(button => {
-            button.addEventListener('click', function () {
+        document.body.addEventListener("click", function (e) {
+            if (e.target.tagName.toLowerCase() === "button" && e.target.classList.contains("open-edit-modal")) {
+                const button = e.target
                 const participantId = button.getAttribute('data-participant-id');
                 window.currentParticipantId = participantId
                 if (!participantId) {
@@ -737,8 +738,8 @@
                         editModal.classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching participant data:', error));
-            });
-        });
+            }
+        })
 
         const cancelEditButton = document.getElementById('cancelEdit');
         if (cancelEditButton) {
