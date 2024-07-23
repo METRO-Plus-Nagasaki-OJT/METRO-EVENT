@@ -359,8 +359,6 @@
                     clip-rule="evenodd" />
             </svg>
         </div>
-        <button
-            class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Search</button>
     </div>
     <div>
         <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white bg-blue-600 hover:bg-blue-700 
@@ -1106,7 +1104,7 @@
                 const ptName = row.querySelector('.participant-name');
                 const ptID = row.querySelector('td:nth-child(4)');
 
-                if (ptName || ptID) {
+                if (ptName && ptID) {
                     const ptNameText = ptName.textContent.toLowerCase();
                     const ptIdText = ptID.textContent.toLowerCase();
                     if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
