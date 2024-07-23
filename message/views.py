@@ -12,20 +12,23 @@ def message_view(request):
         content = request.POST.get('content')
         startDate = request.POST.get('startDate')
         endDate = request.POST.get('endDate')
-        message_type = request.POST.get('type')
+        # message_type = request.POST.get('type', None)
 
-        message = Message(
-            subject = subject,
-            sender = sender,
-            content = content,
-            startDate = startDate,
-            endDate = endDate,
-            type = message_type
+        try:
+            message = Message(
+                subject = subject,
+                sender = sender,
+                content = content,
+                startDate = startDate,
+                endDate = endDate,
+                # type = message_type
 
-        )
-        message.save()
+            )
+            message.save()
         
-        return JsonResponse({'status': 'success', 'message': "Message have been created successfully!"})
+            return JsonResponse({'status': 'success', 'message': "Message have been created successfully!"})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     
     elif request.method == "GET":
         messages = Message.objects.all()
@@ -34,6 +37,24 @@ def message_view(request):
     return render(request, 'message/message.html', context = {'messages': messages, 'events': events})
 
 def get_message_details(request, message_id):
+    if request.method == "POST":
+        message = get_object_or_404(Message, id = message_id)
+        detailsubject = request.POST.get('detailsubject')
+        detailcontent = request.POST.get('detailcontent')
+        detailstartDate = request.POST.get('detailstartDate')
+        detailendDate = request.POST.get('detailendDate')
+
+        try:
+            message.subject = detailsubject
+            message.content = detailcontent
+            message.startDate = detailstartDate
+            message.endDate = detailendDate
+            message.save()
+        
+            return JsonResponse({'status': 'success', 'message': "Message have been created successfully!"})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
     if request.method == 'GET':
         message = get_object_or_404(Message, id = message_id)
         #event = get_object_or_404(Event, id = event_id)
@@ -43,7 +64,7 @@ def get_message_details(request, message_id):
             "content": message.content,
             "startDate": message.startDate,
             "endDate": message.endDate,
-            "type": message.type,
+            #"type": message.type,
             #"createdDate": event.created_at.isoformat(),
             #"finishedDate": event.updated_at.isoformat()
         }
