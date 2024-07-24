@@ -70,7 +70,7 @@ def participant(request):
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
-        search_term = request.GET.get('search', '')  # Get search term from query parameters
+        search_term = request.GET.get('search', '') 
         participants = Participant.objects.all().order_by('-created_at')
         if search_term:
             participants = participants.filter(
@@ -92,12 +92,12 @@ def participant(request):
             'page': page,
             'events': events,
             'per_page': per_page,
-            'search_term': search_term  # Pass search term to template
+            'search_term': search_term 
         })
 
 def participants_view(request):
     per_page = request.GET.get('per_page', 10)
-    search_term = request.GET.get('search', '')  # Get search term from query parameters
+    search_term = request.GET.get('search', '')
 
     # Filter participants based on search term
     participants = Participant.objects.all()
