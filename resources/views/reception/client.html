@@ -40,9 +40,9 @@
 
 <body>
     <div class="relative min-h-screen overflow-hidden">
-        <video id="webcam" autoplay hidden class="absolute-full object-cover scale-x-[-1]">
+        <video id="webcam" autoplay class="absolute-full object-cover scale-x-[-1]">
         </video>
-        <canvas id="canvas" class="absolute-full object-cover"></canvas>
+        <canvas id="canvas" class="absolute-full  object-cover " style=" visibility: hidden;"></canvas>
         <div class="transition-[0.05s] z-[10]  absolute hidden" id="face-box">
             <div class="w-full h-full relative bg-opacity-40 p-5">
                 <div class="border x"></div>
@@ -52,12 +52,12 @@
                 <div class="size-20 absolute border-r-8 border-b-8 right-0 bottom-0 rounded-br-[50%]"></div>
             </div>
         </div>
-        <div class="bg-red-700 absolute-full bg-opacity-50  flex justify-center items-center"
-            x-transition.duration.500ms x-data x-cloak x-show="$store.reception.showMessage">
-            <div class="min-w-[500px] max-w-[1000px] text-white text-center">
+        <div class="bg-red-700 absolute-full z-[100] bg-opacity-50  flex justify-center items-center"
+            x-transition.duration.500ms x-data x-cloak x-show="$store.reception.messageStatus">
+            <div class="min-w-[500px] max-w-[1200px] text-white text-center">
                 <h2 class="text-3xl underline">メッセージがあります</h2>
-                <p class="text-4xl  mt-10">
-                    問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手
+                <p class=" text-[4rem]  mt-10" x-text="$store.reception.message" x-transition:enter.duration.500ms
+                    x-transition:leave.duration.400ms>
                 </p>
             </div>
         </div>
@@ -76,9 +76,12 @@
                     <div class="leading-[0px] px-3 text-white text-xl">P Hub</div>
                     <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1"></div>
                 </div>
-                <div class="text-right">
-                    <button id="mode-button" x-data
-                        x-bind:class="$store.reception.mode ? 'bg-teal-500' : 'bg-yellow-300'"
+                <div class="flex justify-between">
+                    <button id="mode-button" style="visibility: hidden;"
+                        class="bg-teal-500 z-50 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
+                        Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
+                    </button>
+                    <button x-data x-bind:class="$store.reception.mode ? 'bg-teal-500' : 'bg-yellow-300'"
                         class="bg-teal-500 z-50 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
                         Mode : <span x-text="$store.reception.mode ? '入館': '退館'"></span>
                     </button>
@@ -96,7 +99,7 @@
                                 </svg>
                             </div>
                             <div class="text-2xl text-center">
-                                <div>山田様</div>
+                                <div>ワインヤンリン</div>
                                 <div>1年○○○○療法</div>
                             </div>
                         </div>
@@ -136,6 +139,12 @@
         const bc = new BroadcastChannel("p_hub_reception");
         const facebox = document.getElementById("face-box")
 
+        const { x: bx, y: by, width: bw } = document.getElementById("mode-button").getBoundingClientRect()
+        const buttonS = bx
+        const buttonE = bx + bw
+        const buttonT = by
+        const buttonB = by * 2.0
+
         bc.onmessage = (event) => {
             const data = JSON.parse(event.data)
             if ("close" in data) {
@@ -166,7 +175,8 @@
 
             async *[Symbol.asyncIterator]() {
                 for (let item of this.data) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    yield item;
                 }
             }
         }
@@ -182,11 +192,12 @@
         });
 
         const fps1 = setFPS(1)
-        const fps30 = setFPS(30)
+        const fps30 = setFPS(20)
 
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                messageStatus: false,
                 qrLoader: false,
                 currentState: false,
                 loader: false,
@@ -196,12 +207,13 @@
                 socket: null,
                 verify: false,
                 showMessage: false,
-                message: null,
+                message: "メッセージのロード",
                 socketReady: false,
                 messages: [
-                    { content: "問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣ふ掲来もに本8令アヲ搭芸けぐき国加もぶみ交万みび下禁分普かうい。刻資るけイゆ脱多ちづ政国ノ全対チワ護更堂キ学月だ応一著づ解側ノシスユ示他のだ術有のるうぞ域銀ぜもゆ季也野打稲み。東ウサソヲ南1京価ニメ覧5分鷹よ汁気4仙ヱ詳被ナヌミ国撮こもお岐問んぽづ勝減読うし意中ユシツヱ手" },
-                    { content: "権んりをき大軽ど界細ひ外球ワイセラ女新カメソ社74着テ立遊ぴなむ月治ナカヱヒ展掲ぱゅ務銃うどよク陳火んリ利致こクべ英将ぜお本痛傾ーリぶ。購67状締拳5近ぶょ排掲ケ急掲ムコ上7健ロ台検ぞきス団著前方ネ報焼のだとび謝意チオ想安メウ融写壮憶ッ。力ずざえび略省年か制年クキソエ終工決ワキケ学隆じだふ期7混ぞリぐゆ所位コネヱ性体断どかぽ都後ネケツミ都最額拠セキサ端心とぼゆに" },
-                    { content: "同とぽゃ早50持スし碁7策ナモヒ禁事にう買財ふっ袋止ドざぱご立67議忘チアム択原にンつへ年単構満ねとイッ。著39増ホユスリ仙無フおい誌速ワミノ長層ヒ朝勧ヨ社問にー交試サオメス業終ウヲシヒ大喫なゅ防生ぽふッレ較5速覧皇仲儀ざぎ。明ニカ果人ヲヘ進別すこげ世横はい言袋ケ医選ほ出維モヤセヒ制毎ヱタ最供そにおい央撲フ疑会キマ禁採ナヨクタ滋防大トせ教練クもず文更投温うむ要旨傑摯晋こ。" }
+                    { content: "WOW! けっこいいですね。" },
+                    { content: "俳優のように見えます。" },
+                    { content: "うけつけにサインを残してください。" },
+                    { content: "" }
                 ],
                 state() {
                     return {
@@ -212,8 +224,8 @@
                 webcamStream: null,
                 init() {
 
-                    this.currentState = this.state().QR_DECETION
-                    this.message = this.messages[0].content
+                    this.currentState = this.state().FACE_DECTION
+
 
                     setInterval(() => {
                         this.time = `${this.currentDate()} ${this.currentTime()}`
@@ -234,18 +246,15 @@
                     const onHandResults = () => {
                         return (results) => {
                             const landmarks = results.multiHandLandmarks[0]
-
-
-                            landmarks?.forEach(function (l) {
-                                const x = l.x
-                                const y = l.y
-
-                                console.log(x * canvas.width)
-                                if (x > 0 && x.toFixed(1) < 0.3 && y > 0 && y.toFixed(1) < 0.3) {
+                            if (landmarks) {
+                                const handX = this.mappedX(landmarks[12].x * video.videoWidth)
+                                const handY = this.mappedY(landmarks[12].y * video.videoHeight)
+                                console.log(handY)
+                                if (handY >= buttonT && handY <= buttonB && handX >= buttonS && handX <= buttonE) {
                                     this.mode = !this.mode
                                     bc.postMessage(JSON.stringify({ mode: this.mode }))
                                 }
-                            }.bind(this))
+                            }
                         }
                     }
 
@@ -279,6 +288,7 @@
                                         timeout = setTimeout(() => {
                                             timeout = null
                                             this.loader = true
+                                 
                                             this.recognizeFace(canvas.toDataURL())
                                         }, 300)
                                     }
@@ -301,6 +311,7 @@
                                 resetTimeout = null
 
                             } else {
+                                facebox.style.display = "none"
                                 if (!resetTimeout) {
                                     resetTimeout = setTimeout(() => {
                                         resetTimeout = null
@@ -344,12 +355,20 @@
                         this.socket.close();
                     };
 
-                    this.socket.onmessage = (e) => {
+                    this.socket.onmessage = async (e) => {
                         const data = JSON.parse(e.data)
 
                         if (data.success) {
                             facebox.style.display = "none"
                             this.verify = true
+                            this.messageStatus = true
+                            const asyncMessages = new AsyncIterable(this.messages)
+                            for await (let m of asyncMessages) {
+                                if(m.content) {
+                                    this.message = m.content
+                                }
+                            }
+                            this.messageStatus = false
                             return
                         }
 
@@ -383,38 +402,69 @@
                         .then(stream => {
                             webcamStream = stream;
                             video.srcObject = stream;
-                            const drawCanvs = async (currentTime) => {
-                                width = canvas.width = video.videoWidth;
-                                height = canvas.height = video.videoHeight;
-                                context.save();
-                                context.scale(-1, 1);
-                                context.drawImage(video, -width, 0, width, height);
 
-                                if (width && this.socketReady) {
-                                    if (fps1(currentTime)) {
-                                        await hands.send({ image: video });
-                                        const imageData = context.getImageData(0, 0, width, height)
-                                        const qr = jsQR(imageData.data, imageData.width, imageData.height)
 
-                                        if (qr && !this.qrLoader) {
-                                            this.qrLoader = true
-                                            this.checkQR(canvas.toDataURL())
-                                        }
+                            video.addEventListener('loadedmetadata', () => {
+                                width = canvas.width = window.innerWidth
+                                height = canvas.height = window.innerHeight
+                                const videoAspectRatio = video.videoWidth / video.videoHeight;
+                                const canvasAspectRatio = canvas.width / canvas.height;
 
-                                        if (!qr) {
-                                            this.qrLoader = false
-                                        }
-                                    }
+                                let drawWidth, drawHeight, drawX, drawY;
 
-                                    if (fps30(currentTime) && !this.qrLoader) {
-                                        await faceDetection.send({ image: video });
-                                    }
+                                if (canvasAspectRatio > videoAspectRatio) {
+                                    drawWidth = canvas.width;
+                                    drawHeight = canvas.width / videoAspectRatio;
+                                    drawX = 0;
+                                    drawY = (canvas.height - drawHeight) / 2.0;
+                                } else {
+                                    drawWidth = canvas.height * videoAspectRatio;
+                                    drawHeight = canvas.height;
+                                    drawX = (canvas.width - drawWidth) / 2.0;
+                                    drawY = 0;
                                 }
 
-                                context.restore()
+                                const mapXRatio = drawWidth / video.videoWidth
+
+                                const mapYRatio = drawHeight / video.videoHeight
+
+                                this.mappedX = (x) => (drawX + x * mapXRatio);
+                                this.mappedY = (y) => (drawY + y * mapYRatio) / 2.0
+
+                                const drawCanvs = async (currentTime) => {
+
+                                    context.clearRect(0, 0, canvas.width, canvas.height);
+                                    context.save();
+                                    context.drawImage(video, drawX, drawY, drawWidth, drawHeight);
+
+                                    if (this.socketReady) {
+                                        if (fps1(currentTime)) {
+                                            await hands.send({ image: video });
+                                            const imageData = context.getImageData(0, 0, width, height)
+
+                                            if (this.state === this.state().QR_DECETION) {
+                                                const qr = jsQR(imageData.data, imageData.width, imageData.height)
+
+                                                if (qr && !this.qrLoader) {
+                                                    this.qrLoader = true
+                                                    this.checkQR(canvas.toDataURL())
+                                                }
+
+                                                if (!qr) {
+                                                    this.qrLoader = false
+                                                }
+                                            }
+                                        }
+
+                                        if (fps30(currentTime) && !this.qrLoader) {
+                                            await faceDetection.send({ image: video });
+                                        }
+                                    }
+                                    context.restore()
+                                    requestAnimationFrame(drawCanvs)
+                                }
                                 requestAnimationFrame(drawCanvs)
-                            }
-                            requestAnimationFrame(drawCanvs)
+                            });
                         })
                         .catch(error => {
                             console.error('Error accessing webcam:', error);
