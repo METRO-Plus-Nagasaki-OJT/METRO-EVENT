@@ -14,6 +14,7 @@ import cv2
 import pickle as pkl
 from django.shortcuts import HttpResponse
 import json
+from django.core.cache import cache
 
 @csrf_exempt
 def participant(request):
@@ -68,6 +69,7 @@ def participant(request):
         train_unknown_classifier()
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
+        cache.delete(f"{event_id}")
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':

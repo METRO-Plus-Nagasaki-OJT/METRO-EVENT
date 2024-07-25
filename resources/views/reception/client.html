@@ -345,7 +345,7 @@
 
                             } else {
                                 facebox.style.display = "none"
-                                if (!resetTimeout) {
+                                if (!resetTimeout && !this.messageStatus)  {
                                     resetTimeout = setTimeout(() => {
                                         resetTimeout = null
                                         this.reset()
@@ -517,11 +517,11 @@
                     }
                 },
                 recognizeFace(base64) {
-                    this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false, event_id: 2, in: this.in }))
+                    this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false, event_id: 3, in: this.in }))
 
                 },
                 checkQR(base64) {
-                    this.socket.send(JSON.stringify({ "image_url": base64, qr_code: true, event_id: 2, in: this.in }))
+                    this.socket.send(JSON.stringify({ "image_url": base64, qr_code: true, event_id: 3, in: this.in }))
                 },
                 currentDate() {
                     const now = new Date();

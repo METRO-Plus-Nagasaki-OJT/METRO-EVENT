@@ -26,8 +26,9 @@ def get_participants(id):
     else:
         p_in_ongoing_events = Participant.objects.filter(event__id=id)
         participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
+        print(participant_ids, "lol")
         embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
-        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings},60 * 60 * 60 * 3)
+        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings},60 * 60 * 60 * 0)
         return participant_ids, embeddings
 
 def compare_embeddings_cosine(embedding1, embedding2):
@@ -45,7 +46,6 @@ def load_mls():
 def check_unknown(encode):
     model = load_mls()
     pred = model.predict([encode])[0]
-    print(pred)
     # results = []
     # for i in l_o_models:
     #     results.append(i.predict([encode])[0])
@@ -121,16 +121,14 @@ class ImageConsumer(WebsocketConsumer):
                     success_message = False
                 elif pred and not unknown:
                     success_message = True
-                    add_attendance(in_out_status, pred_id)
+                    # add_attendance(in_out_status, pred_id)
         else:
             is_qr = True
             qr_code = read_qr(image)
-            print(qr_code)
             if qr_code is None:
                 success_message = False
             else:         
                 if qr_code[0] in participant_ids:
                     success_message = True
-                    add_attendance(in_out_status, int(qr_code[0]))
-        print(success_message)
+                    # add_attendance(in_out_status, int(qr_code[0]))
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))
