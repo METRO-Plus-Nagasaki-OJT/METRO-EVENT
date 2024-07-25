@@ -91,7 +91,8 @@
                         class="bg-teal-500 font-semibold z-50 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
                         Mode : <span x-text="$store.reception.in ? '入館': '退館'"></span>
                     </button>
-                    <button @click="$store.reception.in = !$store.reception.in" x-data x-bind:class="$store.reception.in ? 'bg-teal-500' : 'bg-yellow-300'"
+                    <button @click="$store.reception.in = !$store.reception.in" x-data
+                        x-bind:class="$store.reception.in ? 'bg-teal-500' : 'bg-yellow-300'"
                         class="bg-teal-500 font-semibold  z-50 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
                         Mode : <span class="font-semibold" x-text="$store.reception.in ? '入館': '退館'"></span>
                     </button>
@@ -316,15 +317,15 @@
                                     width = prevWidth
                                     height = prevHeight
                                     facebox.style.display = "block"
-                                    // if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION) {
-                                    //     facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
-                                    //     timeout = setTimeout(() => {
-                                    //         timeout = null
-                                    //         this.loader = true
+                                    if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION) {
+                                        facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
+                                        timeout = setTimeout(() => {
+                                            timeout = null
+                                            this.loader = true
 
-                                    //         this.recognizeFace(canvas.toDataURL())
-                                    //     }, 300)
-                                    // }
+                                            this.recognizeFace(canvas.toDataURL())
+                                        }, 300)
+                                    }
                                 } else {
                                     clearTimeout(timeout)
                                     timeout = null
@@ -517,11 +518,11 @@
                     }
                 },
                 recognizeFace(base64) {
-                    this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false }))
+                    this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false, event_id: 2, in: this.in }))
 
                 },
                 checkQR(base64) {
-                    this.socket.send(JSON.stringify({ "image_url": base64, qr_code: true }))
+                    this.socket.send(JSON.stringify({ "image_url": base64, qr_code: true, event_id: 2, in: this.in }))
                 },
                 currentDate() {
                     const now = new Date();
