@@ -13,15 +13,22 @@ from attendance.face_capture import capture_face, get_encode, check_modelnembed,
 from participant.models import Participant
 from attendance.models import Attendance
 import datetime
+from django.core.cache import cache
 
 qr_reader = QReader()
 
 def get_participants(id):
-    p_in_ongoing_events = Participant.objects.filter(event__id=id)
-    participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
-    print(participant_ids)
-    embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
-    return participant_ids, embeddings
+    data = cache.get(f"{id}")
+    if data:
+        embeddings = data["embeddings"]
+        participant_ids = data["participant_ids"]
+        return participant_ids, embeddings
+    else:
+        p_in_ongoing_events = Participant.objects.filter(event__id=id)
+        participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
+        embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
+        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings},60 * 60 * 60 * 3)
+        return participant_ids, embeddings
 
 def compare_embeddings_cosine(embedding1, embedding2):
     similarity = 1 - cosine(embedding1, embedding2)
@@ -63,9 +70,9 @@ def verify(encode, threshold, embeddings, participant_ids):
         if best_matched in participant_ids and highest_similarity > threshold:
             return True, best_matched
         else:
-            return False
+            return False, best_matched
     else:
-        return False
+        return False, best_matched
 
 def add_attendance(in_status, participant_id):
     today = datetime.datetime.now()

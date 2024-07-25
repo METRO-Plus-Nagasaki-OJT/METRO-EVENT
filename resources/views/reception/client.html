@@ -118,8 +118,8 @@
                             問わ森自ハミテ散済はびで研供ソロ画感ツラ了遣
                         </div> -->
                     </div>
-                    <div class="space-y-1">
-                        <div style="display: none;" id="face-recognization-fail">
+                    <div class="space-y-1" x-data>
+                        <div x-show="$store.reception.faceRecognizationFailAlert" x-transition:enter.duration.500ms >
                             <div
                                 class="py-5 px-20 space-y-5 text-white rounded-lg bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
                                 <div class=" bg-red-500 rounded-full flex justify-center items-center">
@@ -137,7 +137,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div x-data x-transition:enter.duration.500ms
+                        <div x-transition:enter.duration.500ms
                             x-show="$store.reception.currentState === $store.reception.state().QR_DECETION"
                             class="px-20 py-5 space-y-3 relative  text-white items-center bg-opacity-[0.4] bg-[#262323] rounded-lg">
                             <div class="flex justify-center ">
@@ -169,7 +169,6 @@
         const video = document.getElementById('webcam');
         const bc = new BroadcastChannel("p_hub_reception");
         const facebox = document.getElementById("face-box")
-        const faceRecognizationFail = document.getElementById("face-recognization-fail")
 
         const { x: bx, y: by, width: bw } = document.getElementById("mode-button").getBoundingClientRect()
         const buttonS = bx
@@ -232,6 +231,7 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                faceRecognizationFailAlert: false,
                 messageStatus: false,
                 qrLoader: false,
                 currentState: false,
@@ -316,7 +316,7 @@
                                     y = prevY
                                     width = prevWidth
                                     height = prevHeight
-                                    if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION) {
+                                    if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION && !this.messageStatus) {
                                         facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                         timeout = setTimeout(() => {
                                             timeout = null
@@ -424,12 +424,12 @@
 
                         if (this.failCount === 2) {
                             facebox.style.display = "none"
-                            faceRecognizationFail.style.display = "block"
+                            this.faceRecognizationFailAlert = true
                             setTimeout(() => {
-                                faceRecognizationFail.style.display = "none"
+                                this.faceRecognizationFailAlert = false
                                 this.currentState = this.state().QR_DECETION
                                 this.loader = false
-                            }, 2000);
+                            }, 3000);
                             return
                         }
 

@@ -15,7 +15,7 @@ def get_event_ids():
 def attendance_scheduling():
     today = datetime.now().date()
     current_weekday = datetime.weekday(today)
-    if current_weekday != 4 or current_weekday != 5:
+    if current_weekday != 5 or current_weekday != 6:
         for event_id in get_event_ids():
             participant_ids = list(Participant.objects.filter(event__id=event_id).values_list("id", flat=True))
             print(participant_ids)
