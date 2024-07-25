@@ -316,7 +316,6 @@
                                     y = prevY
                                     width = prevWidth
                                     height = prevHeight
-                                    facebox.style.display = "block"
                                     if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION) {
                                         facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                         timeout = setTimeout(() => {
@@ -430,7 +429,7 @@
                                 faceRecognizationFail.style.display = "none"
                                 this.currentState = this.state().QR_DECETION
                                 this.loader = false
-                            }, 15000);
+                            }, 2000);
                             return
                         }
 
