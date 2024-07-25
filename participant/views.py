@@ -7,12 +7,13 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
-from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings
+from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings, check_modelnembed
 from attendance.unknown_training import train_unknown_classifier
 import numpy as np
 import cv2
 import pickle as pkl
 from django.shortcuts import HttpResponse
+import json
 
 @csrf_exempt
 def participant(request):
@@ -31,8 +32,6 @@ def participant(request):
         event_id = request.POST.get('event') 
         event = get_object_or_404(Event, id=event_id)
         embeddable = False
-
-        # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
             profile = request.FILES["fileInput"]
             img = base64.b64encode(profile.read())
@@ -55,16 +54,18 @@ def participant(request):
             event=event,
             profile=profile 
         )
-        participant.save()
+        
         if embeddable:
-            np_img = cv2.cvtColor(np.frombuffer(img, dtype=np.uint8), cv2.COLOR_RGB2BGR)
+            image_np = np.fromstring(base64.b64decode(img), dtype=np.uint8)
+            np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
             face, detection_status = capture_face(np_img)
+            print("Face captured!")
             if detection_status == True:
                 encoding = get_encode(face)
-                encoding[participant.id] = encoding
-                save_embeddings("embeddings/attendance_embeddings.pkl", encoding)
-                train_unknown_classifier()
+                participant.facial_feature = json.dumps(encoding)
                 print("Face embedding registered!")
+        participant.save()
+        train_unknown_classifier()
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
