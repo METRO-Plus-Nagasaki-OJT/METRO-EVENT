@@ -13,17 +13,17 @@
 <body>
     <div class="grid grid-cols-12 h-screen" x-data="settings">
         <div class="col-span-2 bg-slate-50 text-slate-500">
-            <h1 class="text-center py-2 text-2xl">受信設定</h1>
+            <h1 class="text-center py-2 text-3xl font-extrabold">受信設定</h1>
             <hr>
             <ul class="space-y-3">
-                <li class="px-3 py-2" x-bind:class="{'bg-slate-100' : currentPage === pages.AI_MODEL}">
+                <li class="px-3 py-2 " x-bind:class="{'bg-slate-100' : currentPage === pages.AI_MODEL}">
                     <button @click="page(pages.AI_MODEL)" class="flex items-center space-x-3 text-md">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class=" size-8">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
                         </svg>
-                        <span>AIモデル</span>
+                        <span class="font-bold">AIモデル</span>
                     </button>
                 </li>
                 <li class="px-3 py-2" x-bind:class="{'bg-slate-100' : currentPage === pages.ALERT_CONTROL}">
@@ -34,7 +34,7 @@
                                 d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
                         </svg>
 
-                        <span>アラート操作</span>
+                        <span class="font-bold">アラート操作</span>
                     </button>
                 </li>
                 <li class="px-3 py-2" x-bind:class="{'bg-slate-100' : currentPage === pages.TIME_CONTROL}">
@@ -44,7 +44,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
-                        <span>時間操作</span>
+                        <span class="font-bold">時間操作</span>
                     </button>
                 </li>
             </ul>
@@ -59,37 +59,38 @@
                     <form autocomplete="off" class="px-4 py-3 grid grid-cols-4 gap-4">
                         <div>
                             <label for="face_confidence" title="face confidence"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white ">
                                 顔の最小信頼度</label>
-                            <input type="number" id="face_confidence" x-model="data.faceDetectionConfidence"
+                            <input type="number" id="face_confidence" x-model.number="data.faceDetectionConfidence"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter Face Confidence" />
                         </div>
                         <div>
                             <label for="face_fps"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">フェイスFPS</label>
-                            <input type="number" id="face_fps" x-model="data.faceFPS"
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">フェイスFPS</label>
+                            <input type="number" id="face_fps" x-model.number="data.faceFPS"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter Face FPS" />
                         </div>
                         <div>
                             <label for="max_face_fail_count"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">最大顔認識失敗回数</label>
-                            <input type="number" id="max_face_fail_count" x-model="data.faceRecognizationFailCount"
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">最大顔認識失敗回数</label>
+                            <input type="number" id="max_face_fail_count"
+                                x-model.number="data.faceRecognizationFailCount"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter Max Face Recognization Fail Count" />
                         </div>
                         <div>
                             <label for="hand_confidence"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">手の信頼度</label>
-                            <input type="number" id="hand_confidence" x-model="data.handDetectionConfidence"
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">手の信頼度</label>
+                            <input type="number" id="hand_confidence" x-model.number="data.handDetectionConfidence"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter Hand Confidence" />
                         </div>
                         <div>
                             <label for="hand_fps"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">手の映像生成速度</label>
-                            <input type="number" id="hand_fps" x-model="data.handFPS"
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">手の映像生成速度</label>
+                            <input type="number" id="hand_fps" x-model.number="data.handFPS"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter Hand FPS" />
                         </div>
@@ -101,14 +102,14 @@
                     <form autocomplete="off" class="px-4 py-3 grid grid-cols-4 gap-4">
                         <div>
                             <label for="qr_error_alert_duration"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">QRコードエラーアラート時間</label>
-                            <input type="number" id="qr_error_alert_duration" x-model="data.qrErrorAlertDuration"
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">QRコードエラーアラート時間</label>
+                            <input type="number" id="qr_error_alert_duration" x-model.number="data.qrErrorAlertDuration"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter QR Alert Durtaion" />
                         </div>
                         <div>
                             <label for="qr_error_message"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">QRコードエラーメッセージ</label>
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">QRコードエラーメッセージ</label>
                             <input x-model="data.qrErrorMessage" type="text" id="qr_error_message"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Enter Error Message" />
@@ -121,8 +122,8 @@
                     <form autocomplete="off" class="px-4 py-3 grid grid-cols-4 gap-4">
                         <div>
                             <label for="time_locale"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">時間のロケール</label>
-                            <input type="text" id="time_locale" x-model="data.timeLocale"
+                                class="block mb-2 text-sm font-bold text-gray-900 dark:text-white">時間のロケール</label>
+                            <input type="text" id="time_locale" x-model.number="data.timeLocale"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Time Locale" />
                         </div>
@@ -139,6 +140,7 @@
     <script>
         document.addEventListener("alpine:init", () => {
             const data = JSON.parse(window.localStorage.getItem("settings")) || JSON.parse(window.localStorage.getItem("defaultSettings"))
+
             Alpine.data("settings", () => ({
                 currentPage: null,
                 data,
