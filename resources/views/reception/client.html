@@ -25,7 +25,7 @@
         }
 
         .x {
-            animation: example 3s linear infinite;
+            animation: example 2s linear infinite;
             position: absolute;
             left: 4%;
             right: 4%;
@@ -45,99 +45,74 @@
 
 <body>
     <div class="relative min-h-screen overflow-hidden">
-        <video id="webcam" autoplay
-            class="absolute-full object-cover scale-x-[-1]">
+        <video id="webcam" autoplay class="absolute-full object-cover scale-x-[-1]">
         </video>
         <canvas id="crop-face-canvas" hidden></canvas>
-        <canvas id="canvas" class="absolute-full  object-cover "
-            style=" visibility: hidden;"></canvas>
+        <canvas id="canvas" class="absolute-full  object-cover " style=" visibility: hidden;"></canvas>
         <div class="transition-[0.05s] z-[10]  absolute hidden" id="face-box">
             <div class="w-full h-full relative bg-opacity-40 p-5">
-                <div
-                    class="absolute top-8 left-8 right-8 bottom-8 bg-white bg-opacity-30 rounded-3xl">
+                <div class="absolute top-8 left-8 right-8 bottom-8 bg-white bg-opacity-30 rounded-3xl">
                 </div>
                 <div class="border x overflow-hidden">
                     <div class="y"></div>
                 </div>
-                <div
-                    class="size-20 absolute border-t-8 border-l-8 left-0  top-0 rounded-ss-[50%]">
+                <div class="size-20 absolute border-t-8 border-l-8 left-0  top-0 rounded-ss-[50%]">
                 </div>
-                <div
-                    class="size-20 absolute border-t-8 border-r-8 right-0 top-0 rounded-se-[50%] ">
+                <div class="size-20 absolute border-t-8 border-r-8 right-0 top-0 rounded-se-[50%] ">
                 </div>
-                <div
-                    class="size-20 absolute border-l-8 border-b-8 left-0 bottom-0  rounded-bl-[50%]">
+                <div class="size-20 absolute border-l-8 border-b-8 left-0 bottom-0  rounded-bl-[50%]">
                 </div>
-                <div
-                    class="size-20 absolute border-r-8 border-b-8 right-0 bottom-0 rounded-br-[50%]">
+                <div class="size-20 absolute border-r-8 border-b-8 right-0 bottom-0 rounded-br-[50%]">
                 </div>
             </div>
         </div>
         <div class="bg-red-700 absolute-full z-[100] bg-opacity-50  flex justify-center items-center"
-            x-transition.duration.500ms x-data x-cloak
-            x-show="$store.reception.messageStatus">
+            x-transition.duration.500ms x-data x-cloak x-show="$store.reception.messageStatus">
             <div class="min-w-[500px] max-w-[1200px] text-white text-center">
                 <h2 class="text-3xl underline">メッセージがあります</h2>
-                <p class=" text-[4rem]  mt-10" x-text="$store.reception.message"
-                    x-transition:enter.duration.500ms
+                <p class=" text-[4rem]  mt-10" x-text="$store.reception.message" x-transition:enter.duration.500ms
                     x-transition:leave.duration.400ms>
                 </p>
             </div>
         </div>
         <div class="absolute top-5 left-5 right-5 bottom-5">
-            <div
-                class="w-full h-full flex flex-col justify-between p-5 relative ">
-                <div
-                    class="absolute border border-white w-full h-full top-0 right-0 border-t-0 border-b-0">
+            <div class="w-full h-full flex flex-col justify-between p-5 relative ">
+                <div class="absolute border border-white w-full h-full top-0 right-0 border-t-0 border-b-0">
                 </div>
-                <div
-                    class="top-0 left-0 right-0 absolute w-full flex justify-center ">
-                    <div
-                        class="border border-white border-r-0 border-b-0 border-l-0 w-9">
+                <div class="top-0 left-0 right-0 absolute w-full flex justify-center ">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 w-9">
                     </div>
-                    <div class="leading-[0px] px-3 text-white text-xl" x-data
-                        x-text="$store.reception.time">0000-00-00
+                    <div class="leading-[0px] px-3 text-white text-xl" x-data x-text="$store.reception.time">0000-00-00
                         00:00:00
                     </div>
-                    <div
-                        class="border border-white border-r-0 border-b-0 border-l-0 flex-1">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1">
                     </div>
                 </div>
-                <div
-                    class="bottom-0 left-0 right-0 absolute w-full flex justify-center ">
-                    <div
-                        class="border border-white border-r-0 border-b-0 border-l-0 w-[90%]">
+                <div class="bottom-0 left-0 right-0 absolute w-full flex justify-center ">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 w-[90%]">
                     </div>
                     <div class="leading-[0px] px-3 text-white text-xl">P Hub
                     </div>
-                    <div
-                        class="border border-white border-r-0 border-b-0 border-l-0 flex-1">
+                    <div class="border border-white border-r-0 border-b-0 border-l-0 flex-1">
                     </div>
                 </div>
                 <div class="flex justify-between">
                     <button id="mode-button" style="visibility: hidden;"
                         class="bg-teal-500 font-semibold z-50 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
-                        Mode : <span
-                            x-text="$store.reception.in ? '入館': '退館'"></span>
+                        Mode : <span x-text="$store.reception.in ? '入館': '退館'"></span>
                     </button>
-                    <button @click="$store.reception.in = !$store.reception.in"
-                        x-data
+                    <button @click="$store.reception.in = !$store.reception.in" x-data
                         x-bind:class="$store.reception.in ? 'bg-teal-500' : 'bg-yellow-300'"
                         class="bg-teal-500 font-semibold  z-50 px-[4%] py-[1%] text-[2rem]  text-center text-white rounded-[40px] border-[5px] border-white">
-                        Mode : <span class="font-semibold"
-                            x-text="$store.reception.in ? '入館': '退館'"></span>
+                        Mode : <span class="font-semibold" x-text="$store.reception.in ? '入館': '退館'"></span>
                     </button>
                 </div>
                 <div class="flex justify-between items-start px-3">
                     <div>
-                        <div x-data x-show="$store.reception.verify"
-                            x-transition:enter.duration.500ms
+                        <div x-data x-show="$store.reception.verify" x-transition:enter.duration.500ms
                             class="py-5 px-20 space-y-5 text-white rounded-lg bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
-                            <div
-                                class=" bg-lime-500 rounded-full flex justify-center items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    class=" size-40 fill-white">
+                            <div class=" bg-lime-500 rounded-full flex justify-center items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class=" size-40 fill-white">
                                     <path fill-rule="evenodd"
                                         d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
                                         clip-rule="evenodd" />
@@ -154,14 +129,11 @@
                         </div> -->
                     </div>
                     <div class="space-y-1" x-data>
-                        <div x-show="$store.reception.faceRecognizationFailAlert"
-                            x-transition:enter.duration.500ms>
+                        <div x-show="$store.reception.faceRecognizationFailAlert" x-transition:enter.duration.500ms>
                             <div
                                 class="py-5 px-20 space-y-5 text-white rounded-lg bg-opacity-[0.4] bg-[#262323] flex flex-col justify-between items-center">
-                                <div
-                                    class=" bg-red-500 rounded-full flex justify-center items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24" fill="currentColor"
+                                <div class=" bg-red-500 rounded-full flex justify-center items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                         class="fill-white size-40">
                                         <path fill-rule="evenodd"
                                             d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z"
@@ -180,15 +152,11 @@
                             class="px-20 py-5 space-y-3 relative  text-white items-center bg-opacity-[0.4] bg-[#262323] rounded-lg">
                             <div class="flex justify-center ">
                                 <div class="bg-green-500 rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor"
-                                        class="size-40 text-white">
-                                        <path stroke-linecap="round"
-                                            stroke-linejoin="round"
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="size-40 text-white">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5Z" />
-                                        <path stroke-linecap="round"
-                                            stroke-linejoin="round"
+                                        <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z" />
                                     </svg>
                                 </div>
@@ -351,10 +319,10 @@
 
                             if (detection) {
                                 let boundingBox = detection.boundingBox;
-                                let width = (boundingBox.width * canvas.width) * 1.7
-                                let height = (boundingBox.height * canvas.height) * 2.2;
-                                let x = (boundingBox.xCenter * canvas.width) - (width / 2.0)
-                                let y = (boundingBox.yCenter * canvas.height) - (height / 2.0);
+                                let width = boundingBox.width * 1.7 * window.innerWidth
+                                let height = boundingBox.height * 2 *  window.innerHeight
+                                let x = (boundingBox.xCenter - ((boundingBox.width * 1.7) / 2)) * window.innerWidth;
+                                let y = (boundingBox.yCenter - ((boundingBox.height * 2) / 2)) * window.innerHeight;
 
                                 if (Math.abs(x - prevX) < 15) {
                                     x = prevX
@@ -365,16 +333,16 @@
                                         facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                         timeout = setTimeout(() => {
                                             timeout = null
-                                            this.loader = true
-
-                                            const faceWidth = boundingBox.width * 1.3 * video.videoWidth
-                                            const faceHeight = boundingBox.width * 1.5 * video.videoHeight
-                                            const faceX = (boundingBox.xCenter - ((boundingBox.width * 1.3) / 2)) * video.videoWidth;
-                                            const faceY = (boundingBox.yCenter - ((boundingBox.height * 1.5) / 2)) * video.videoHeight;
+                                            const faceWidth = boundingBox.width * video.videoWidth
+                                            const faceHeight = boundingBox.height * video.videoHeight
+                                            const faceX = (boundingBox.xCenter - (boundingBox.width / 2)) * video.videoWidth;
+                                            const faceY = (boundingBox.yCenter - (boundingBox.height / 2)) * video.videoHeight;
                                             cropFaceCanvas.width = faceWidth
                                             cropFaceCanvas.height = faceHeight
                                             faceCtx.drawImage(video, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight)
+                                            console.log(cropFaceCanvas.toDataURL())
                                             this.recognizeFace(cropFaceCanvas.toDataURL())
+                                          
                                         }, 300)
                                     }
                                 } else {
@@ -533,9 +501,9 @@
                                     if (this.socketReady) {
                                         if (handFPS(currentTime)) {
                                             await hands.send({ image: video });
-                                            const imageData = context.getImageData(0, 0, width, height)
 
                                             if (this.state === this.state().QR_DECETION) {
+                                                const imageData = context.getImageData(0, 0, width, height)
                                                 const qr = jsQR(imageData.data, imageData.width, imageData.height)
 
                                                 if (qr && !this.qrLoader) {
