@@ -2,7 +2,25 @@ import Alpine from 'alpinejs';
 import persist from '@alpinejs/persist'
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
+
+
+const settings = {
+    faceDetectionConfidence: 0.8,
+    faceFPS: 30,
+    handDetectionConfidence: 0.5,
+    handFPS: 1,
+    faceRecognizationFailCount: 3,
+    timeLocale: "Jp",
+    qrErrorAlertDuration: 3,
+    qrErrorMessage: "未承認のQRコードです。",
+    eventMessageDuration: 5,
+}
+
+window.localStorage.setItem("defaultSettings", JSON.stringify(settings))
+
+
 window.Toastify = Toastify
+
 Alpine.plugin(persist)
 
 const Clover = {
@@ -304,19 +322,5 @@ document.addEventListener('alpine:init', () => {
 
 window.Clover = Clover;
 window.Alpine = Alpine;
-
-const settings = {
-    faceDetectionConfidence: 0.8,
-    faceFPS: 30,
-    handDetectionConfidence: 0.5,
-    handFPS: 1,
-    faceRecognizationFailCount: 3,
-    timeLocale: "Jp",
-    qrErrorAlertDuration: 3,
-    qrErrorMessage: "未承認のQRコードです。",
-    eventMessageDuration: 5,
-}
-
-window.localStorage.setItem("defaultSettings", JSON.stringify(settings))
 
 Alpine.start();
