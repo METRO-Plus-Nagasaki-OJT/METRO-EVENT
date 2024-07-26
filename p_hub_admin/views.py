@@ -14,3 +14,6 @@ def login_view(request):
         else:
             return JsonResponse({'success': False, 'error': "Invalid credentials"})        
     return render(request, 'p_hub_admin/login.html')
+
+def menu(request):
+    return render(request,"p_hub_admin/menu.html")
