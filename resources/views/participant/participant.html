@@ -303,7 +303,7 @@
                                 </span>
                             </label>
                         </div>
-    
+
                     </div>
                 </div>
 
@@ -426,7 +426,7 @@
                 <td class="py-4 px-6">{{ participant.seat_no }}</td>
                 <td class="py-4 px-6">{{ participant.dob }}</td>
                 <td class="py-4 px-6">{{ participant.phone_1 }}</td>
-                <td class="py-4 px-6">{{ participant.status }}</td>
+                <td class="py-4 px-6">{{ participant.event_status|yesno:"Event Over,Active" }}</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -341,9 +341,10 @@
                                             cropFaceCanvas.height = faceHeight
                                             faceCtx.drawImage(video, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight)
                                             console.log(cropFaceCanvas.toDataURL())
+                                            this.loader = true
                                             this.recognizeFace(cropFaceCanvas.toDataURL())
                                           
-                                        }, 300)
+                                        }, 1000)
                                     }
                                 } else {
                                     clearTimeout(timeout)

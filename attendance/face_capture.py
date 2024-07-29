@@ -6,23 +6,21 @@ import os
 
 def capture_face(img):
     try:
-        print("Detection Begins!")
-        detection = DeepFace.extract_faces(img, detector_backend="centerface", enforce_detection=False)[0]
+        detection = DeepFace.extract_faces(img, detector_backend="retinaface", enforce_detection=False)[0]
+        print(detection)
         x, y, w, h = detection['facial_area']['x'], detection['facial_area']['y'], detection['facial_area']['w'], detection['facial_area']['h']
-        if x == 0 and y == 0:
-            print("No Face")
+        if w < 100 and h < 100:
             return None, False
         else:
             face = img[y:y+h, x:x+w]
             return face, True
     except IndexError:
-        print("Index error hehe!")
         return None, False
     
 def get_encode(img):
     try:
         re_img = cv2.resize(img,(160, 160))
-        return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False)[0]["embedding"]
+        return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False, detector_backend="retinaface")[0]["embedding"]
     except Exception as e:
         pass
 

@@ -1,0 +1,97 @@
+<!-- reception_monitoring.html -->
+{% extends "dashboard/master.html" %}
+{% load static %}
+
+{% block title %}Reception Status Monitoring{% endblock title %}
+
+{% block content %}
+
+{% block css %}
+
+{% endblock css %}
+
+<!-- Container -->
+<div class="mb-4 bg-gray-200 px-[300px] py-5">
+    <h2 class="text-2xl">Reception Status Monitoring</h2>
+    <span class="text-sm text-gray-600">受付状況モニタリング</span>
+</div>
+
+<div class="px-[300px] py-5 ">
+    <!-- Event and Monitoring Controls -->
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center flex-grow mr-4">
+            <label for="event" class="mr-2 text-sm font-medium text-gray-700">Event:</label>
+            <select id="event" name="event"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full">
+                {% for event in events %}
+                <option value="{{ event.id }}">{{ event.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-center">
+            <button id="monitorButton"
+                class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Monitor</button>
+        </div>
+    </div>
+
+    <!-- Participants Modal -->
+    <div id="participantsModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-white p-5 rounded-lg w-full sm:w-1/2">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl text-gray-700">Participants List</h3>
+                <button id="closeParticipantsModal" class="text-red-600 hover:text-red-800">
+                    Close
+                </button>
+            </div>
+            <div id="participantsList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+    document.getElementById('monitorButton').addEventListener('click', function () {
+        const eventId = document.getElementById('event').value;
+
+        if (eventId) {
+            const url = `/p-hub-admin/participants/${eventId}/`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const participantsList = document.getElementById('participantsList');
+                    participantsList.innerHTML = ''; 
+
+                    data.participants.forEach(participant => {
+                        const participantDiv = document.createElement('div');
+                        participantDiv.className = 'p-4 border border-gray-300 rounded-lg bg-green-500 text-white'; 
+
+                        participantDiv.innerHTML = `
+                        <h4 class="text-lg font-medium">${participant.name}</h4>
+                        <p class="text-sm">Seat No: ${participant.seat_no}</p>
+                    `;
+
+                        participantsList.appendChild(participantDiv);
+                    });
+
+                    document.getElementById('participantsModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error fetching participants:', error);
+                });
+        }
+    });
+
+    document.getElementById('closeParticipantsModal').addEventListener('click', function () {
+        document.getElementById('participantsModal').classList.add('hidden');
+    });
+
+
+
+</script>
+{% endblock script %}
