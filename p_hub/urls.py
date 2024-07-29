@@ -32,4 +32,5 @@ urlpatterns = [
     path("reception/", include("reception.urls")),
     path("p-hub-admin/", include("p_hub_admin.urls")),
     path("attendance/", include("attendance.urls")),
+    path("message/", include("message.urls")),
 ]
