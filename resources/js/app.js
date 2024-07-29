@@ -2,7 +2,14 @@ import Alpine from 'alpinejs';
 import persist from '@alpinejs/persist'
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
+import AirDatepicker from 'air-datepicker';
+import 'air-datepicker/air-datepicker.css';
+import localeEn from 'air-datepicker/locale/en';
+import localeJa from 'air-datepicker/locale/ja';
 
+window.AirDatepicker = AirDatepicker
+window.localeEn = localeEn
+window.localeJa = localeJa
 
 const settings = {
     faceDetectionConfidence: 0.8,
