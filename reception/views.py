@@ -12,3 +12,7 @@ def client(request):
 
 def client_v2(request):
     return render(request, "reception/client_v2.html")
+
+
+def settings(request):
+    return render(request, "reception/settings.html")
