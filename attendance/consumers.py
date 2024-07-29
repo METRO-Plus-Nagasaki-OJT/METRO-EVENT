@@ -113,7 +113,7 @@ class ImageConsumer(WebsocketConsumer):
         participant_ids, embeddings = get_participants(event_id)
         if not is_qr:
             encode = get_encode(image)
-            pred, pred_id = verify(encode, 0.7, embeddings, participant_ids)
+            pred, pred_id = verify(encode, 0.8, embeddings, participant_ids)
             unknown = check_unknown(encode)
             if pred == False:
                 success_message = False
@@ -121,7 +121,6 @@ class ImageConsumer(WebsocketConsumer):
                 success_message = True
                 add_attendance(in_out_status, pred_id)
         else:
-            is_qr = True
             qr_code = read_qr(image)
             if qr_code is None:
                 success_message = False
@@ -129,4 +128,5 @@ class ImageConsumer(WebsocketConsumer):
                 if qr_code[0] in participant_ids:
                     success_message = True
                     add_attendance(in_out_status, int(qr_code[0]))
+                    print("qr code detect")
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))

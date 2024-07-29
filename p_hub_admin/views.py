@@ -10,7 +10,7 @@ def login_view(request):
         user = authenticate(request, username = username, password = password)
         if user is not None:
             login(request, user)
-            return JsonResponse({'success': True})
+            return render(request,"p_hub_admin/menu.html")
         else:
             return JsonResponse({'success': False, 'error': "Invalid credentials"})        
     return render(request, 'p_hub_admin/login.html')
