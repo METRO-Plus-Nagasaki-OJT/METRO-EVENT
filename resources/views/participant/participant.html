@@ -7,7 +7,9 @@
 {% block content %}
 
 {% block css %}
+
 <script src="{% static 'js/download.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
 {% endblock css %}
 <!-- Container -->
@@ -296,10 +298,12 @@
                                 <div
                                     class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
                                 </div>
-                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Turn on to send
-                                    email about updated information!!</span>
+                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                    Turn on to send email about updated information!!
+                                </span>
                             </label>
                         </div>
+    
                     </div>
                 </div>
 
@@ -359,8 +363,6 @@
                     clip-rule="evenodd" />
             </svg>
         </div>
-        <button
-            class="ml-2 text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Search</button>
     </div>
     <div>
         <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="text-white bg-blue-600 hover:bg-blue-700 
@@ -368,7 +370,7 @@
         font-medium rounded-lg text-sm px-5 py-2.5 
         text-center inline-flex items-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
             type="button">
-            Download CSV/PowerPoint
+            Download CSV / Excel
             <svg class="w-4 h-4 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -387,9 +389,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" id="downloadPP"
+                    <a href="#" id="downloadExl"
                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                        Download PowerPoint
+                        Download Excel
                     </a>
                 </li>
             </ul>
@@ -412,7 +414,6 @@
             </tr>
         </thead>
         <tbody id="ptList">
-            <!-- Loop through participants to generate rows -->
             {% for participant in page.object_list %}
             <tr class="bg-white border-b">
                 <td class="py-4 px-6">
@@ -446,29 +447,36 @@
                 <a href="?page={{ page.previous_page_number }}&per_page={{ per_page }}"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
                     <span class="sr-only">Previous</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fill-rule="evenodd"
-                            d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z"
+                            d="M7.707 14.707a1 1 0 010-1.414L10.586 10 7.707 7.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                             clip-rule="evenodd" />
                     </svg>
                 </a>
             </li>
             {% endif %}
-            {% for num in page.paginator.page_range %}
+            {% for i in page.paginator.page_range %}
+            {% if page.number == i %}
             <li>
-                <a href="?page={{ num }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
-                    {{ num }}</a>
+                <a href="?page={{ i }}&per_page={{ per_page }}" aria-current="page"
+                    class="z-10 py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-blue-300">{{ i }}</a>
             </li>
+            {% else %}
+            <li>
+                <a href="?page={{ i }}&per_page={{ per_page }}"
+                    class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
+                    {{ i }}</a>
+            </li>
+            {% endif %}
             {% endfor %}
             {% if page.has_next %}
             <li>
                 <a href="?page={{ page.next_page_number }}&per_page={{ per_page }}"
                     class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
                     <span class="sr-only">Next</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fill-rule="evenodd"
-                            d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z"
+                            d="M12.293 14.707a1 1 0 010-1.414L15.172 10l-2.879-2.879a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                             clip-rule="evenodd" />
                     </svg>
                 </a>
@@ -498,24 +506,184 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         const paginationSelect = document.getElementById('pagination');
-        paginationSelect.value = "{{ per_page }}";
+        const ptList = document.querySelector('#ptList');
+        const paginationControls = document.querySelector('.flex.justify-between.items-center.mt-4.px-5');
+        const searchInput = document.getElementById('search');
+        const eventSelect = document.getElementById('events');
 
-        paginationSelect.addEventListener('change', function () {
-            const perPage = paginationSelect.value;
+        // Check if the page is reloaded
+        const isReload = performance.navigation.type === performance.navigation.TYPE_RELOAD;
+
+        // Retrieve per_page value from session storage and set it to the dropdown
+        const sessionPerPage = sessionStorage.getItem('per_page');
+        const storedPerPage = localStorage.getItem('per_page');
+        updateTable(sessionPerPage)
+        if (isReload && sessionPerPage && paginationSelect) {
+            paginationSelect.value = sessionPerPage;
+        } else if (paginationSelect) {
+            paginationSelect.value = "{{ per_page }}";
+        }
+
+        if (paginationSelect) {
+            paginationSelect.addEventListener('change', function () {
+                const perPage = paginationSelect.value;
+                sessionStorage.setItem('per_page', perPage);
+                updateTable(perPage);
+            });
+        }
+
+        if (eventSelect) {
+            eventSelect.addEventListener('change', function () {
+                const selectedEvent = eventSelect.value;
+                updateTable(null, null, selectedEvent);
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                const searchTerm = searchInput.value.toLowerCase();
+                updateTable(null, searchTerm);
+            });
+        }
+
+        function updateTable(perPage = null, searchTerm = '', event = null) {
             const urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('per_page', perPage);
-            window.location.search = urlParams.toString();
-        });
+
+            if (perPage) {
+                urlParams.set('per_page', perPage);
+                urlParams.set('page', 1);
+            }
+
+            if (searchTerm) {
+                urlParams.set('search', searchTerm);
+            }
+
+            if (event) {
+                urlParams.set('event', event);
+            }
+
+            fetch(`${window.location.pathname}?${urlParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.text())
+                .then(data => {
+                    const newTableBody = new DOMParser().parseFromString(data, 'text/html').querySelector('#ptList').innerHTML;
+                    const newPaginationControls = new DOMParser().parseFromString(data, 'text/html').querySelector('.flex.justify-between.items-center.mt-4.px-5').innerHTML;
+
+                    if (ptList) {
+                        ptList.innerHTML = newTableBody;
+                    }
+
+                    if (paginationControls) {
+                        paginationControls.innerHTML = newPaginationControls;
+                    }
+
+                    attachListeners();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function attachListeners() {
+            attachDetailsListeners();
+            attachPaginationListeners();
+        }
+
+        function attachDetailsListeners() {
+            document.querySelectorAll('.open-edit-modal').forEach(button => {
+                button.addEventListener('click', function () {
+                    const participantId = this.dataset.participantId;
+                    console.log(`Open modal for participant ID: ${participantId}`);
+                });
+            });
+        }
+
+        function attachPaginationListeners() {
+            document.querySelectorAll('.page-number').forEach(pageNumber => {
+                pageNumber.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const page = this.dataset.page;
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const event = eventSelect ? eventSelect.value : '';
+                    updateTablePage(page, searchTerm, event);
+                });
+            });
+
+            const prevPageButton = document.querySelector('.prev-page');
+            if (prevPageButton) {
+                prevPageButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const event = eventSelect ? eventSelect.value : '';
+                    updateTablePage(currentPage - 1, searchTerm, event);
+                });
+            }
+
+            const nextPageButton = document.querySelector('.next-page');
+            if (nextPageButton) {
+                nextPageButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const event = eventSelect ? eventSelect.value : '';
+                    updateTablePage(currentPage + 1, searchTerm, event);
+                });
+            }
+        }
+
+        function updateTablePage(page, searchTerm = '', event = '') {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('page', page);
+
+            if (searchTerm) {
+                urlParams.set('search', searchTerm);
+            }
+
+            if (event) {
+                urlParams.set('event', event);
+            }
+
+            fetch(`${window.location.pathname}?${urlParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.text())
+                .then(data => {
+                    const newTableBody = new DOMParser().parseFromString(data, 'text/html').querySelector('#ptList').innerHTML;
+                    const newPaginationControls = new DOMParser().parseFromString(data, 'text/html').querySelector('.flex.justify-between.items-center.mt-4.px-5').innerHTML;
+
+                    if (ptList) {
+                        ptList.innerHTML = newTableBody;
+                    }
+
+                    if (paginationControls) {
+                        paginationControls.innerHTML = newPaginationControls;
+                    }
+
+                    attachListeners();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        attachListeners();
     });
+
 
     document.addEventListener('DOMContentLoaded', function () {
         const openEditButtons = document.querySelectorAll('.open-edit-modal');
         const editModal = document.getElementById('editModal');
+        let originalData = {};
 
-        openEditButtons.forEach(button => {
-            button.addEventListener('click', function () {
+        document.body.addEventListener("click", function (e) {
+            if (e.target.tagName.toLowerCase() === "button" && e.target.classList.contains("open-edit-modal")) {
+                const button = e.target;
                 const participantId = button.getAttribute('data-participant-id');
-                window.currentParticipantId = participantId
+                window.currentParticipantId = participantId;
                 if (!participantId) {
                     console.error('Participant ID attribute is missing or invalid.');
                     return;
@@ -534,6 +702,9 @@
                     })
                     .then(data => {
                         console.log('Fetched data:', data);
+
+                        // Save original data
+                        originalData = data;
 
                         document.getElementById('editname').value = data.name || '';
                         document.getElementById('editemail').value = data.email || '';
@@ -575,14 +746,65 @@
                         editModal.classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching participant data:', error));
-            });
+            }
         });
 
         const cancelEditButton = document.getElementById('cancelEdit');
         if (cancelEditButton) {
             cancelEditButton.addEventListener('click', function () {
+                // Clear inputs
+                const inputs = editModal.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+
+                // Hide the modal
                 editModal.classList.add('hidden');
             });
+        }
+
+        // Restore original data when modal is reopened
+        function restoreOriginalData() {
+            document.getElementById('editname').value = originalData.name || '';
+            document.getElementById('editemail').value = originalData.email || '';
+            document.getElementById('editseat_no').value = originalData.seat_no || '';
+            document.getElementById('editdob').value = originalData.dob || '';
+            document.getElementById('editphone_1').value = originalData.phone_1 || '';
+            document.getElementById('editphone_2').value = originalData.phone_2 || '';
+            document.getElementById('editmemo').value = originalData.memo || '';
+            document.getElementById('editaddress').value = originalData.address || '';
+            document.getElementById('editrole').value = originalData.role || '';
+            document.getElementById('editStart').value = originalData.created_at || '';
+            document.getElementById('editEnd').value = originalData.updated_at || '';
+
+            if (originalData.gender === 'male') {
+                document.getElementById('male').checked = true;
+            } else if (originalData.gender === 'female') {
+                document.getElementById('female').checked = true;
+            } else {
+                document.getElementById('male').checked = false;
+                document.getElementById('female').checked = false;
+            }
+
+            const editImgContainer = document.getElementById('editimageContainer');
+            editImgContainer.innerHTML = '';
+            if (originalData.image_data) {
+                const img = document.createElement('img');
+                img.src = `data:image/jpeg;base64,${originalData.image_data}`;
+                img.classList.add('h-full', 'w-full', 'object-cover');
+                editImgContainer.appendChild(img);
+            }
+
+            const editProfileField = document.getElementById('editpf');
+            if (originalData.editPf) {
+                editProfileField.value = 'True';
+            } else {
+                editProfileField.value = 'False';
+            }
         }
 
         const openParticipantButtons = document.querySelectorAll('.open-participant-modal');
@@ -601,6 +823,7 @@
             });
         }
     });
+
 
     // Image preview handling
     const imageContainer = document.getElementById('imageContainer');
@@ -623,16 +846,16 @@
             },
             errors: {},
             async submit() {
-                const form = this.$el
-                const formData = new FormData(form)
-                const eventDropdown = document.getElementById('events')
+                const form = this.$el;
+                const formData = new FormData(form);
+                const eventDropdown = document.getElementById('events');
 
                 // Check if eventDropdown exists and append its value
                 if (eventDropdown && eventDropdown.value) {
-                    formData.append("event", eventDropdown.value)
+                    formData.append("event", eventDropdown.value);
                 } else {
-                    this.errors.event = "Event is required"
-                    return
+                    this.errors.event = "Event is required";
+                    return;
                 }
 
                 if (!Object.keys(this.errors).length) {
@@ -640,26 +863,26 @@
                         const res = await fetch("", {
                             method: "POST",
                             body: formData,
-                        })
+                        });
 
                         if (!res.ok) {
-                            throw res
+                            throw res;
                         }
 
-                        const response = await res.json()
+                        const response = await res.json();
                         if (response.status === 'success') {
                             // window.location.href = ""
-                            this.showConfirmation()
+                            this.showConfirmation();
                         } else {
-                            console.log(response.message)
+                            console.log(response.message);
                         }
 
                     } catch (error) {
-                        console.log(error)
+                        console.log(error);
                     }
 
                 } else {
-                    console.log(this.errors)
+                    console.log(this.errors);
                 }
             },
 
@@ -745,10 +968,9 @@
             deleteImage() {
                 const imgContainer = document.getElementById('imageContainer');
                 imgContainer.innerHTML = '';
-                const image = new Image()
-                image.src = "/public/common/default.jpg"
-                imageContainer.appendChild(image)
-
+                const image = new Image();
+                image.src = "/public/common/default.jpg";
+                imgContainer.appendChild(image);
             },
 
             showConfirmation() {
@@ -761,11 +983,27 @@
                 this.hideConfirmation();
                 window.location.href = "/participant";
             },
+
             init() {
                 document.getElementById('confirmRegister').addEventListener('click', this.confirmRegister.bind(this));
-            }
 
-        }))
+                const cancelButton = document.getElementById('cancelRegistration');
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', () => {
+                        const inputs = this.$el.querySelectorAll('input, textarea, select');
+                        inputs.forEach(input => {
+                            if (input.type === 'checkbox' || input.type === 'radio') {
+                                input.checked = false;
+                            } else {
+                                input.value = '';
+                            }
+                        });
+
+                        document.getElementById('participantModal').classList.add('hidden');
+                    });
+                }
+            }
+        }));
 
         Alpine.data("editModal", () => ({
             webcamStream: null,
@@ -980,7 +1218,7 @@
                 const ptName = row.querySelector('.participant-name');
                 const ptID = row.querySelector('td:nth-child(4)');
 
-                if (ptName && ptID) {
+                if (ptName || ptID) {
                     const ptNameText = ptName.textContent.toLowerCase();
                     const ptIdText = ptID.textContent.toLowerCase();
                     if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
@@ -990,6 +1228,11 @@
                     }
                 }
             });
+        });
+
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            updateTable(paginationSelect.value);
         });
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1012,10 +1255,10 @@
                 downloadTableAsCSV('participantTable', 'participants.csv');
             });
 
-            // Handle PowerPoint download
-            const downloadPP = document.getElementById('downloadPP');
-            downloadPP.addEventListener('click', function () {
-                downloadTableAsPPT('participantTable', 'participants.pptx');
+            // Handle Excel download
+            const downloadExcel = document.getElementById('downloadExl');
+            downloadExcel.addEventListener('click', function () {
+                downloadTableAsExcel('participantTable', 'participants.xlsx');
             });
         });
 
@@ -1027,14 +1270,15 @@
                 const row = [];
                 const cols = rows[i].querySelectorAll('td, th');
 
-                for (let j = 0; j < cols.length; j++) {
+                for (let j = 1; j < cols.length - 1; j++) {
                     row.push(cols[j].innerText);
                 }
 
                 csv.push(row.join(','));
             }
 
-            const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const csvContent = '\uFEFF' + csv.join('\n');
+            const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 
             const downloadLink = document.createElement('a');
             downloadLink.href = URL.createObjectURL(csvBlob);
@@ -1045,33 +1289,21 @@
             document.body.removeChild(downloadLink);
         }
 
-        function downloadTableAsPPT(tableId, filename) {
-            const pptx = new pptxgen();
-            const slide = pptx.addSlide();
+        function downloadTableAsExcel(tableId, filename) {
+            const table = document.getElementById(tableId);
+            const ws = XLSX.utils.table_to_sheet(table, { range: 1 });
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, ws, "Sheet1");
 
-            const rows = document.querySelectorAll(`#${tableId} tr`);
-            const data = [];
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            range.s.c = 1;
+            range.e.c -= 1;
+            ws['!ref'] = XLSX.utils.encode_range(range);
 
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td, th');
-                const rowData = [];
-                cells.forEach(cell => {
-                    rowData.push(cell.innerText);
-                });
-                data.push(rowData);
-            });
-
-            slide.addTable(data, {
-                x: 0.5, y: 0.5,
-                colW: [1.5, 3, 1.5, 1.5],
-                border: { pt: '1', color: '000000' },
-                fill: 'F1F1F1',
-                fontSize: 12
-            });
-
-            pptx.writeFile({ fileName: filename });
+            XLSX.writeFile(workbook, filename);
         }
     })
 
 </script>
+
 {% endblock script %}
