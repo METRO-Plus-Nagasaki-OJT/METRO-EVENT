@@ -67,8 +67,8 @@ def edit(request,id):
         users = User.objects.all()
         context = {
             'name': event.name,
-            'starttime': event.start_time,
-            'endtime': event.end_time,
+            'created_at': event.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_at': event.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'venue': event.venue,
             'memo': event.memo,
             'user_id': event.admin.id
