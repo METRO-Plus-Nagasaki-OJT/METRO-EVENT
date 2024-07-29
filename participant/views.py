@@ -7,7 +7,7 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
-from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings, check_modelnembed
+from attendance.face_capture import get_encode, load_pickle, save_embeddings, check_modelnembed, capture_face
 from attendance.unknown_training import train_unknown_classifier
 import numpy as np
 import cv2

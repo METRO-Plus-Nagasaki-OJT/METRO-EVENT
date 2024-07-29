@@ -9,7 +9,7 @@ from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
 from qreader import QReader
-from attendance.face_capture import capture_face, get_encode, check_modelnembed, load_pickle
+from attendance.face_capture import get_encode, check_modelnembed, load_pickle
 from participant.models import Participant
 from attendance.models import Attendance
 import datetime
@@ -18,6 +18,7 @@ from django.core.cache import cache
 qr_reader = QReader()
 
 def get_participants(id):
+    cache.delete(f"{id}")
     data = cache.get(f"{id}")
     if data:
         embeddings = data["embeddings"]
@@ -67,6 +68,7 @@ def verify(encode, threshold, embeddings, participant_ids):
             if similarity > highest_similarity:
                 highest_similarity = similarity
                 best_matched = participant_id
+            print(participant_id,similarity)
         if best_matched in participant_ids and highest_similarity > threshold:
             return True, best_matched
         else:
@@ -110,18 +112,14 @@ class ImageConsumer(WebsocketConsumer):
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         participant_ids, embeddings = get_participants(event_id)
         if not is_qr:
-            face, status = capture_face(image)
-            if status == False:
+            encode = get_encode(image)
+            pred, pred_id = verify(encode, 0.7, embeddings, participant_ids)
+            unknown = check_unknown(encode)
+            if pred == False:
                 success_message = False
-            else:
-                encode = get_encode(face)
-                pred, pred_id = verify(encode, 0.8, embeddings, participant_ids)
-                unknown = check_unknown(encode)
-                if pred == False or unknown:
-                    success_message = False
-                elif pred and not unknown:
-                    success_message = True
-                    # add_attendance(in_out_status, pred_id)
+            elif pred:
+                success_message = True
+                add_attendance(in_out_status, pred_id)
         else:
             is_qr = True
             qr_code = read_qr(image)
@@ -130,5 +128,5 @@ class ImageConsumer(WebsocketConsumer):
             else:         
                 if qr_code[0] in participant_ids:
                     success_message = True
-                    # add_attendance(in_out_status, int(qr_code[0]))
+                    add_attendance(in_out_status, int(qr_code[0]))
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))
