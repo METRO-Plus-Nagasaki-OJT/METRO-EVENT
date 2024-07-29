@@ -61,11 +61,10 @@ def participant(request):
             image_np = np.fromstring(base64.b64decode(img), dtype=np.uint8)
             np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
             face, detection_status = capture_face(np_img)
-            print("Face captured!")
             if detection_status == True:
                 encoding = get_encode(face)
                 participant.facial_feature = json.dumps(encoding)
-                print("Face embedding registered!")
+                participant.face = True
         participant.save()
         train_unknown_classifier()
         create_qr(participant.id)
