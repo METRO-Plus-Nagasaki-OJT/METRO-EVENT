@@ -13,6 +13,7 @@ import numpy as np
 import cv2
 import pickle as pkl
 from django.shortcuts import HttpResponse
+from event.models import Event
 import json
 from django.core.cache import cache
 
@@ -30,7 +31,7 @@ def participant(request):
         phone_2 = request.POST.get('phone_2')
         memo = request.POST.get('memo')
         address = request.POST.get('address')
-        event_id = request.POST.get('event') 
+        event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
         embeddable = False
         if 'fileInput' in request.FILES:
@@ -53,7 +54,7 @@ def participant(request):
             memo=memo,
             address=address,
             event=event,
-            profile=profile 
+            profile=profile
         )
         
         if embeddable:
@@ -85,6 +86,10 @@ def participant(request):
             )
         events = Event.objects.all()
 
+        # Adding event status to each participant
+        for participant in participants:
+            participant.event_status = participant.is_event_over()
+
         # Handling pagination
         per_page = request.GET.get('per_page', 10)
         paginator = Paginator(participants, per_page)
@@ -95,7 +100,7 @@ def participant(request):
             'page': page,
             'events': events,
             'per_page': per_page,
-            'search_term': search_term 
+            'search_term': search_term
         })
 
 def participants_view(request):
