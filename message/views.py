@@ -15,7 +15,7 @@ def message_view(request):
         # message_type = request.POST.get('type', None)
 
         try:
-            message = Message(  
+            message = Message(
                 subject = subject,
                 sender = sender,
                 content = content,

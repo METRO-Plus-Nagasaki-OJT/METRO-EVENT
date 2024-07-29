@@ -339,8 +339,10 @@
             },
             errors: {},
             async submitForm(){
-                const form = this.$refs.form
+                const form = this.$el
                 const data = new FormData(form)
+
+                console.log(data)
 
                 try {
                     const response = await fetch("", {
@@ -348,26 +350,18 @@
                         body: data
                     })
                 
-                const res = await response.json()    
+                const res = await response.text()    
+                console.log(res)
 
                 if (!response.ok){
                     throw new Error(res.error || 'Failed to create.');
                 }
 
-                this.closeForm();
-                this.clearForm();
-
-                alert('Message has been created successfully!');
+                console.log(res)
                 
                 }catch(error) {
-                    console.error(error.message);
+                    console.log(error);
                 }
-            },
-            closeForm() {
-                this.$refs.formContainer.classList.add('hidden');
-            },
-            clearForm(){
-                this.$refs.form.reset();
             }
         }));
 
@@ -401,6 +395,7 @@
                     throw new Error(res.error || 'Failed to edit.');
                 }
 
+                console.log(res)
                 
                 }catch(error) {
                     console.log(error);
