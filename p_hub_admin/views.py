@@ -42,3 +42,5 @@ def participants_list(request, event_id):
         for participant in participants
     ]
     return JsonResponse({'participants': participants_data})
+def menu(request):
+    return render(request,"p_hub_admin/menu.html")

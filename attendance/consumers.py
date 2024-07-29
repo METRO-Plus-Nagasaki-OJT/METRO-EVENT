@@ -9,16 +9,28 @@ from scipy.spatial.distance import cosine
 from sklearn.preprocessing import Normalizer
 from collections import Counter
 from qreader import QReader
-from attendance.face_capture import capture_face, get_encode, check_modelnembed
+from attendance.face_capture import get_encode, check_modelnembed, load_pickle
 from participant.models import Participant
-from django.utils import timezone
-
-encoding_dict = check_modelnembed("embeddings/attendance_embeddings.pkl", {})
+from attendance.models import Attendance
+import datetime
+from django.core.cache import cache
 
 qr_reader = QReader()
-now = timezone.now()
-p_in_ongoing_events = Participant.objects.filter(event__end_time__gt=now)
-participant_ids = list(p_in_ongoing_events.values_list('id', flat=True))
+
+def get_participants(id):
+    cache.delete(f"{id}")
+    data = cache.get(f"{id}")
+    if data:
+        embeddings = data["embeddings"]
+        participant_ids = data["participant_ids"]
+        return participant_ids, embeddings
+    else:
+        p_in_ongoing_events = Participant.objects.filter(event__id=id)
+        participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
+        print(participant_ids, "lol")
+        embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
+        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings},60 * 60 * 60 * 0)
+        return participant_ids, embeddings
 
 def compare_embeddings_cosine(embedding1, embedding2):
     similarity = 1 - cosine(embedding1, embedding2)
@@ -29,7 +41,7 @@ def load_mls():
     # models = []
     # for i in range(len(model_lists)):
     #     models.append(load_pickle(os.path.join("./embeddings",model_lists[i])))
-    model = check_modelnembed("embeddings/unknown_classifier_isofor.pkl")
+    model = check_modelnembed("embeddings/unknown_classifier_isofor.pkl", True, [])
     return model
 
 def check_unknown(encode):
@@ -47,21 +59,31 @@ def read_qr(img):
     rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return qr_reader.detect_and_decode(rgb_img)
 
-def verify(encode, threshold):
+def verify(encode, threshold, embeddings, participant_ids):
     highest_similarity = -1
     best_matched = None
-    if len(encoding_dict) == 0:
-        for id, embedding in encoding_dict.items():
-            similarity = compare_embeddings_cosine(encode, embedding[0])
+    if len(embeddings) != 0:
+        for participant_id, embedding in zip(participant_ids, embeddings):
+            similarity = compare_embeddings_cosine(encode, embedding)
             if similarity > highest_similarity:
                 highest_similarity = similarity
-                best_matched = id
+                best_matched = participant_id
+            print(participant_id,similarity)
         if best_matched in participant_ids and highest_similarity > threshold:
-            return True
+            return True, best_matched
         else:
-            return False
+            return False, best_matched
     else:
-        return False
+        return False, best_matched
+
+def add_attendance(in_status, participant_id):
+    today = datetime.datetime.now()
+    attendance = Attendance.objects.get(participant_id=participant_id, date=today.date())
+    if in_status == True:
+        attendance.entry_1 = today.time()
+    else:
+        attendance.leave_1 = today.time()
+    attendance.save()
 
 
 class ImageConsumer(WebsocketConsumer):
@@ -82,25 +104,22 @@ class ImageConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        img_base64, qr = text_data_json["image_url"], text_data_json["qr_code"]
+        img_base64, is_qr, event_id, in_out_status = text_data_json["image_url"], text_data_json["qr_code"], text_data_json["event_id"], text_data_json["in"]
         success_message = False
         base64_data = img_base64.split(",")[1]
         byte_data = base64.b64decode(base64_data)
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
-        is_qr = False
-        if not qr:
-            face, status = capture_face(image)
-            if status == False:
+        participant_ids, embeddings = get_participants(event_id)
+        if not is_qr:
+            encode = get_encode(image)
+            pred, pred_id = verify(encode, 0.7, embeddings, participant_ids)
+            unknown = check_unknown(encode)
+            if pred == False:
                 success_message = False
-            else:
-                encode = get_encode(face)
-                pred = verify(encode, 0.8)
-                unknown = check_unknown(encode)
-                if pred == False or unknown:
-                    success_message = False
-                elif pred and not unknown:
-                    success_message = True
+            elif pred:
+                success_message = True
+                add_attendance(in_out_status, pred_id)
         else:
             is_qr = True
             qr_code = read_qr(image)
@@ -109,5 +128,5 @@ class ImageConsumer(WebsocketConsumer):
             else:         
                 if qr_code[0] in participant_ids:
                     success_message = True
-
+                    add_attendance(in_out_status, int(qr_code[0]))
         self.send(text_data=json.dumps({"success":success_message, "qr_code":is_qr}))
