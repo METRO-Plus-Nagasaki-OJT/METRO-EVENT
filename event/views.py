@@ -2,6 +2,7 @@ from django.shortcuts import render,get_object_or_404,redirect
 from .models import *
 from django.http import HttpResponseServerError,JsonResponse
 from django.db.models import Count
+from django.utils import timezone
 # Create your views here.
 def index(request):
     
@@ -16,7 +17,16 @@ def index(request):
             event=Event(name=name,start_time=start,end_time=end,venue=venue,memo=memo,admin=organizer)
             event.save()
             return JsonResponse({"success":"True"})
-    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance') )
+    current_time=timezone.now()
+    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance')).values('id', 'name', 'start_time', 'end_time', 'participant_count', 'attendance_count')
+    for event in events:
+        if event['start_time'] <= current_time <= event['end_time']:
+            event['status'] = 'Open'
+        elif current_time > event['end_time']:
+            event['status'] = 'Closed'
+        else:
+            event['status'] = 'Upcoming'
+
     context={
         "event":events,
         "user":User.objects.all()
