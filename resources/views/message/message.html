@@ -354,11 +354,20 @@
                     throw new Error(res.error || 'Failed to create.');
                 }
 
-                console.log(res)
+                this.closeForm();
+                this.clearForm();
+
+                alert('Message has been created successfully!');
                 
                 }catch(error) {
-                    console.log(error);
+                    console.error(error.message);
                 }
+            },
+            closeForm() {
+                this.$refs.formContainer.classList.add('hidden');
+            },
+            clearForm(){
+                this.$refs.form.reset();
             }
         }));
 
@@ -392,7 +401,6 @@
                     throw new Error(res.error || 'Failed to edit.');
                 }
 
-                console.log(res)
                 
                 }catch(error) {
                     console.log(error);

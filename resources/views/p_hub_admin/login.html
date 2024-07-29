@@ -61,7 +61,9 @@
 
                 console.log(res)
                 
-                if (res.success === false && res.error === "Invalid credentials") {
+                if (res.success === true) {
+                    window.location.href = 'menu/'; 
+                } else if (res.success === false && res.error === "Invalid credentials") {
                     throw new Error('Invalid credentials');
                 }
                 }catch(error) {
