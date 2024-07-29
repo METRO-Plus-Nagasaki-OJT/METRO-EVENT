@@ -10,34 +10,36 @@ from datetime import datetime
 
 def index(request):
     events = Event.objects.all()
-
     filters = Q()
-
     page = 1
-
     limit = 10
 
     if request.GET.get("page"):
         page = request.GET.get("page")
-
     if request.GET.get("limit"):
         limit = request.GET.get("limit")
-
     if request.GET.get("event"):
         filters &= Q(participant__event=request.GET.get("event"))
+    if request.GET.get("name"):
+        filters &= Q(participant__name__icontains=request.GET.get("name"))
     if request.GET.get("date"):
         date_range = []
-        for d in request.GET.get("date").split(","):
-            date_range.append(datetime.strptime(f"{d} 24:59:59", "%Y/%m/%d %H:%M:%S"))
-
+        for k, value in enumerate(request.GET.get("date").split(",")):
+            time = "00:00:00"
+            if k == 1:
+                time = "23:59:59"
+            date_range.append(datetime.strptime(f"{value} {time}", "%Y/%m/%d %H:%M:%S"))
         if len(date_range) == 1:
             filters &= Q(created_at__gte=date_range[0])
         else:
             filters &= Q(created_at__range=date_range)
 
-    attendaces = Attendance.objects.filter(filters)
+    attendances = Attendance.objects.filter(filters).prefetch_related("participant")
 
-    paginator = Paginator(attendaces, limit)
+    if request.GET.get("sort"):
+        attendances = attendances.order_by(request.GET.get("sort"))
+
+    paginator = Paginator(attendances, limit)
 
     try:
         attendances_page = paginator.page(page)
