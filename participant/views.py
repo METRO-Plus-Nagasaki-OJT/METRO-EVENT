@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import base64
 import binascii
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .qr_creator import create_qr, send_qr
 from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings
 from attendance.unknown_training import train_unknown_classifier
@@ -93,10 +93,15 @@ def participant(request):
             participant.event_status = participant.is_event_over()
 
         # Handling pagination
-        per_page = request.GET.get('per_page', 10)
+        per_page = int(request.GET.get('per_page', 10))
         paginator = Paginator(participants, per_page)
-        page_number = request.GET.get('page')
-        page = paginator.get_page(page_number)
+        page_number = request.GET.get('page', 1)
+        try:
+            page = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page = paginator.get_page(1)
+        except EmptyPage:
+            page = paginator.get_page(paginator.num_pages)
 
         return render(request, 'participant/participant.html', context={
             'page': page,
