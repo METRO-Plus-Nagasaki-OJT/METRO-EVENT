@@ -8,15 +8,13 @@ import base64
 import binascii
 from django.core.paginator import Paginator
 from .qr_creator import create_qr, send_qr
-from attendance.face_capture import get_encode, load_pickle, save_embeddings, check_modelnembed, capture_face
+from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings
 from attendance.unknown_training import train_unknown_classifier
 import numpy as np
 import cv2
 import pickle as pkl
 from django.shortcuts import HttpResponse
 from event.models import Event
-import json
-from django.core.cache import cache
 
 @csrf_exempt
 def participant(request):
@@ -35,6 +33,8 @@ def participant(request):
         event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
         embeddable = False
+
+        # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
             profile = request.FILES["fileInput"]
             img = base64.b64encode(profile.read())
@@ -57,21 +57,20 @@ def participant(request):
             event=event,
             profile=profile
         )
-        
-        if embeddable:
-            image_np = np.fromstring(base64.b64decode(img), dtype=np.uint8)
-            np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
-            face, detection_status = capture_face(np_img)
-            if detection_status == True:
-                encoding = get_encode(face)
-                participant.facial_feature = json.dumps(encoding)
-                participant.face = True
         participant.save()
         row_check(participant.id)
         train_unknown_classifier()
+        if embeddable:
+            np_img = cv2.cvtColor(np.frombuffer(base64.b64decode(img), dtype=np.uint8), cv2.COLOR_RGB2BGR)
+            face, detection_status = capture_face(np_img)
+            if detection_status:
+                encoding = get_encode(face)
+                encoding[participant.id] = encoding
+                save_embeddings("embeddings/attendance_embeddings.pkl", encoding)
+                train_unknown_classifier()
+                print("Face embedding registered!")
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
-        cache.delete(f"{event_id}")
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
@@ -240,5 +239,3 @@ def participants_view(request):
         return render(request, 'participants_table_body.html', {'page': page_obj})
     
     return render(request, 'participants.html', {'page': page_obj, 'per_page': per_page})
-
-
