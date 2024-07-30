@@ -7,20 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}?{% now 'U' %}">
-    
+    <script src="{% static 'js/plugin.js' %}?{% now 'U' %}"></script>
     <script defer src="{% static 'js/app.js' %}?{% now 'U' %}"></script>
     {% block css %}{% endblock css %}
 </head>
 
-<body>
+<body class="bg-background">
     {% include 'dashboard/nav.html' %}
 
-    <div class="min-h-screen bg-background py-5 px-2">
+    <div class=" bg-background py-3 px-2">
         <div>
             <h2 class="text-2xl">{% block page_en %}{% endblock page_en %}</h2>
             <span>{% block page_jp %}{% endblock page_jp %}</span>
         </div>
-        <div class="bg-white rounded-md">
+        <div class="bg-white rounded-md mt-3">
             {% block content %}
 
             {% endblock content %}
@@ -28,11 +28,6 @@
     </div>
 
     {% block script %}{% endblock script %}
-    <script>
-        document.addEventListener('alpine:init', () => {
-            console.log("Alpined is initiated")
-        })
-    </script>
 </body>
 
 </html>
