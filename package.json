@@ -23,6 +23,7 @@
     "@mediapipe/face_detection": "^0.4.1646425229",
     "@mediapipe/hands": "^0.4.1675469240",
     "@mediapipe/tasks-vision": "^0.10.14",
+    "air-datepicker": "^3.5.3",
     "alpinejs": "^3.14.1",
     "flowbite": "^2.4.1",
     "install": "^0.13.0",

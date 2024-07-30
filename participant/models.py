@@ -17,7 +17,9 @@ class Participant(models.Model):
     phone_2 = models.CharField(max_length=20, blank=True, null=True)
     memo = models.TextField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     profile = models.TextField(blank=True, null=True)
