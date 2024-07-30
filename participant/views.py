@@ -235,13 +235,48 @@ def send_update_notification(email):
     send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
 
 def participants_view(request):
-    per_page = request.GET.get('per_page', 10)
-    participants = Participant.objects.all() 
+    per_page = int(request.GET.get('per_page', 10))
+    search_term = request.GET.get('search', '')
+    selected_event = request.GET.get('event', None)
+
+    print(f"Selected Event ID: {selected_event}")
+
+    # Filter participants by search term
+    participants = Participant.objects.all()
+    if search_term:
+        participants = participants.filter(
+            name__icontains=search_term
+        ) | participants.filter(
+            seat_no__icontains=search_term
+        ) | participants.filter(
+            email__icontains=search_term
+        )
+
+    # Filter participants by selected event
+    if selected_event:
+        participants = participants.filter(event_id=selected_event)
+
+    # Paginate participants
     paginator = Paginator(participants, per_page)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_number = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.get_page(1)
+    except EmptyPage:
+        page_obj = paginator.get_page(paginator.num_pages)
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'participants_table_body.html', {'page': page_obj})
-    
-    return render(request, 'participants.html', {'page': page_obj, 'per_page': per_page})
+
+    events = Event.objects.all()
+
+    return render(request, 'participants.html', {
+        'page': page_obj,
+        'per_page': per_page,
+        'search_term': search_term,
+        'events': events,
+        'selected_event': selected_event
+    })
+
+
