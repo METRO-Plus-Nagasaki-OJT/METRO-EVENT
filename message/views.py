@@ -31,7 +31,7 @@ def message_view(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     
     elif request.method == "GET":
-        messages = Message.objects.all()
+        messages = Message.objects.all().order_by('-id')
         events = Event.objects.all()
 
     return render(request, 'message/message.html', context = {'messages': messages, 'events': events})
