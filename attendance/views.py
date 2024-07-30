@@ -7,6 +7,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Case, When, IntegerField
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -99,3 +100,70 @@ def update(request, id):
         messages.success(request, "Attendance updated.")
 
         return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+def index_v2(request):
+    if request.method == "GET":
+        events = Event.objects.all()
+        if request.headers["Accept"] != "application/json":
+            return render(request, "attendance/index_v2.html", {"events": events})
+
+        filters = Q()
+        limit = 10
+
+        if request.GET.get("page"):
+            page = request.GET.get("page")
+        if request.GET.get("limit"):
+            limit = request.GET.get("limit")
+        if request.GET.get("event"):
+            filters &= Q(participant__event=request.GET.get("event"))
+        if request.GET.get("name"):
+            filters &= Q(participant__name__icontains=request.GET.get("name"))
+        if request.GET.get("date"):
+            date_range = []
+            for k, value in enumerate(request.GET.get("date").split(",")):
+                time = "00:00:00"
+                if k == 1:
+                    time = "23:59:59"
+                date_range.append(
+                    datetime.strptime(f"{value} {time}", "%Y/%m/%d %H:%M:%S")
+                )
+            if len(date_range) == 1:
+                filters &= Q(created_at__gte=date_range[0])
+            else:
+                filters &= Q(created_at__range=date_range)
+        else:
+            first_day_of_the_current_month = timezone.now().replace(
+                day=1, hour=0, minute=0, second=0, microsecond=0
+            )
+            filters &= Q(created_at__gte=first_day_of_the_current_month)
+
+        attendances = (
+            Attendance.objects.annotate(
+                status=Case(
+                    When(entry_1__isnull=False, leave_1__isnull=False, then=1),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            )
+            .filter(filters)
+            .prefetch_related("participant")[0 : int(limit)]
+        )
+
+        data = []
+        for attendance in attendances:
+            data.append({
+                'id': attendance.id,
+                'status': attendance.status,
+                'participant': {
+                    'id': attendance.participant.id,
+                    'name': attendance.participant.name,  
+                },
+                'entry_1': attendance.entry_1,
+                'leave_1': attendance.leave_1,
+                'entry_2': attendance.entry_2,
+                'leave_2': attendance.leave_2,
+                'date': attendance.date
+            })
+
+        return JsonResponse({"attendances": data, "limit": int(limit)})
