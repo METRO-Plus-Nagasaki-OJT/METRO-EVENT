@@ -437,19 +437,29 @@
 <div class="flex justify-between items-center mt-4 px-5" style="padding-bottom: 20px;">
     <div class="text-sm text-gray-700">
         Showing <span class="font-medium">{{ page.start_index }}</span> to
-        <span class="font-medium">{{ page.end_index}}</span> of
+        <span class="font-medium">{{ page.end_index }}</span> of
         <span class="font-medium">{{ page.paginator.count }}</span> results
     </div>
-    <div class="flex justify-between items-center mt-4 px-5">
+    <div class="flex items-center space-x-2">
         {% if page.has_previous %}
-        <button class="prev-page" data-page="{{ page.previous_page_number }}">Previous</button>
+        <button class="prev-page bg-blue-500 text-white py-2 px-4 rounded"
+            data-page="{{ page.previous_page_number }}">Previous</button>
+        {% else %}
+        <button class="prev-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed"
+            disabled>Previous</button>
         {% endif %}
+
         <span class="current-page">{{ page.number }}</span>
+
         {% if page.has_next %}
-        <button class="next-page" data-page="{{ page.next_page_number }}">Next</button>
+        <button class="next-page bg-blue-500 text-white py-2 px-4 rounded"
+            data-page="{{ page.next_page_number }}">Next</button>
+        {% else %}
+        <button class="next-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>Next</button>
         {% endif %}
     </div>
 </div>
+
 </div>
 {% endblock content %}
 
@@ -569,10 +579,12 @@
             if (prevPageButton) {
                 prevPageButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
-                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    const event = eventSelect ? eventSelect.value : '';
-                    updateTablePage(currentPage - 1, searchTerm, event);
+                    if (!prevPageButton.disabled) {
+                        const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
+                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                        const event = eventSelect ? eventSelect.value : '';
+                        updateTablePage(currentPage - 1, searchTerm, event);
+                    }
                 });
             }
 
@@ -580,10 +592,12 @@
             if (nextPageButton) {
                 nextPageButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
-                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    const event = eventSelect ? eventSelect.value : '';
-                    updateTablePage(currentPage + 1, searchTerm, event);
+                    if (!nextPageButton.disabled) {
+                        const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
+                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                        const event = eventSelect ? eventSelect.value : '';
+                        updateTablePage(currentPage + 1, searchTerm, event);
+                    }
                 });
             }
         }
@@ -626,8 +640,6 @@
 
         attachListeners();
     });
-
-
 
     document.addEventListener('DOMContentLoaded', function () {
         const openEditButtons = document.querySelectorAll('.open-edit-modal');
