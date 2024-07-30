@@ -15,3 +15,13 @@
     </tr>
     {% endfor %}
 </tbody>
+
+<div class="flex justify-between items-center mt-4 px-5">
+    {% if page.has_previous %}
+        <button class="prev-page" data-page="{{ page.previous_page_number }}">Previous</button>
+    {% endif %}
+    <span class="current-page">{{ page.number }}</span>
+    {% if page.has_next %}
+        <button class="next-page" data-page="{{ page.next_page_number }}">Next</button>
+    {% endif %}
+</div>
