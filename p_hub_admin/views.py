@@ -53,7 +53,7 @@ def participants_list(request, event_id):
         if attendance:
             if attendance.entry_1 and not attendance.leave_1:
                 status = 'entry'
-            elif attendance.leave_1 and not attendance.entry_1:
+            elif attendance.leave_1 and attendance.entry_1:
                 status = 'leave'
             else:
                 status = 'none'

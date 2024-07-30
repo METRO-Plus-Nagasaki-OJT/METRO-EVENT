@@ -112,6 +112,7 @@ class ImageConsumer(WebsocketConsumer):
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         participant_ids, embeddings, participant_id_qr = get_participants(event_id)
+        print(participant_ids)
         if not is_qr:
             encode = get_encode(image)
             pred, pred_id = verify(encode, 0.8, embeddings, participant_ids)
