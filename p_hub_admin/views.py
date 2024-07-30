@@ -37,23 +37,25 @@ def monitoring(request):
 def participants_list(request, event_id):
     participants = Participant.objects.filter(event__id=event_id)
     
-    # Fetch attendance records for the participants
     attendance_records = Attendance.objects.filter(
         participant__in=participants, 
         date__gte=timezone.now().date()  
     )
-    
-    # Create a dictionary for easy lookup of attendance status
+
     attendance_status = {record.participant_id: record for record in attendance_records}
     
     participants_data = []
     for participant in participants:
         attendance = attendance_status.get(participant.id)
-        print(attendance.entry_1)
+
         if attendance:
             if attendance.entry_1 and not attendance.leave_1:
                 status = 'entry'
             elif attendance.leave_1 and attendance.entry_1:
+                status = 'leave'
+            elif attendance.leave_1 and attendance.entry_1 and attendance.entry_2 and not attendance.leave_2:
+                status = 'entry'
+            elif attendance.leave_1 and attendance.entry_1 and attendance.entry_2 and attendance.leave_2:
                 status = 'leave'
             else:
                 status = 'none'
