@@ -257,6 +257,7 @@
     const newMessageButton = document.getElementById("newMessage");
     const closeMessageButton = document.getElementById("cancelCreation");
     const messageBox = document.getElementById("newMessageBox");
+    const detailBox = document.getElementById("DetailBox");
 
     newMessageButton.addEventListener('click', () => {
         messageBox.classList.remove('hidden');
@@ -278,9 +279,9 @@
         });
     });
 
+    // Show data from database
     document.addEventListener('DOMContentLoaded', function () {
         const openEditButton = document.querySelectorAll('.open-edit-modal');
-        const detailBox = document.getElementById("DetailBox");
 
         openEditButton.forEach(button => {
             button.addEventListener('click', function () {
@@ -327,7 +328,9 @@
         }
     });
 
+    // Create and Edit 
     document.addEventListener('alpine:init', () => {
+        // Create
         Alpine.data('newMessageBox', () => ({
             rule: {
                 "subject" : [Clover.rule.required()],
@@ -351,13 +354,16 @@
                     })
                 
                 const res = await response.text()    
-                console.log(res)
 
                 if (!response.ok){
                     throw new Error(res.error || 'Failed to create.');
                 }
 
                 console.log(res)
+
+                if (messageBox) {
+                    messageBox.classList.add('hidden');
+                }        
                 
                 }catch(error) {
                     console.log(error);
@@ -365,6 +371,7 @@
             }
         }));
 
+        // Edit
         Alpine.data('DetailBox', () => ({
             rule: {
                 "detailsubject" : [Clover.rule.required()],
@@ -396,6 +403,11 @@
                 }
 
                 console.log(res)
+
+                if (detailBox) {
+                    console.log(detailBox)
+                    detailBox.classList.add('hidden');
+                }        
                 
                 }catch(error) {
                     console.log(error);
