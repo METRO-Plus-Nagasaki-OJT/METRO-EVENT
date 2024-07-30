@@ -345,8 +345,7 @@
     <div class="flex items-center">
         <label for="pagination" class="mr-2 text-sm font-medium text-gray-700">Show:</label>
         <select id="pagination"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-            style="width: 200px;">
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
             <option value="10" {% if per_page is "10" %}selected{% endif %}>10</option>
             <option value="20" {% if per_page is "20" %}selected{% endif %}>20</option>
             <option value="50" {% if per_page is "50" %}selected{% endif %}>50</option>
@@ -444,7 +443,7 @@
 </div>
 
 <!-- Pagination Controls -->
-<div class="flex justify-between items-center mt-4 px-5" style="padding-bottom: 20px;">
+<div class="flex justify-between items-center mt-4 px-5">
     <div class="text-sm text-gray-700">
         Showing <span class="font-medium">{{ page.start_index }}</span> to
         <span class="font-medium">{{ page.end_index }}</span> of

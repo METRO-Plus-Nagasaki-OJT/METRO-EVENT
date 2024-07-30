@@ -49,7 +49,7 @@ def participants_list(request, event_id):
     participants_data = []
     for participant in participants:
         attendance = attendance_status.get(participant.id)
-        
+        print(attendance.entry_1)
         if attendance:
             if attendance.entry_1 and not attendance.leave_1:
                 status = 'entry'
