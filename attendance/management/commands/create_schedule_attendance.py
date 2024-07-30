@@ -30,6 +30,12 @@ def attendance_scheduling():
             adding_attendance(today)
         print("finished creating")
 
+def row_check(participant_id):
+    today = datetime.now().date()
+    try:
+        Attendance.objects.create(participant_id=participant_id, date=today)
+    except Exception as e:
+        pass
 
 class Command(BaseCommand):
     help = 'Run Attendance Schedule Automation Code'

@@ -23,14 +23,15 @@ def get_participants(id):
     if data:
         embeddings = data["embeddings"]
         participant_ids = data["participant_ids"]
-        return participant_ids, embeddings
+        participant_id_qr = data["participant_id_qr"]
+        return participant_ids, embeddings, participant_id_qr
     else:
         p_in_ongoing_events = Participant.objects.filter(event__id=id)
         participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
-        print(participant_ids, "lol")
+        participant_id_qr = [str(id) for id in list(Participant.objects.filter(event__id=id, face=True).values_list('id', flat=True))]
         embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
-        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings},60 * 60 * 60 * 0)
-        return participant_ids, embeddings
+        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings, "participant_id_qr": participant_id_qr},60 * 60 * 60 * 0)
+        return participant_ids, embeddings, participant_id_qr
 
 def compare_embeddings_cosine(embedding1, embedding2):
     similarity = 1 - cosine(embedding1, embedding2)
@@ -110,7 +111,7 @@ class ImageConsumer(WebsocketConsumer):
         byte_data = base64.b64decode(base64_data)
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
-        participant_ids, embeddings = get_participants(event_id)
+        participant_ids, embeddings, participant_id_qr = get_participants(event_id)
         if not is_qr:
             encode = get_encode(image)
             pred, pred_id = verify(encode, 0.8, embeddings, participant_ids)
@@ -125,7 +126,7 @@ class ImageConsumer(WebsocketConsumer):
             if qr_code is None:
                 success_message = False
             else:         
-                if qr_code[0] in participant_ids:
+                if qr_code[0] in participant_id_qr:
                     success_message = True
                     add_attendance(in_out_status, int(qr_code[0]))
                     print("qr code detect")

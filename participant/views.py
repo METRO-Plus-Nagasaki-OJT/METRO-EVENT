@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Participant
+from attendance.management.commands.create_schedule_attendance import row_check
 from event.models import Event
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -66,6 +67,7 @@ def participant(request):
                 participant.facial_feature = json.dumps(encoding)
                 participant.face = True
         participant.save()
+        row_check(participant.id)
         train_unknown_classifier()
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
