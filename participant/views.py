@@ -1,13 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Participant
+from attendance.management.commands.create_schedule_attendance import row_check
 from event.models import Event
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import base64
 import binascii
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .qr_creator import create_qr, send_qr
-from attendance.face_capture import get_encode, load_pickle, save_embeddings, check_modelnembed, capture_face
+from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings
 from attendance.unknown_training import train_unknown_classifier
 import numpy as np
 import cv2
@@ -34,6 +35,8 @@ def participant(request):
         event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
         embeddable = False
+
+        # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
             profile = request.FILES["fileInput"]
             img = base64.b64encode(profile.read())
@@ -56,7 +59,6 @@ def participant(request):
             event=event,
             profile=profile
         )
-        
         if embeddable:
             image_np = np.fromstring(base64.b64decode(img), dtype=np.uint8)
             np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
@@ -66,6 +68,7 @@ def participant(request):
                 participant.facial_feature = json.dumps(encoding)
                 participant.face = True
         participant.save()
+        row_check(participant.id)
         train_unknown_classifier()
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
@@ -90,10 +93,15 @@ def participant(request):
             participant.event_status = participant.is_event_over()
 
         # Handling pagination
-        per_page = request.GET.get('per_page', 10)
+        per_page = int(request.GET.get('per_page', 10))
         paginator = Paginator(participants, per_page)
-        page_number = request.GET.get('page')
-        page = paginator.get_page(page_number)
+        page_number = request.GET.get('page', 1)
+        try:
+            page = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page = paginator.get_page(1)
+        except EmptyPage:
+            page = paginator.get_page(paginator.num_pages)
 
         return render(request, 'participant/participant.html', context={
             'page': page,
@@ -106,7 +114,6 @@ def participants_view(request):
     per_page = request.GET.get('per_page', 10)
     search_term = request.GET.get('search', '')
 
-    # Filter participants based on search term
     participants = Participant.objects.all()
     if search_term:
         participants = participants.filter(
@@ -116,7 +123,7 @@ def participants_view(request):
         ) | participants.filter(
             email__icontains=search_term
         )
-    
+
     paginator = Paginator(participants, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -238,5 +245,3 @@ def participants_view(request):
         return render(request, 'participants_table_body.html', {'page': page_obj})
     
     return render(request, 'participants.html', {'page': page_obj, 'per_page': per_page})
-
-

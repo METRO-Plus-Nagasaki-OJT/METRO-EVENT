@@ -345,8 +345,7 @@
     <div class="flex items-center">
         <label for="pagination" class="mr-2 text-sm font-medium text-gray-700">Show:</label>
         <select id="pagination"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-            style="width: 200px;">
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
             <option value="10" {% if per_page is "10" %}selected{% endif %}>10</option>
             <option value="20" {% if per_page is "20" %}selected{% endif %}>20</option>
             <option value="50" {% if per_page is "50" %}selected{% endif %}>50</option>
@@ -370,7 +369,7 @@
         font-medium rounded-lg text-sm px-5 py-2.5 
         text-center inline-flex items-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
             type="button">
-            Download CSV / Excel
+            Export As
             <svg class="w-4 h-4 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -426,7 +425,17 @@
                 <td class="py-4 px-6">{{ participant.seat_no }}</td>
                 <td class="py-4 px-6">{{ participant.dob }}</td>
                 <td class="py-4 px-6">{{ participant.phone_1 }}</td>
-                <td class="py-4 px-6">{{ participant.event_status|yesno:"Event Over,Active" }}</td>
+                <td class="py-4 px-6">
+                    {% if participant.face %}
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
+                            True
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
+                            False
+                        </span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -434,57 +443,32 @@
 </div>
 
 <!-- Pagination Controls -->
-<div class="flex justify-between items-center mt-4 px-5" style="padding-bottom: 20px;">
+<div class="flex justify-between items-center mt-4 px-5">
     <div class="text-sm text-gray-700">
         Showing <span class="font-medium">{{ page.start_index }}</span> to
-        <span class="font-medium">{{ page.end_index}}</span> of
+        <span class="font-medium">{{ page.end_index }}</span> of
         <span class="font-medium">{{ page.paginator.count }}</span> results
     </div>
-    <nav aria-label="Page navigation">
-        <ul class="inline-flex items-center -space-x-px">
-            {% if page.has_previous %}
-            <li>
-                <a href="?page={{ page.previous_page_number }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
-                    <span class="sr-only">Previous</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                        <path fill-rule="evenodd"
-                            d="M7.707 14.707a1 1 0 010-1.414L10.586 10 7.707 7.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </a>
-            </li>
-            {% endif %}
-            {% for i in page.paginator.page_range %}
-            {% if page.number == i %}
-            <li>
-                <a href="?page={{ i }}&per_page={{ per_page }}" aria-current="page"
-                    class="z-10 py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-blue-300">{{ i }}</a>
-            </li>
-            {% else %}
-            <li>
-                <a href="?page={{ i }}&per_page={{ per_page }}"
-                    class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
-                    {{ i }}</a>
-            </li>
-            {% endif %}
-            {% endfor %}
-            {% if page.has_next %}
-            <li>
-                <a href="?page={{ page.next_page_number }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
-                    <span class="sr-only">Next</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                        <path fill-rule="evenodd"
-                            d="M12.293 14.707a1 1 0 010-1.414L15.172 10l-2.879-2.879a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
+    <div class="flex items-center space-x-2">
+        {% if page.has_previous %}
+        <button class="prev-page bg-blue-500 text-white py-2 px-4 rounded"
+            data-page="{{ page.previous_page_number }}">Previous</button>
+        {% else %}
+        <button class="prev-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed"
+            disabled>Previous</button>
+        {% endif %}
+
+        <span class="current-page">{{ page.number }}</span>
+
+        {% if page.has_next %}
+        <button class="next-page bg-blue-500 text-white py-2 px-4 rounded"
+            data-page="{{ page.next_page_number }}">Next</button>
+        {% else %}
+        <button class="next-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>Next</button>
+        {% endif %}
+    </div>
 </div>
+
 </div>
 {% endblock content %}
 
@@ -511,13 +495,12 @@
         const searchInput = document.getElementById('search');
         const eventSelect = document.getElementById('events');
 
-        // Check if the page is reloaded
         const isReload = performance.navigation.type === performance.navigation.TYPE_RELOAD;
-
-        // Retrieve per_page value from session storage and set it to the dropdown
         const sessionPerPage = sessionStorage.getItem('per_page');
         const storedPerPage = localStorage.getItem('per_page');
-        updateTable(sessionPerPage)
+
+        updateTable(sessionPerPage);
+
         if (isReload && sessionPerPage && paginationSelect) {
             paginationSelect.value = sessionPerPage;
         } else if (paginationSelect) {
@@ -601,24 +584,16 @@
         }
 
         function attachPaginationListeners() {
-            document.querySelectorAll('.page-number').forEach(pageNumber => {
-                pageNumber.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const page = this.dataset.page;
-                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    const event = eventSelect ? eventSelect.value : '';
-                    updateTablePage(page, searchTerm, event);
-                });
-            });
-
             const prevPageButton = document.querySelector('.prev-page');
             if (prevPageButton) {
                 prevPageButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
-                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    const event = eventSelect ? eventSelect.value : '';
-                    updateTablePage(currentPage - 1, searchTerm, event);
+                    if (!prevPageButton.disabled) {
+                        const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
+                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                        const event = eventSelect ? eventSelect.value : '';
+                        updateTablePage(currentPage - 1, searchTerm, event);
+                    }
                 });
             }
 
@@ -626,10 +601,12 @@
             if (nextPageButton) {
                 nextPageButton.addEventListener('click', function (e) {
                     e.preventDefault();
-                    const currentPage = parseInt(document.querySelector('.page-number.active')?.textContent) || 1;
-                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                    const event = eventSelect ? eventSelect.value : '';
-                    updateTablePage(currentPage + 1, searchTerm, event);
+                    if (!nextPageButton.disabled) {
+                        const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
+                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                        const event = eventSelect ? eventSelect.value : '';
+                        updateTablePage(currentPage + 1, searchTerm, event);
+                    }
                 });
             }
         }
