@@ -114,7 +114,6 @@ def participants_view(request):
     per_page = request.GET.get('per_page', 10)
     search_term = request.GET.get('search', '')
 
-    # Filter participants based on search term
     participants = Participant.objects.all()
     if search_term:
         participants = participants.filter(
@@ -124,7 +123,7 @@ def participants_view(request):
         ) | participants.filter(
             email__icontains=search_term
         )
-    
+
     paginator = Paginator(participants, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
