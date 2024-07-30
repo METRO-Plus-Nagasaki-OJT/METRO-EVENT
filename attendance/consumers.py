@@ -26,9 +26,9 @@ def get_participants(id):
         participant_id_qr = data["participant_id_qr"]
         return participant_ids, embeddings, participant_id_qr
     else:
-        p_in_ongoing_events = Participant.objects.filter(event__id=id)
+        p_in_ongoing_events = Participant.objects.filter(event__id=id, face=True)
         participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
-        participant_id_qr = [str(id) for id in list(Participant.objects.filter(event__id=id, face=True).values_list('id', flat=True))]
+        participant_id_qr = [str(id) for id in list(Participant.objects.filter(event__id=id).values_list('id', flat=True))]
         embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
         cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings, "participant_id_qr": participant_id_qr},60 * 60 * 60 * 0)
         return participant_ids, embeddings, participant_id_qr
