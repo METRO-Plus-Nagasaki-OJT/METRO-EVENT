@@ -244,21 +244,29 @@ Attendance
                         <td class="px-6 py-4">
                             {% if attendance.entry_1 %}
                             {{attendance.entry_1|date:"H:i:s"}}
+                            {% else %}
+                            N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if attendance.leave_1  %}
                             {{attendance.leave_1|date:"H:i:s"}}
+                            {% else %}
+                            N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if attendance.entry_2  %}
                             {{attendance.entry_2|date:"H:i:s"}}
+                            {% else %}
+                            N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if attendance.leave_2  %}
                             {{attendance.leave_2|date:"H:i:s"}}
+                            {% else %}
+                                N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
