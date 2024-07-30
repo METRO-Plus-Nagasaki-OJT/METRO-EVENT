@@ -55,7 +55,7 @@
 
 {% block script %}
 <script>
-    document.getElementById('monitorButton').addEventListener('click', function () {
+     document.getElementById('monitorButton').addEventListener('click', function () {
         const eventId = document.getElementById('event').value;
 
         if (eventId) {
@@ -69,12 +69,22 @@
 
                     data.participants.forEach(participant => {
                         const participantDiv = document.createElement('div');
-                        participantDiv.className = 'p-4 border border-gray-300 rounded-lg bg-green-500 text-white'; 
+                        participantDiv.className = 'p-4 border border-gray-300 rounded-lg'; 
+
+                        let badgeColor = '';
+                        if (participant.status === 'entry') {
+                            badgeColor = 'bg-green-500 text-white'; // Green for entry
+                        } else if (participant.status === 'leave') {
+                            badgeColor = 'bg-red-500 text-white'; // Red for leave
+                        } else {
+                            badgeColor = 'bg-gray-200 text-gray-700'; // No color
+                        }
 
                         participantDiv.innerHTML = `
-                        <h4 class="text-lg font-medium">${participant.name}</h4>
-                        <p class="text-sm">Seat No: ${participant.seat_no}</p>
-                    `;
+                            <h4 class="text-lg font-medium">${participant.name}</h4>
+                            <p class="text-sm">Seat No: ${participant.seat_no}</p>
+                            <span class="inline-block px-2 py-1 text-xs font-medium rounded ${badgeColor}">${participant.status.charAt(0).toUpperCase() + participant.status.slice(1)}</span>
+                        `;
 
                         participantsList.appendChild(participantDiv);
                     });
@@ -90,8 +100,6 @@
     document.getElementById('closeParticipantsModal').addEventListener('click', function () {
         document.getElementById('participantsModal').classList.add('hidden');
     });
-
-
 
 </script>
 {% endblock script %}
