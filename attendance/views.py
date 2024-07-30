@@ -1,4 +1,4 @@
-from django.shortcuts import render,get_object_or_404,redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from event.models import Event
 from .models import Attendance
 from django.db.models import Q
@@ -6,6 +6,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Case, When, IntegerField
+
 # Create your views here.
 
 
@@ -30,18 +32,30 @@ def index(request):
                 time = "00:00:00"
                 if k == 1:
                     time = "23:59:59"
-                date_range.append(datetime.strptime(f"{value} {time}", "%Y/%m/%d %H:%M:%S"))
+                date_range.append(
+                    datetime.strptime(f"{value} {time}", "%Y/%m/%d %H:%M:%S")
+                )
             if len(date_range) == 1:
                 filters &= Q(created_at__gte=date_range[0])
             else:
                 filters &= Q(created_at__range=date_range)
         else:
             first_day_of_the_current_month = timezone.now().replace(
-            day=1, hour=0, minute=0, second=0, microsecond=0)
+                day=1, hour=0, minute=0, second=0, microsecond=0
+            )
             filters &= Q(created_at__gte=first_day_of_the_current_month)
-        
-    
-        attendances = Attendance.objects.filter(filters).prefetch_related("participant")
+
+        attendances = (
+            Attendance.objects.annotate(
+                status=Case(
+                    When(entry_1__isnull=False, leave_1__isnull=False, then=1),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            )
+            .filter(filters)
+            .prefetch_related("participant")
+        )
 
         if request.GET.get("sort"):
             attendances = attendances.order_by(request.GET.get("sort"))
@@ -62,10 +76,10 @@ def index(request):
         }
 
         return render(request, "attendance/index.html", context)
-    
 
-def update(request,id):
-     if request.method == "POST":   
+
+def update(request, id):
+    if request.method == "POST":
         obj = {}
         if request.POST.get("entry_1"):
             obj["entry_1"] = request.POST.get("entry_1")
@@ -80,8 +94,8 @@ def update(request,id):
             obj["leave_2"] = request.POST.get("leave_2")
 
         if len(obj.keys()):
-               Attendance.objects.filter(id=id).update(**obj)
+            Attendance.objects.filter(id=id).update(**obj)
 
         messages.success(request, "Attendance updated.")
-     
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        return redirect(request.META.get("HTTP_REFERER", "/"))
