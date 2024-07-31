@@ -1,4 +1,3 @@
-<!-- reception_monitoring.html -->
 {% extends "dashboard/master.html" %}
 {% load static %}
 
@@ -55,7 +54,7 @@
 
 {% block script %}
 <script>
-     document.getElementById('monitorButton').addEventListener('click', function () {
+    document.getElementById('monitorButton').addEventListener('click', function () {
         const eventId = document.getElementById('event').value;
 
         if (eventId) {
@@ -65,19 +64,20 @@
                 .then(response => response.json())
                 .then(data => {
                     const participantsList = document.getElementById('participantsList');
-                    participantsList.innerHTML = ''; 
-
+                    participantsList.innerHTML = '';
                     data.participants.forEach(participant => {
                         const participantDiv = document.createElement('div');
-                        participantDiv.className = 'p-4 border border-gray-300 rounded-lg'; 
+                        participantDiv.className = 'p-4 border border-gray-300 rounded-lg';
+                        participantDiv.setAttribute("event-participant", `${eventId}-${participant.id}`)
+                        participantDiv.dataset.participantId = participant.id;
 
                         let badgeColor = '';
                         if (participant.status === 'entry') {
-                            badgeColor = 'bg-green-500 text-white'; 
+                            badgeColor = 'bg-green-500 text-white';
                         } else if (participant.status === 'leave') {
-                            badgeColor = 'bg-red-500 text-white'; 
+                            badgeColor = 'bg-red-500 text-white';
                         } else {
-                            badgeColor = 'bg-gray-200 text-gray-700'; 
+                            badgeColor = 'bg-gray-200 text-gray-700';
                         }
 
                         participantDiv.innerHTML = `
@@ -90,6 +90,41 @@
                     });
 
                     document.getElementById('participantsModal').classList.remove('hidden');
+
+                    const socket = new WebSocket(`ws://${window.location.host}/ws/attendance/${eventId}/`);
+                    
+                    socket.onopen = function(event) {
+                        console.log('WebSocket connection opened');
+                    };
+                    
+                    socket.onmessage = function (event) {
+                        const data = JSON.parse(event.data);
+                        const participantDiv = document.querySelector(`[event-participant="${data.event_id}-${data.participant_id}"]`);
+                        if (participantDiv) {
+                            let badgeColor = '';
+                            if (data.status === 'entry') {
+                                badgeColor = 'bg-green-500 text-white';
+                            } else if (data.status === 'leave') {
+                                badgeColor = 'bg-red-500 text-white';
+                            } else {
+                                badgeColor = 'bg-gray-200 text-gray-700';
+                            }
+
+                            const badge = participantDiv.querySelector('span');
+                            badge.className = `inline-block px-2 py-1 text-xs font-medium rounded ${badgeColor}`;
+                            badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                        } else {
+                            console.log('Participant not found');
+                        }
+                    };
+
+                    socket.onerror = function (error) {
+                        console.error('WebSocket error:', error);
+                    };
+
+                    socket.onclose = function (event) {
+                        console.log('WebSocket connection closed:', event);
+                    };
                 })
                 .catch(error => {
                     console.error('Error fetching participants:', error);
@@ -100,6 +135,5 @@
     document.getElementById('closeParticipantsModal').addEventListener('click', function () {
         document.getElementById('participantsModal').classList.add('hidden');
     });
-
 </script>
 {% endblock script %}

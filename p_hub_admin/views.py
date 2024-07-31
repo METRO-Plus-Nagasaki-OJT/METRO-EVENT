@@ -63,6 +63,7 @@ def participants_list(request, event_id):
             status = 'none'
         
         participants_data.append({
+            "id" : participant.id,
             'name': participant.name,
             'seat_no': participant.seat_no,
             'status': status
