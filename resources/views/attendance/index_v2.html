@@ -47,10 +47,11 @@ Attendance
         </div>
         <div class="flex justify-between items-center mt-5">
             <div class="flex flex-1 items-center text-sm">
-                <select id="pagination" name="limit" @change="handleChange"
+                <select id="pagination" name="limit" @change="limit == Number($el.value)"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="10">10</option>
-                
+                    <option value="20">20</option>
+                    <option value="50">50</option>    
                 </select>
                 <label for="pagination" class="ml-3 font-bold">ページを表示</label>
             </div>
@@ -73,10 +74,10 @@ Attendance
                             <div class="flex items-center">
                                 日々
                                 <button class="flex flex-col ml-2" @click="handleSort" data-sort="date">
-                                    <svg :class="{'text-gray-400': data.sort === 'date'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                    <svg :class="{'text-gray-400': sort === 'date'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                       </svg>
-                                      <svg :class="{'text-gray-400': data.sort === '-date'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                      <svg :class="{'text-gray-400': sort === '-date'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                       </svg>                                      
                                 </button>   
@@ -87,10 +88,10 @@ Attendance
                                 名前
                                 <div class="flex flex-col">
                                     <button class="flex flex-col ml-2" @click="handleSort" data-sort="name">
-                                        <svg :class="{'text-gray-400': data.sort === 'name'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <svg :class="{'text-gray-400': sort === 'name'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                           </svg>
-                                          <svg :class="{'text-gray-400': data.sort === '-name'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                          <svg :class="{'text-gray-400': sort === '-name'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                           </svg>                                      
                                     </button>                                     
@@ -101,10 +102,10 @@ Attendance
                             <div class="flex items-center">
                                 入館-1
                                 <button class="flex flex-col ml-2" @click="handleSort" data-sort="entry_1">
-                                    <svg :class="{'text-gray-400': data.sort === 'entry_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                    <svg :class="{'text-gray-400': sort === 'entry_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                       </svg>
-                                      <svg :class="{'text-gray-400': data.sort === '-entry_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                      <svg :class="{'text-gray-400': sort === '-entry_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                       </svg>                                      
                                 </button>
@@ -114,10 +115,10 @@ Attendance
                             <div class="flex items-center">
                                 退館-1
                                 <button class="flex flex-col ml-2" @click="handleSort" data-sort="leave_1">
-                                    <svg :class="{'text-gray-400': data.sort === 'leave_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                    <svg :class="{'text-gray-400': sort === 'leave_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                       </svg>
-                                      <svg :class="{'text-gray-400': data.sort === '-leave_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                      <svg :class="{'text-gray-400': sort === '-leave_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                       </svg>                                      
                                 </button>
@@ -127,10 +128,10 @@ Attendance
                             <div class="flex items-center">
                                 入館-2
                                 <button class="flex flex-col ml-2" @click="handleSort" data-sort="entry_2">
-                                    <svg :class="{'text-gray-400': data.sort === 'entry_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                    <svg :class="{'text-gray-400': sort === 'entry_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                       </svg>
-                                      <svg :class="{'text-gray-400': data.sort === '-entry_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                      <svg :class="{'text-gray-400': sort === '-entry_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                       </svg>                                      
                                 </button>
@@ -140,10 +141,10 @@ Attendance
                             <div class="flex items-center">
                                 退館-2
                                 <button class="flex flex-col ml-2" @click="handleSort" data-sort="leave_2">
-                                    <svg :class="{'text-gray-400': data.sort === 'leave_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                    <svg :class="{'text-gray-400': sort === 'leave_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                       </svg>
-                                      <svg :class="{'text-gray-400': data.sort === '-leave_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                      <svg :class="{'text-gray-400': sort === '-leave_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                       </svg>                                      
                                 </button>
@@ -153,10 +154,10 @@ Attendance
                             <div class="flex items-center">
                                 状態
                                 <button class="flex flex-col ml-2" @click="handleSort" data-sort="status">
-                                    <svg :class="{'text-gray-400': data.sort === 'status'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                    <svg :class="{'text-gray-400': sort === 'status'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                                       </svg>
-                                      <svg :class="{'text-gray-400': data.sort === '-status'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                      <svg :class="{'text-gray-400': sort === '-status'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                                       </svg>                                      
                                 </button>
@@ -266,13 +267,19 @@ Attendance
                             class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">完了</span>
                         </td>
                     </tr>
+                   
                     </template>
+                    <tr x-show="!totalPage" class="px-6 py-4 bg-gray-100">
+                        <td colspan="100%" class="text-center py-2 text-[1rem] text-gray-500">
+                            Empty Result
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
-        <div class="flex justify-between items-center mt-3">
+        <div class="flex justify-between items-center mt-3 px-2"  x-show="totalPage">
             <div>
-                <span x-text="totalPage"></span>
+                <span x-text="showResult" class="text-gray-500"></span>
             </div>
             <div>
                 <div class="flex">
@@ -297,20 +304,23 @@ Attendance
                 Alpine.data("data",  ()=>({
                     search : '',
                     attendances:[],
-                    data: {
-                        sort: '{{request.GET.sort}}'
-                    },
-                    limit: Number('{{request.GET.limit}}') || 2,
+                    sort: '',
+                    limit: 10,
                     pageNumber: Number('{{request.GET.page}}'),
                     total : 0,
                     handleSort(){
                         const el = this.$el
                         const sort = el.dataset.sort 
-                        if(sort === this.data.sort) {
-                            this.data.sort = `-${sort}`
+                        if(sort === this.sort) {
+                            this.sort = `-${sort}`
                         } else {
-                            this.data.sort = sort
+                            this.sort = sort
                         }
+                    },
+                    get showResult(){
+                        const from = 1 * this.pageNumber + 1
+                        const to =  1 * this.pageNumber + this.limit 
+                        return `showing ${from} to ${to> this.total ? this.total : to} of ${this.total} result`
                     },
                     init(){
                         const alpineData = this
@@ -337,22 +347,33 @@ Attendance
                         const start =  this.pageNumber * this.limit
                         const end  =  start + this.limit
                         const search = this.search?.toLowerCase()
-                        if(search === '') {
-                            this.total = this.attendances.length
-                            return this.attendances.slice(start,end)
-                        }
-                        const attendances = this.attendances.filter((att)=> {
-                
-                            const con = att.participant.name.toLowerCase().includes(search) ||
-                                att.date.toLowerCase().includes(search) ||
-                                att.entry_1.toLowerCase().includes(search) ||
-                                att.leave_1.toLowerCase().includes(search) ||
-                                att.entry_2.toLowerCase().includes(search) ||
-                                att.leave_2.toLowerCase().includes(search)
-                            return con
-                        })
+                        let attendances = this.attendances
 
+                        if(search) {
+                            attendances = attendances.filter((att)=> {
+                            return att.participant.name.toLowerCase().includes(search) ||
+                                    att.date.toLowerCase().includes(search) ||
+                                    att.entry_1.toLowerCase().includes(search) ||
+                                    att.leave_1.toLowerCase().includes(search) ||
+                                    att.entry_2.toLowerCase().includes(search) ||
+                                    att.leave_2.toLowerCase().includes(search)
+                            })
+                        }
+
+            
                         this.total = attendances.length
+                        
+                        if(this.sort) {
+                            const sortBy = this.sort.includes("-") ? "desc" : "asc"
+                            const key = this.sort.replace("-","")
+                            attendances = attendances.sort((a,b) => {
+                                    const valueA = key === "name" ? a["participant"]["name"] : a[key];
+                                    const valueB = key === "name" ? b["participant"]["name"] : b[key];
+                                    const comparison = valueA.localeCompare(valueB)
+                                    return sortBy === "asc" ? comparison : -comparison
+                            })
+                        }                    
+
                         return attendances.slice(start,end)
                     },
                     handleChange() {
@@ -369,6 +390,12 @@ Attendance
                     },
                     get totalPage(){
                         return Math.ceil(this.total/this.limit)
+                    },
+                    handleSubmit(){
+                        this.search = ""
+                        this.sort = ""
+                        this.pageNumber = 0
+                        this.fetchData()
                     },
                     async fetchData(){
                         try {
