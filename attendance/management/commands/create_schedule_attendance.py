@@ -30,7 +30,7 @@ def attendance_scheduling():
                 next_monday = today + timedelta(days=3)
                 adding_attendance(next_monday)
             else:
-                adding_attendance(tomorrow)
+                adding_attendance(today)
             print("finished creating")
     else:
         pass
