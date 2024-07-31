@@ -18,7 +18,7 @@ def index(request):
             event.save()
             return JsonResponse({"success":"True"})
     current_time=timezone.now()
-    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance')).values('id', 'name', 'start_time', 'end_time', 'participant_count', 'attendance_count')
+    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance')).values('id', 'name', 'start_time', 'end_time', 'participant_count', 'attendance_count').order_by('id')
     for event in events:
         if event['start_time'] <= current_time <= event['end_time']:
             event['status'] = 'Open'
