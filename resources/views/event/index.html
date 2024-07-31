@@ -5,13 +5,13 @@
 
 <div class="mb-4 bg-gray-200 px-1 py-5">
     <h2 class="text-2xl ">EVENT</h2>
-    <span class="">Event registration</span>
+    <span class="">イベント登録</span>
 </div>
 <div class="px-5 py-5">
     <div class="flex justify-start pb-4 px-5">
         <div class="relative">
             <button data-modal-target="#crud-modal" data-modal-toggle="#crud-modal"
-                class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded mb-6">+ Create Row</button>
+                class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded mb-6">新規作成</button>
             <div id="dropdown-menu"
                 class="absolute z-10 mt-1 w-40 bg-white border border-gray-300 rounded-md shadow-lg hidden">
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 1</a>
@@ -30,12 +30,12 @@
                 <option value="20">20</option>
                 <option value="50">50</option>
             </select>
-            <p class="pt-2 ml-2">show pages</p>
+            <p class="pt-2 ml-2">件表示</p>
         </div>      
         <div class="flex justify-end pb-4 mr-3">
             <div class="ml-4">
 
-                <input id="searchInput" type="text" placeholder="Search..."
+                <input id="searchInput" type="text" placeholder="検索..."
                     class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
             </div>
         </div>
@@ -51,35 +51,35 @@
                     </th>
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center">
-                            Event ID
+                           イベントID
 
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center ml-4">
                             
-                            Event Name
+                           イベント名
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
 
                         <div class="flex items-center ml-6">
                           
-                            period
+                            日付
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
 
                         <div class="flex items-center">
                             
-                            attender
+                            参加者
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
 
                         <div class="flex items-center">
                             
-                            status
+                            状況
 
                         </div>
                     </th>
@@ -94,7 +94,7 @@
                         <div class="flex items-center">
                             <button id="edit-button"
                                 class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 edit-button"
-                                data-event-id="{{ e.id }}">Detail</button>
+                                data-event-id="{{ e.id }}">詳細</button>
                         </div>
                     </td>
                     <th scope="row" class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
@@ -130,11 +130,11 @@
                     <div
                         class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
                         <h3 class="text-2xl text-white">
-                            Register Event
+                            イベントの登録
                         </h3>
                         <button type="button" id="modalCloseButton"
                             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                            data-modal-close="crud-modal" onclick="resetForm(); closeModal(); resetErrors();">
+                            data-modal-close="crud- modal">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 14 14">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -149,7 +149,7 @@
                         <div class="grid gap-4">
                             <div class="flex justify-between items-center ">
                                 <label for="name"
-                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">Name</label>
+                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">名前</label>
                                 <input x-clover-verify type="text" name="name" id="name"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Type event name">
@@ -157,10 +157,11 @@
                             </div>
                             <span class="text-red-600 pl-24 error-message" x-text="errors.name"></span>
 
-                            <div class="flex justify-between items-center ">
+                            <div class="flex justify-between items-center "> 
                                 <label for="period"
-                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">Start
-                                    Time</label>
+                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">
+                                    開始日
+                                    </label>
                                 <input x-clover-verify type="datetime-local" name="starttime" id="starttime"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Type event period" onchange="validateTime()">
@@ -170,8 +171,9 @@
                            
                             <div class="flex justify-between items-center ">
                                 <label for="period"
-                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">End
-                                    time</label>
+                                    class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">
+                                    終了日
+                                </label>
                                 <input type="datetime-local" name="endtime" id="endtime"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Type event period" onchange="validateTime()">
@@ -181,7 +183,7 @@
                             <span id="time-error" class="text-red-600 text-sm mt-1 pl-24 error-message"></span>
                             <div class="flex justify-between items-center ">
                                 <label for="venue"
-                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
+                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-14">場所</label>
                                 <input type="text" name="venue" id="venue"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Type event venue">
@@ -192,7 +194,7 @@
 
                             <div class="flex justify-between items-center ">
                                 <label for="venue"
-                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-9">Organizer</label>
+                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-9">担当者</label>
                                 <select name="organizer" id="organizer"
                                     class="block w-full p-2 mb-6 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     {% for u in user %}
@@ -204,7 +206,7 @@
 
                             <div class="flex justify-between items-center mb-5">
                                 <label for="memo"
-                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Memo</label>
+                                    class="block text-sm font-medium text-gray-900 dark:text-white mr-14">メモ</label>
                                 <textarea id="memo" name="memo" rows="4"
                                     class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="Write event memo here"></textarea>
@@ -230,8 +232,8 @@
                             
                             <button id="CloseButton" type="button"
                                 class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                data-modal-close="crud-modal" onclick="resetForm(); closeModal(); resetErrors();">
-                                cancel
+                                data-modal-close="crud-modal">
+                                キャンセル
                             </button>
                         </div>
                        
@@ -251,7 +253,7 @@
                 <div
                     class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 bg-blue-500">
                     <h3 class="text-2xl text-white">
-                        Update Event
+                        イベント 編集
                     </h3>
                     <button type="button" id="modalCloseButton"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
@@ -280,8 +282,9 @@
 
                         <div class="flex justify-between items-center ">
                             <label for="period"
-                                class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">start
-                                time</label>
+                                class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">
+                                開始日
+                                </label>
                             <input type="text"  id="edit-start" value="{{ starttime }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" readonly>
@@ -298,7 +301,7 @@
 
                         <div class="flex justify-between items-center ">
                             <label for="venue"
-                                class="block text-sm font-medium text-gray-900 dark:text-white mr-14">Venue</label>
+                                class="block text-sm font-medium text-gray-900 dark:text-white mr-14">V会場</label>
                             <input type="text" x-clover-verify name="editvenue" id="edit-venue"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event venue">
@@ -354,7 +357,7 @@
                         </button>                    
                         <button id="editclose" type="button"
                             class="text-black inline-flex items-center bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                            data-modal-close="crud-modal" onclick="resetForm();resetErrors();submitEditForm()">
+                            data-modal-close="crud-modal" >
                             cancel
                         </button>
                     </div>
@@ -406,6 +409,17 @@
 <script>
     let editId;
     document.addEventListener('DOMContentLoaded', function () {
+        
+        function resetForm() {
+            
+            document.getElementById('eventForm').reset();  // Reset the form fields
+            }
+            function resetErrors(){
+                const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(message => {
+                message.textContent = '';
+            });
+            }
      
         const modalOpenButtons = document.querySelectorAll('[data-modal-toggle]');
         const modalCloseButtons = document.getElementById("modalCloseButton");
@@ -460,35 +474,31 @@
             });
         });
 
-        function resetForm() {
-            
-        document.getElementById('eventForm').reset();  // Reset the form fields
-    }
-        function resetErrors(){
-            const errorMessages = document.querySelectorAll('.error-message');
-        errorMessages.forEach(message => {
-            message.textContent = '';
-        });
-    }
         function resetedit(){
             document.getElementById('update').reset();
         }
-    document.getElementById('modalCloseButton').addEventListener('click', function() {
+        document.getElementById('modalCloseButton').addEventListener('click', function() {
         resetForm(); 
         resetErrors();
         closeModal();
-    });
-    close.addEventListener('click',function(){
+        });
+        close.addEventListener('click',function(){
         resetForm();
         resetErrors();
         closeModal();
-    })
+        })
     
-    document.getElementById("editclose").addEventListener("click",function(){
+       document.getElementById("editclose").addEventListener("click",function(){
         resetedit();
         resetErrors();
         submitEditForm()
-    })
+        })
+
+        document.getElementById("modalCloseButton").addEventListener("click",function(){
+        resetedit();
+        resetErrors();
+        submitEditForm()
+        })
 
         function closeModal() {
             modal.classList.add('hidden');
@@ -524,7 +534,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('addmodal', () => ({
             rule: {
-                name: [Clover.rule.required("名前が必要です。")],
+                name: [Clover.rule.required("名前が必要です。"),Clover.rule.custom(/^[\w\s!@#$%^&*()_+={}\[\]:;"'<>,.?/\\-]*$/, "名前に無効な文字が含まれています。")],
                 starttime: [Clover.rule.required("始まる時間が必要です。")],
                 endtime: [Clover.rule.required("終わる時間が必要です")],
                 venue: [Clover.rule.required("場所が必要です")],
@@ -536,7 +546,6 @@
                 this.errors={};
             },
             async submit(event) {
-                event.preventDefault();
                 this.resetErrors();
                 const form = this.$refs.form;
                 const { valid, errors } = Clover.form({ form, rule: this.rule });
