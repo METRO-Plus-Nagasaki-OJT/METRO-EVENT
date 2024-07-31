@@ -44,11 +44,16 @@ def get_message_details(request, message_id):
         detailstartDate = request.POST.get('detailstartDate')
         detailendDate = request.POST.get('detailendDate')
 
-        try:
+        if detailsubject.strip():
             message.subject = detailsubject
+        if detailcontent.strip():
             message.content = detailcontent
+        if detailstartDate.strip():
             message.startDate = detailstartDate
+        if detailendDate.strip():
             message.endDate = detailendDate
+
+        try:
             message.save()
         
             return JsonResponse({'status': 'success', 'message': "Message have been created successfully!"})
