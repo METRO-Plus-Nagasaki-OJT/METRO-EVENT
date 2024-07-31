@@ -11,7 +11,17 @@
         <td class="py-4 px-6">{{ participant.seat_no }}</td>
         <td class="py-4 px-6">{{ participant.dob }}</td>
         <td class="py-4 px-6">{{ participant.phone_1 }}</td>
-        <td class="py-4 px-6">{{ participant.event_status|yesno:"Over,Active" }}</td>
+        <td class="py-4 px-6">
+            {% if participant.face %}
+                <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
+                    True
+                </span>
+            {% else %}
+                <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
+                    False
+                </span>
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </tbody>

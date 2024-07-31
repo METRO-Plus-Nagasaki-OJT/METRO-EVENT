@@ -10,8 +10,7 @@ def get_participant_count():
 
 def get_data():
     encodings = Participant.objects.values_list("facial_feature",flat=True)
-    embeddings = [json.loads(i) for i in list(encodings)]
-    print(len(embeddings))
+    embeddings = [json.loads(i) for i in list(encodings) if i != None]
     return embeddings
 
 def train_unknown_classifier():

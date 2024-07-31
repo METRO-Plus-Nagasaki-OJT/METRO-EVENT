@@ -1,0 +1,399 @@
+{% extends 'dashboard/master.html' %}
+{% load static %}
+{% block page_en %}
+Attendance
+{% endblock page_en %}
+{% block page_jp %}
+出席
+{% endblock page_jp %}
+{% block content %}
+
+<div class="p-2" x-data="data">
+    <form  @submit.prevent="handleSubmit" autocomplete="off">
+        <div class="grid grid-cols-5 gap-5">
+            <div class="col-span-2">
+                <label for="event" class="font-bold text-sm">イベント</label>
+                <select id="event" name="event" @change="handleChange"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="" selected></option>
+                    {% for event in events %}
+                    {% if event.id|stringformat:"s" == request.GET.event %}
+                    <option selected value="{{event.id}}">
+                        {{event.name}}</option>
+                    {% else %}
+                    <option value="{{event.id}}">
+                        {{event.name}}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-span-1">
+                <label for="date-range" class="font-bold text-sm">日々</label>
+                <input type="text" id="date-range" name="date" value="{{request.GET.date}}"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
+            <div class="col-span-2">
+                <label for="name" class="text-sm font-bold">名前</label>
+                <div class="relative w-full">
+                    <input type="search" id="location-search" name="name"
+                        value="{{request.GET.name}}" @change="handleChange"
+                        class="block p-2.5 rounded-lg w-full z-20 text-sm text-gray-900 bg-gray-50  border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" />
+                    <button type="submit"
+                        class="absolute top-0 end-0 h-full px-5 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">
+                        検索
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-between items-center mt-5">
+            <div class="flex flex-1 items-center text-sm">
+                <select id="pagination" name="limit" @change="handleChange"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="10">10</option>
+                
+                </select>
+                <label for="pagination" class="ml-3 font-bold">ページを表示</label>
+            </div>
+            <div class="flex flex-1 items-center justify-end gap-2">
+                <label for="search" class="font-bold text-sm">検索</label>
+                <input type="text" x-model="search" id="search" name="search" class="bg-gray-50 border w-[30%] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
+        </div>
+    </form>
+    <div class="mt-5">
+        <div class="relative overflow-x-auto  sm:rounded-lg">
+            <table
+                class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead 
+                    class="text-xs  text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="py-3 font-bold">
+                        </th>
+                        <th scope="col" class="px-6 py-3 ">
+                            <div class="flex items-center">
+                                日々
+                                <button class="flex flex-col ml-2" @click="handleSort" data-sort="date">
+                                    <svg :class="{'text-gray-400': data.sort === 'date'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                      </svg>
+                                      <svg :class="{'text-gray-400': data.sort === '-date'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                      </svg>                                      
+                                </button>   
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                名前
+                                <div class="flex flex-col">
+                                    <button class="flex flex-col ml-2" @click="handleSort" data-sort="name">
+                                        <svg :class="{'text-gray-400': data.sort === 'name'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                          </svg>
+                                          <svg :class="{'text-gray-400': data.sort === '-name'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                          </svg>                                      
+                                    </button>                                     
+                                </div>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                入館-1
+                                <button class="flex flex-col ml-2" @click="handleSort" data-sort="entry_1">
+                                    <svg :class="{'text-gray-400': data.sort === 'entry_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                      </svg>
+                                      <svg :class="{'text-gray-400': data.sort === '-entry_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                      </svg>                                      
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                退館-1
+                                <button class="flex flex-col ml-2" @click="handleSort" data-sort="leave_1">
+                                    <svg :class="{'text-gray-400': data.sort === 'leave_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                      </svg>
+                                      <svg :class="{'text-gray-400': data.sort === '-leave_1'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                      </svg>                                      
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                入館-2
+                                <button class="flex flex-col ml-2" @click="handleSort" data-sort="entry_2">
+                                    <svg :class="{'text-gray-400': data.sort === 'entry_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                      </svg>
+                                      <svg :class="{'text-gray-400': data.sort === '-entry_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                      </svg>                                      
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                退館-2
+                                <button class="flex flex-col ml-2" @click="handleSort" data-sort="leave_2">
+                                    <svg :class="{'text-gray-400': data.sort === 'leave_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                      </svg>
+                                      <svg :class="{'text-gray-400': data.sort === '-leave_2'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                      </svg>                                      
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                状態
+                                <button class="flex flex-col ml-2" @click="handleSort" data-sort="status">
+                                    <svg :class="{'text-gray-400': data.sort === 'status'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                      </svg>
+                                      <svg :class="{'text-gray-400': data.sort === '-status'}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="5" stroke="currentColor" class="size-[0.5rem]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                      </svg>                                      
+                                </button>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="attendance in computeAttendances" :key="attendance.id">
+                        <tr
+                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <th scope="row"
+                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            <button type="button" x-bind:data-modal-target="attendance.id" x-bind:data-modal-toggle="attendance.id"
+                            class="px-3 py-2 text-sm font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">詳細</button>
+                            <form x-bind:action="`${attendance.id}/`" method="post" @submit.prevent="handleSubmit" x-bind:id="attendance.id" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                {% csrf_token %}
+                                <div class="relative p-4 w-full max-w-2xl max-h-full">
+                                    <!-- Modal content -->
+                                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                        <!-- Modal header -->
+                                        <div class="flex items-center bg-blue-500 justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                                            <h3 class="text-xl  font-semibold text-white dark:text-white">
+                                                詳細
+                                            </h3>
+                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" x-bind:data-modal-hide="attendance.id">
+                                                <svg class="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                </svg>
+                                                <span class="sr-only">Close modal</span>
+                                            </button>
+                                        </div>
+                                        <!-- Modal body -->
+                                        <div class="p-4 md:p-5 space-y-4">
+                                            <div class="flex gap-3 justify-center items-center">
+                                                <label for="name" class="w-[12%]">名前</label>
+                                                <input x-bind:value="attendance.name" readonly type="text" class="bg-gray-50 border pointer-events-none  w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
+                                            </div>
+                                            <div class="flex gap-3 justify-center items-center">
+                                                <label for="date" class="w-[12%]">日々</label>
+                                                <input x-bind:value="attendance.date" readonly type="text" class="bg-gray-50 border pointer-events-none w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
+                                            </div>
+                                            <div class="flex gap-3 justify-center items-center">
+                                                <span class="w-[12%]">入退館-1</span>
+                                                <div class="w-2/3 flex justify-center items-start gap-5">
+                                                    <div class="flex-1">
+                                                        <input type="text" name="entry_1" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="入館" />
+                                                        <span data-form-error class="text-sm text-red-500"></span>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <input type="text" name="leave_1" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="退館" />
+                                                        <span data-form-error class="text-sm text-red-500"></span>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            <div class="flex gap-3 justify-center items-center">
+                                                <span class="w-[12%]">入退館-2</span>
+                                                <div class="w-2/3 flex justify-center items-start gap-5">
+                                                    <div class="flex-1">
+                                                        <input type="text" name="entry_2" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="入館" />
+                                                        <span data-form-error class="text-sm text-red-500"></span>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <input type="text" name="leave_2" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="退館" />
+                                                        <span data-form-error class="text-sm text-red-500"></span>
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                            <div class="flex gap-3 justify-center items-center">
+                                                <label for="memo" class="w-[12%]">メモ</label>
+                                                <textarea name="memo" rows="5" class="block p-2.5 w-2/3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
+                                            </div>
+                                        </div>
+                                      
+                                        <!-- Modal footer -->
+                                        <div class="flex justify-end items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                                            <button type="submit" class="text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">保存</button>
+                                            <button @click="handleCancel" x-bind:data-modal-hide="attendance.id" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                                                カネル</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </th>
+                        <td class="px-6 py-4" x-text="attendance.date">
+                        
+                        </td>
+                        <td class="px-6 py-4" x-text="attendance.participant.name">
+                        
+                        </td>
+                        <td class="px-6 py-4" x-text="attendance.entry_1">
+                            
+                        </td>
+                        <td class="px-6 py-4" x-text="attendance.leave_1">
+                            
+                        </td>
+                        <td class="px-6 py-4" x-text="attendance.entry_2">
+                            
+                        </td>
+                        <td class="px-6 py-4" x-text="attendance.leave_2">
+                            
+                        </td>
+                        <td class="px-6 py-4">
+                            <span x-show="attendance.status === 1"
+                            class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">完了</span>
+                            <span x-show="attendance.status !== 1"
+                            class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">完了</span>
+                        </td>
+                    </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+        <div class="flex justify-between items-center mt-3">
+            <div>
+                <span x-text="totalPage"></span>
+            </div>
+            <div>
+                <div class="flex">
+                    <!-- Previous Button -->
+                    <button @click="pageNumber--" x-bind:class="{'pointer-events-none': pageNumber === 0}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                      Previous
+                    </button>
+                  
+                    <!-- Next Button -->
+                    <button @click="pageNumber++" x-bind:class="{'pointer-events-none': pageNumber >= totalPage - 1}" class="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                      Next
+                    </button>
+                </div>
+            </div>       
+        </div>
+    </div>
+</div>
+
+{% block script %}
+        <script>
+            document.addEventListener('alpine:init', ()=> {
+                Alpine.data("data",  ()=>({
+                    search : '',
+                    attendances:[],
+                    data: {
+                        sort: '{{request.GET.sort}}'
+                    },
+                    limit: Number('{{request.GET.limit}}') || 2,
+                    pageNumber: Number('{{request.GET.page}}'),
+                    total : 0,
+                    handleSort(){
+                        const el = this.$el
+                        const sort = el.dataset.sort 
+                        if(sort === this.data.sort) {
+                            this.data.sort = `-${sort}`
+                        } else {
+                            this.data.sort = sort
+                        }
+                    },
+                    init(){
+                        const alpineData = this
+                        const button = {
+                        content: 'Select 2021-07-26',
+                        className: 'custom-button-classname',
+                        onClick: (dp) => {
+                            let date = new Date();
+                            dp.selectDate(date);
+                            dp.setViewDate(date);
+                            }
+                        }
+                        new AirDatepicker('#date-range', {
+                            locale: localeJa,
+                            buttons: [button, "clear"],
+                            range: true,
+                            onSelect: function (picker) {
+                                alpineData.updateUrl({ name: "date", value: picker.formattedDate.join(",") })
+                            }
+                });
+                        this.fetchData()
+                    },
+                    get computeAttendances(){
+                        const start =  this.pageNumber * this.limit
+                        const end  =  start + this.limit
+                        const search = this.search?.toLowerCase()
+                        if(search === '') {
+                            this.total = this.attendances.length
+                            return this.attendances.slice(start,end)
+                        }
+                        const attendances = this.attendances.filter((att)=> {
+                
+                            const con = att.participant.name.toLowerCase().includes(search) ||
+                                att.date.toLowerCase().includes(search) ||
+                                att.entry_1.toLowerCase().includes(search) ||
+                                att.leave_1.toLowerCase().includes(search) ||
+                                att.entry_2.toLowerCase().includes(search) ||
+                                att.leave_2.toLowerCase().includes(search)
+                            return con
+                        })
+
+                        this.total = attendances.length
+                        return attendances.slice(start,end)
+                    },
+                    handleChange() {
+                        const el = this.$el
+                        const name = el.getAttribute("name")
+                        const value = el.value
+                        this.updateUrl({ name, value })
+                    },
+                    updateUrl({name, value}){
+                        const url = new URL(window.location.href)
+                        url.searchParams.set(name, value)
+                        const newUrl = url.toString()
+                        window.history.pushState({ path: newUrl }, '', newUrl)
+                    },
+                    get totalPage(){
+                        return Math.ceil(this.total/this.limit)
+                    },
+                    async fetchData(){
+                        try {
+                            const res = await fetch("", {
+                                headers:{
+                                    "Accept": "application/json"
+                                }
+                            })
+
+                            if(!res.ok) {
+                                throw Error("Data fetching Fail")
+                            }
+
+                            const data = await res.json()
+                            
+                            this.attendances = data.attendances
+                            this.total = this.attendances.length
+                
+                        } catch(error){
+
+                        }
+                    }
+                }))
+            })
+        </script>
+{% endblock script %}
+
+{% endblock content %}

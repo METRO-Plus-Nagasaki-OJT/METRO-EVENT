@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from event.models import Event
 from django.utils import timezone
 from participant.models import Participant
+from django.db.models import Q
+from attendance.models import Attendance
 
 # Create your views here.
 def login_view(request):
@@ -13,7 +15,7 @@ def login_view(request):
         user = authenticate(request, username = username, password = password)
         if user is not None:
             login(request, user)
-            return JsonResponse({'success': True})
+            return JsonResponse({"success": True})
         else:
             return JsonResponse({'success': False, 'error': "Invalid credentials"})        
     return render(request, 'p_hub_admin/login.html')
@@ -34,13 +36,39 @@ def monitoring(request):
 
 def participants_list(request, event_id):
     participants = Participant.objects.filter(event__id=event_id)
-    participants_data = [
-        {
+    
+    attendance_records = Attendance.objects.filter(
+        participant__in=participants, 
+        date__gte=timezone.now().date()  
+    )
+
+    attendance_status = {record.participant_id: record for record in attendance_records}
+    
+    participants_data = []
+    for participant in participants:
+        attendance = attendance_status.get(participant.id)
+
+        if attendance:
+            if attendance.entry_1 and not attendance.leave_1:
+                status = 'entry'
+            elif attendance.leave_1 and attendance.entry_1:
+                status = 'leave'
+            elif attendance.leave_1 and attendance.entry_1 and attendance.entry_2 and not attendance.leave_2:
+                status = 'entry'
+            elif attendance.leave_1 and attendance.entry_1 and attendance.entry_2 and attendance.leave_2:
+                status = 'leave'
+            else:
+                status = 'none'
+        else:
+            status = 'none'
+        
+        participants_data.append({
             'name': participant.name,
-            'seat_no': participant.seat_no
-        }
-        for participant in participants
-    ]
+            'seat_no': participant.seat_no,
+            'status': status
+        })
+    
     return JsonResponse({'participants': participants_data})
+
 def menu(request):
     return render(request,"p_hub_admin/menu.html")

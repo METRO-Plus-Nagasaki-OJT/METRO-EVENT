@@ -340,7 +340,6 @@
                                             cropFaceCanvas.width = faceWidth
                                             cropFaceCanvas.height = faceHeight
                                             faceCtx.drawImage(video, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight)
-                                            console.log(cropFaceCanvas.toDataURL())
                                             this.loader = true
                                             this.recognizeFace(cropFaceCanvas.toDataURL())
                                           
@@ -503,7 +502,7 @@
                                         if (handFPS(currentTime)) {
                                             await hands.send({ image: video });
 
-                                            if (this.state === this.state().QR_DECETION) {
+                                            if (this.currentState === this.state().QR_DECETION) {
                                                 const imageData = context.getImageData(0, 0, width, height)
                                                 const qr = jsQR(imageData.data, imageData.width, imageData.height)
 
