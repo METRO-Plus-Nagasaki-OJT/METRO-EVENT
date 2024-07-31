@@ -188,11 +188,11 @@ Attendance
                                 <div class="p-4 md:p-5 space-y-4">
                                     <div class="flex gap-3 justify-center items-center">
                                         <label for="name" class="w-[12%]">名前</label>
-                                        <input  readonly type="text" class="bg-gray-50 border pointer-events-none  w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
+                                        <input x-bind:value="edit.participant.name"  readonly type="text" class="bg-gray-50 border pointer-events-none  w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
                                     </div>
                                     <div class="flex gap-3 justify-center items-center">
                                         <label for="date" class="w-[12%]">日々</label>
-                                        <input  readonly type="text" class="bg-gray-50 border pointer-events-none w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
+                                        <input x-bind:value="edit.date"  readonly type="text" class="bg-gray-50 border pointer-events-none w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
                                     </div>
                                     <div class="flex gap-3 justify-center items-center">
                                         <span class="w-[12%]">入退館-1</span>
@@ -229,7 +229,7 @@ Attendance
                                 <!-- Modal footer -->
                                 <div class="flex justify-end items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                                     <button type="submit" class="text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">保存</button>
-                                    <button @click="handleCancel" data-modal-hide="update-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                                    <button data-modal-hide="update-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
                                         カネル</button>
                                 </div>
                             </div>
@@ -240,7 +240,7 @@ Attendance
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                         <th scope="row"
                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            <button type="button" @click="$refs.modalButton.click()"
+                            <button type="button" @click="showModal(attendance.id)"
                             class="px-3 py-2 text-sm font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">詳細</button>
                         </th>
                         <td class="px-6 py-4" x-text="attendance.date">
@@ -302,6 +302,7 @@ Attendance
         <script>
             document.addEventListener('alpine:init', ()=> {
                 Alpine.data("data",  ()=>({
+                    edit: {},
                     search : '',
                     attendances:[],
                     sort: '',
@@ -417,6 +418,11 @@ Attendance
                         } catch(error){
 
                         }
+                    },
+                    showModal(id){
+                        const attendance = this.attendances.find(att => att.id === id)
+                        this.edit = attendance
+                        this.$refs.modalButton.click()
                     }
                 }))
             })
