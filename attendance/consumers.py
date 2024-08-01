@@ -90,7 +90,7 @@ def add_attendance(in_status, participant_id):
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = f"chat_{self.room_name}"
+        self.room_group_name = f"monitor"
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name, self.channel_name
@@ -134,6 +134,9 @@ class ImageConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"success": success_message, "qr_code": is_qr}))
 
     def broadcast_attendance_update(self, participant_id, status, event_id):
+        if not isinstance(status, str):
+            status = str(status)
+            
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
@@ -145,9 +148,11 @@ class ImageConsumer(WebsocketConsumer):
         )
 
     def attendance_update(self, event):
+        print('Sending attendance update:', event)
         self.send(text_data=json.dumps({
             "participant_id": event["participant_id"],
             "status": event["status"],
             "event_id": event["event_id"],
         }))
+
 

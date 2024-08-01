@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
-current_weekday = datetime.weekday(tomorrow)
+current_weekday = datetime.weekday(today)
 
 def get_event_ids():
     now = timezone.localtime(timezone.now())
