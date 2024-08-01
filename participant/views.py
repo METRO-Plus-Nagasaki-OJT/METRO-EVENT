@@ -1,22 +1,19 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Participant
-from attendance.management.commands.create_schedule_attendance import row_check
-from event.models import Event
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import base64
-import binascii
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .qr_creator import create_qr, send_qr
-from attendance.face_capture import capture_face, get_encode, load_pickle, save_embeddings
-from attendance.unknown_training import train_unknown_classifier
+from .models import Participant
+from event.models import Event
+import base64
+import json
+import binascii
 import numpy as np
 import cv2
-import pickle as pkl
-from django.shortcuts import HttpResponse
-from event.models import Event
-import json
+from .qr_creator import create_qr, send_qr
+from attendance.face_capture import capture_face, get_encode
+from attendance.unknown_training import train_unknown_classifier
 from django.core.cache import cache
+from attendance.management.commands.create_schedule_attendance import row_check
 
 @csrf_exempt
 def participant(request):
@@ -59,34 +56,30 @@ def participant(request):
             event=event,
             profile=profile
         )
+        
         if embeddable:
-            image_np = np.fromstring(base64.b64decode(img), dtype=np.uint8)
+            image_np = np.frombuffer(base64.b64decode(img), dtype=np.uint8)
             np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
             face, detection_status = capture_face(np_img)
-            if detection_status == True:
+            if detection_status:
                 encoding = get_encode(face)
                 participant.facial_feature = json.dumps(encoding)
                 participant.face = True
+        
         participant.save()
         row_check(participant.id)
-        #train_unknown_classifier()
+        train_unknown_classifier()
         create_qr(participant.id)
-        send_qr(email, "登録確認とバックアップQRコード", 
-                f"""{participant.name}様,
-
-{participant.event.name}にご登録いただきありがとうございます。皆様のご参加を楽しみにしております。
-                
-スムーズなチェックインを確保するために、顔認識システムを使用しています。しかし、万が一のために、バックアップ用のQRコードをご用意いたしました。
-                
-このメールを保管し、イベント当日にお持ちください。顔認識システムに問題が発生した場合、このQRコードをスタッフに提示して迅速に確認を受けてください。
-""",
-                 True, 'common/QR.png')
+        send_qr(email, "", "", True, 'common/QR.png')
         cache.delete(f"{event_id}")
+        
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
         search_term = request.GET.get('search', '') 
-        participants = Participant.objects.all().order_by('-created_at')
+        event_id = request.GET.get('event')
+        participants = Participant.objects.filter(event_id=event_id).order_by('-created_at')
+
         if search_term:
             participants = participants.filter(
                 name__icontains=search_term
@@ -95,6 +88,7 @@ def participant(request):
             ) | participants.filter(
                 email__icontains=search_term
             )
+
         events = Event.objects.all()
 
         # Adding event status to each participant
@@ -105,6 +99,7 @@ def participant(request):
         per_page = int(request.GET.get('per_page', 10))
         paginator = Paginator(participants, per_page)
         page_number = request.GET.get('page', 1)
+
         try:
             page = paginator.get_page(page_number)
         except PageNotAnInteger:
@@ -116,31 +111,10 @@ def participant(request):
             'page': page,
             'events': events,
             'per_page': per_page,
-            'search_term': search_term
+            'search_term': search_term,
+            'selected_event': event_id
         })
 
-def participants_view(request):
-    per_page = request.GET.get('per_page', 10)
-    search_term = request.GET.get('search', '')
-
-    participants = Participant.objects.all()
-    if search_term:
-        participants = participants.filter(
-            name__icontains=search_term
-        ) | participants.filter(
-            seat_no__icontains=search_term
-        ) | participants.filter(
-            email__icontains=search_term
-        )
-
-    paginator = Paginator(participants, per_page)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return render(request, 'participants_table_body.html', {'page': page_obj})
-    
-    return render(request, 'participants.html', {'page': page_obj, 'per_page': per_page, 'search_term': search_term})
 
 @csrf_exempt
 def get_participant_data(request, participant_id):
@@ -171,8 +145,8 @@ def get_participant_data(request, participant_id):
         }
         return JsonResponse(data)
 
+@csrf_exempt
 def delete_participant(request, participant_id):
-    print(request.method)
     if request.method == 'DELETE':
         participant = get_object_or_404(Participant, pk=participant_id)
         participant.delete()
@@ -236,14 +210,17 @@ def update_participant(request, participant_id):
 def send_update_notification(email):
     send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
 
+def get_participants(request, event_id):
+    participants = Participant.objects.filter(event_id=event_id).values('id', 'name', 'seat_no', 'dob', 'phone_1', 'face')
+    participants_list = list(participants)
+    return JsonResponse({'participants': participants_list})
+
 def participants_view(request):
     per_page = int(request.GET.get('per_page', 10))
     search_term = request.GET.get('search', '')
-    selected_event = request.GET.get('event', None)
+    selected_event = request.GET.get('event')
 
-    print(f"Selected Event ID: {selected_event}")
-
-    # Filter participants by search term
+    # Filter participants by search term and event
     participants = Participant.objects.all()
     if search_term:
         participants = participants.filter(
@@ -254,7 +231,6 @@ def participants_view(request):
             email__icontains=search_term
         )
 
-    # Filter participants by selected event
     if selected_event:
         participants = participants.filter(event_id=selected_event)
 
@@ -280,5 +256,4 @@ def participants_view(request):
         'events': events,
         'selected_event': selected_event
     })
-
 
