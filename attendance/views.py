@@ -113,14 +113,15 @@ def index_v2(request):
         filters = Q()
         limit = 10
 
-        if request.GET.get("page"):
-            page = request.GET.get("page")
         if request.GET.get("limit"):
             limit = request.GET.get("limit")
         if request.GET.get("event"):
             filters &= Q(participant__event=request.GET.get("event"))
         if request.GET.get("name"):
-            filters &= Q(participant__name__icontains=request.GET.get("name"))
+            for value in  request.GET.get("name").split(","):
+                value = value.strip()
+                if value:
+                     filters |= Q(participant__name__icontains=value)
         if request.GET.get("date"):
             date_range = []
             for k, value in enumerate(request.GET.get("date").split(",")):
