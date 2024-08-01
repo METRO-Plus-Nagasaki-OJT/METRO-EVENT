@@ -5,6 +5,10 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.core.management.base import BaseCommand
 
+today = datetime.now().date()
+tomorrow = today + timedelta(days=1)
+current_weekday = datetime.weekday(tomorrow)
+
 def get_event_ids():
     now = timezone.localtime(timezone.now())
     ongoing_events = Event.objects.filter(end_time__gt=now)
@@ -19,28 +23,26 @@ def adding_attendance(next_day):
             Attendance.objects.create(participant_id=participant_id, date=next_day)
 
 def attendance_scheduling():
-    today = datetime.now().date()
-    tomorrow = today + timedelta(days=1)
-    current_weekday = datetime.weekday(tomorrow)
-    if current_weekday != 5 or current_weekday != 6:
-        if current_weekday == 4:
-            next_monday = today + timedelta(days=3)
-            adding_attendance(next_monday)
-        else:
-            adding_attendance(today)
-        print("finished creating")
+    attendance_for_today = Attendance.objects.filter(date=today).count()
+    if attendance_for_today == 0:
+        if current_weekday != 5 or current_weekday != 6:
+            if current_weekday == 4:
+                next_monday = today + timedelta(days=3)
+                adding_attendance(next_monday)
+            else:
+                adding_attendance(today)
+            print("finished creating")
+    else:
+        pass
 
 def row_check(participant_id):
-    today = datetime.now().date()
     try:
-        Attendance.objects.create(participant_id=participant_id, date=today)
+        if current_weekday != 5 or current_weekday != 6:
+            Attendance.objects.create(participant_id=participant_id, date=today)
     except Exception as e:
         pass
 
 class Command(BaseCommand):
     help = 'Run Attendance Schedule Automation Code'
     def handle(self, *args, **kwargs):
-        now = timezone.localtime(timezone.now())
-        if now.hour >= 12:
-            print('Running custom automation code')
-            attendance_scheduling()
+        attendance_scheduling()

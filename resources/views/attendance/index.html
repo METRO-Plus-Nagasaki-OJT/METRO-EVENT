@@ -7,6 +7,7 @@ Attendance
 出席
 {% endblock page_jp %}
 {% block content %}
+
 <div class="p-2">
     <form x-data="form" @submit.prevent="handleSubmit" autocomplete="off">
         <div class="grid grid-cols-5 gap-5">
@@ -38,14 +39,14 @@ Attendance
                         value="{{request.GET.name}}" @change="handleChange"
                         class="block p-2.5 rounded-lg w-full z-20 text-sm text-gray-900 bg-gray-50  border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" />
                     <button type="submit"
-                        class="absolute top-0 end-0 h-full px-5 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        class="absolute top-0 end-0 h-full px-5 py-2.5 text-sm font-medium text-white bg-blue-500 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">
                         検索
                     </button>
                 </div>
             </div>
         </div>
-        <div class="flex justify-between items-center">
-            <div class="flex items-center mt-5">
+        <div class="flex justify-between items-center mt-5">
+            <div class="flex flex-1 items-center text-sm">
                 <select id="pagination" name="limit" @change="handleChange"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option value="10">10</option>
@@ -54,10 +55,11 @@ Attendance
                     <option {% if request.GET.limit == '40' %} selected {% endif %} value="40">40</option>
                     <option {% if request.GET.limit == '50' %} selected {% endif %} value="50">50</option>
                 </select>
-                <label for="pagination" class="ml-3">ページを表示</label>
+                <label for="pagination" class="ml-3 font-bold">ページを表示</label>
             </div>
-            <div>
-
+            <div class="flex flex-1 items-center justify-end gap-2">
+                <label for="search" class="font-bold text-sm">検索</label>
+                <input type="text" id="search" name="search" class="bg-gray-50 border w-[30%] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
         </div>
     </form>
@@ -145,13 +147,13 @@ Attendance
                         <th scope="col" class="px-6 py-3">
                             <div class="flex items-center">
                                 状態
-                                <a href="#"><svg class="w-3 h-3 ms-1.5"
+                                <span @click="handleSort" data-sort="status" :class="{'text-green-500': data.sort === '-status', 'text-red-500': data.sort === 'status'}" ><svg class="w-3 h-3 ms-1.5"
                                         aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="currentColor" viewBox="0 0 24 24">
                                         <path
                                             d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                                    </svg></a>
+                                    </svg></span>
                             </div>
                         </th>
                     </tr>
@@ -162,9 +164,76 @@ Attendance
                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                         <th scope="row"
                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            <button type="button"
-                                class="px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">詳細</button>
-
+                            <button type="button" data-modal-target="{{attendance.id}}" data-modal-toggle="{{attendance.id}}"
+                                class="px-3 py-2 text-sm font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">詳細</button>
+                                <form action="{{attendance.id}}/" method="post" x-data="modal" @submit.prevent="handleSubmit" id="{{attendance.id}}" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                    {% csrf_token %}
+                                    <div class="relative p-4 w-full max-w-2xl max-h-full">
+                                        <!-- Modal content -->
+                                        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                            <!-- Modal header -->
+                                            <div class="flex items-center bg-blue-500 justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                                                <h3 class="text-xl  font-semibold text-white dark:text-white">
+                                                    詳細
+                                                </h3>
+                                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="{{attendance.id}}">
+                                                    <svg class="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                    </svg>
+                                                    <span class="sr-only">Close modal</span>
+                                                </button>
+                                            </div>
+                                            <!-- Modal body -->
+                                            <div class="p-4 md:p-5 space-y-4">
+                                                <div class="flex gap-3 justify-center items-center">
+                                                    <label for="name" class="w-[12%]">名前</label>
+                                                    <input value="{{attendance.participant.name}}" readonly type="text" class="bg-gray-50 border pointer-events-none  w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
+                                                </div>
+                                                <div class="flex gap-3 justify-center items-center">
+                                                    <label for="date" class="w-[12%]">日々</label>
+                                                    <input value="{{attendance.date}}" readonly type="text" class="bg-gray-50 border pointer-events-none w-2/3 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
+                                                </div>
+                                                <div class="flex gap-3 justify-center items-center">
+                                                    <span class="w-[12%]">入退館-1</span>
+                                                    <div class="w-2/3 flex justify-center items-start gap-5">
+                                                        <div class="flex-1">
+                                                            <input type="text" name="entry_1" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="入館" />
+                                                            <span data-form-error class="text-sm text-red-500"></span>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <input type="text" name="leave_1" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="退館" />
+                                                            <span data-form-error class="text-sm text-red-500"></span>
+                                                        </div>
+                                                    </div>
+                                                </div> 
+                                                <div class="flex gap-3 justify-center items-center">
+                                                    <span class="w-[12%]">入退館-2</span>
+                                                    <div class="w-2/3 flex justify-center items-start gap-5">
+                                                        <div class="flex-1">
+                                                            <input type="text" name="entry_2" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="入館" />
+                                                            <span data-form-error class="text-sm text-red-500"></span>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <input type="text" name="leave_2" class="bg-gray-50 border w-full border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="退館" />
+                                                            <span data-form-error class="text-sm text-red-500"></span>
+                                                        </div>
+                                                    </div>
+                                                </div> 
+                                                <div class="flex gap-3 justify-center items-center">
+                                                    <label for="memo" class="w-[12%]">メモ</label>
+                                                    <textarea name="memo" rows="5" class="block p-2.5 w-2/3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Write your thoughts here..."></textarea>
+                                                </div>
+                                            </div>
+                                          
+                                            <!-- Modal footer -->
+                                            <div class="flex justify-end items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                                                <button type="submit" class="text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">保存</button>
+                                                <button @click="handleCancel" data-modal-hide="{{attendance.id}}" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                                                    カネル</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
                         </th>
                         <td class="px-6 py-4">
                            {{attendance.date}}
@@ -175,26 +244,38 @@ Attendance
                         <td class="px-6 py-4">
                             {% if attendance.entry_1 %}
                             {{attendance.entry_1|date:"H:i:s"}}
+                            {% else %}
+                            N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if attendance.leave_1  %}
                             {{attendance.leave_1|date:"H:i:s"}}
+                            {% else %}
+                            N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if attendance.entry_2  %}
                             {{attendance.entry_2|date:"H:i:s"}}
+                            {% else %}
+                            N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
                             {% if attendance.leave_2  %}
                             {{attendance.leave_2|date:"H:i:s"}}
+                            {% else %}
+                                N/A
                             {% endif %}
                         </td>
                         <td class="px-6 py-4">
+                            {% if attendance.status == 1 %}
                             <span
-                                class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Green</span>
+                            class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">完了</span>
+                            {% else %}
+                            <span class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">未完了</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -211,20 +292,20 @@ Attendance
             <div>
                 <div class="inline-flex mt-2 xs:mt-0">
                     {% if attendances.has_previous %}
-                    <button onclick="handlePageChange(event)"  data-target="{{attendances.previous_page_number }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-800 rounded-s hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-700 dark:hover:text-white">
+                    <button onclick="handlePageChange(event)"  data-target="{{attendances.previous_page_number }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-800 rounded-s hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-500 dark:hover:text-white">
                         Prev
                     </button>
                     {% else %}
-                    <button  class="flex pointer-events-none items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-600 rounded-s hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-700 dark:hover:text-white">
+                    <button  class="flex pointer-events-none items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-600 rounded-s hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-500 dark:hover:text-white">
                         Prev
                     </button>
                     {% endif %}
                     {% if attendances.has_next %}
-                    <button onclick="handlePageChange(event)" data-target="{{attendances.next_page_number }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-800 border-0 border-s border-blue-700 rounded-e hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-700 dark:hover:text-white">
+                    <button onclick="handlePageChange(event)" data-target="{{attendances.next_page_number }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-800 border-0 border-s border-blue-700 rounded-e hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-500 dark:hover:text-white">
                         Next
                     </button>
                     {% else %}
-                    <button  class="flex pointer-events-none items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-600 border-0 border-s border-blue-700 rounded-e hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-700 dark:hover:text-white">
+                    <button  class="flex pointer-events-none items-center justify-center px-3 h-8 text-sm font-medium text-white bg-blue-600 border-0 border-s border-blue-700 rounded-e hover:bg-blue-900 dark:bg-blue-800 dark:border-blue-700 dark:text-gray-400 dark:hover:bg-blue-500 dark:hover:text-white">
                         Next
                     </button>
                     {% endif %}
@@ -237,6 +318,25 @@ Attendance
 {% endblock content %}
 
 {% block script %}
+{% if messages %}
+    {% for message in messages %}
+        {% if  message.tags == "success" %}
+            <script>
+                 Toastify({
+                                text: "出席状況を更新しました.",
+                                duration:  2000,
+                                gravity: "top",
+                                position: "center",
+                                style: {
+                                    background: "#06d6a0",
+                                    fontSize: '25px',
+                                    borderRadius: "5px"
+                                },
+                    }).showToast();
+            </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 <script>
 
     function handlePageChange(e){
@@ -302,6 +402,35 @@ Attendance
             },
             handleSubmit() {
                 window.location.reload()
+            }
+        }))
+
+        Alpine.data("modal", ()=>({
+            handleSubmit(){
+                const formElements = this.$el.elements
+                const entries = [formElements["entry_1"], formElements["entry_2"], formElements["leave_1"], formElements["leave_2"]]
+                let errors = false
+                entries.forEach(function(et){
+                    const value = et.value
+                    if(value) {
+                        const timePattern = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+                        if(!timePattern.test(value)){
+                            errors = true
+                            et.nextElementSibling.innerText = "無効な時刻形式"
+                        }
+                    }
+                }.bind(this))
+
+                if(!errors) {
+                    this.$el.submit()
+                }
+            },
+            handleCancel(){
+                const form = this.$el.closest("form")
+                form.reset()
+                Array.from(form.querySelectorAll("[data-form-error]")).forEach(el => {
+                    el.innerText = ""
+                })
             }
         }))
     })
