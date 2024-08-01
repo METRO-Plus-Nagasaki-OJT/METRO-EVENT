@@ -456,12 +456,12 @@ Attendance
 
                 if (search) {
                     attendances = attendances.filter((att) => {
-                        return att.participant.name.toLowerCase().includes(search) ||
-                            att.date.toLowerCase().includes(search) ||
-                            att.entry_1.toLowerCase().includes(search) ||
-                            att.leave_1.toLowerCase().includes(search) ||
-                            att.entry_2.toLowerCase().includes(search) ||
-                            att.leave_2.toLowerCase().includes(search)
+                        return att.participant.name?.toLowerCase().includes(search) ||
+                            att.date?.toLowerCase().includes(search) ||
+                            att.entry_1?.toLowerCase().includes(search) ||
+                            att.leave_1?.toLowerCase().includes(search) ||
+                            att.entry_2?.toLowerCase().includes(search) ||
+                            att.leave_2?.toLowerCase().includes(search)
                     })
                 }
 
