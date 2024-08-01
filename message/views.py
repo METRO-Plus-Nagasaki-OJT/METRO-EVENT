@@ -12,6 +12,7 @@ def message_view(request):
         content = request.POST.get('content')
         startDate = request.POST.get('startDate')
         endDate = request.POST.get('endDate')
+        createdDate = request.POST.get('createdDate')
         # message_type = request.POST.get('type', None)
 
         try:
@@ -21,6 +22,7 @@ def message_view(request):
                 content = content,
                 startDate = startDate,
                 endDate = endDate,
+                createdDate = createdDate,
                 # type = message_type
 
             )
@@ -69,6 +71,7 @@ def get_message_details(request, message_id):
             "content": message.content,
             "startDate": message.startDate,
             "endDate": message.endDate,
+            "createdDate": message.createdDate,
             #"type": message.type,
             #"createdDate": event.created_at.isoformat(),
             #"finishedDate": event.updated_at.isoformat()

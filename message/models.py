@@ -7,6 +7,7 @@ class Message(models.Model):
     content = models.CharField(max_length = 255)
     startDate = models.DateTimeField(blank=True, null=True)
     endDate = models.DateTimeField(blank=True, null=True)
+    createdDate = models.DateTimeField(blank=True, null=True)
     # type = models.CharField(max_length = 255, blank=True, null=True)
 
     def __str__(self):

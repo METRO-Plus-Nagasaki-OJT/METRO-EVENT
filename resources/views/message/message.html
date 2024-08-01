@@ -39,9 +39,24 @@
                             <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
                             <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
                         </div>
-                        <div>
+                        <div x-data = "suggestions">
                             <label for="sender" class="block text-sm font-medium text-gray-700"> Sender </label>
-                            <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                            <div class = "relative">
+                                <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="senderInput" 
+                                    x-on:input="fetchSuggestions" 
+                                    autocomplete="off"
+                                    x-clover-verify>
+                                <!-- Suggestions container -->
+                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions">
+                                        <div x-text="suggestion.name" 
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                             <div x-text="errors.sender" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
@@ -73,6 +88,7 @@
                             {% endfor %} {% endcomment %}
                             </select>                        
                         </div>
+                        <input type="hidden" name="createdDate" :value="createdDate">
                     </div>
                 </div>
 
@@ -329,8 +345,8 @@
                         document.getElementById('detailstartDate').value = detail.startDate ? new Date(detail.startDate).toISOString().slice(0, 16) : '';
                         document.getElementById('detailendDate').value = detail.endDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
                         document.getElementById('detailtype').value = detail.type || '';
-                        //document.getElementById('detailcreatedDate').value = detail.createdDate || '';
-                        //document.getElementById('detailfinishedDate').value = detail.finishedDate || '';
+                        document.getElementById('detailcreatedDate').value = detail.createdDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
+                        document.getElementById('detailfinishedDate').value = detail.endDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
                     
                         detailBox.classList.remove('hidden');
                     })
@@ -349,17 +365,40 @@
 
     // Create and Edit 
     document.addEventListener('alpine:init', () => {
+        // Suggestions
+        //Alpine.data('suggestions', () => {
+        //    senderInput: '',
+        //    suggestions: [],
+
+        //    async fetchSuggestions() {
+        //        if (this.senderInput.length < 2) {
+        //            this.suggestions = [];
+        //            return;
+        //        }
+                
+        //        const eventId = document.querySelector('#event')?.value;
+        //        if (!eventId) return;
+
+        //        try {
+        //            const respose = await fetch(``)
+        //        }
+        //    }
+        //})
+
         // Create
         Alpine.data('newMessageBox', () => ({
             rule: {
                 "subject" : [Clover.rule.required("Please input subject.")],
                 "sender" : [Clover.rule.required("Please input sender.")],
-                "content" : [Clover.rule.required()],
                 "startDate" : [Clover.rule.required("Please choose startDate")],
                 "endDate" : [Clover.rule.required("Please choose endDate")],
                 //"type" : [Clover.rule.required()],
             },
             errors: {},
+            createdDate: '',
+            init() {
+                this.createdDate = new Date().toISOString().slice(0, 16); 
+            },
             async submitForm(){
                 const form = this.$el
                 const data = new FormData(form)
@@ -394,15 +433,14 @@
         Alpine.data('DetailBox', () => ({
             rule: {
                 "detailsubject" : [Clover.rule.required("Please input subject.")],
-                "detailcontent" : [Clover.rule.required()],
                 "detailstartDate" : [Clover.rule.required("Please choose startDate")],
                 "detailendDate" : [Clover.rule.required("Please choose endDate")],
                 //"detailtype" : [Clover.rule.required()],
             },
             errors: {},
             async submit(){
-                const form = this.$el
-                const data = new FormData(form)
+                const form = this.$el;
+                const data = new FormData(form);
                 const messageId = form.elements["messageId"].value;
                 if (!messageId) {
                     console.error('Message ID attribute is missing or invalid.');
@@ -423,11 +461,16 @@
 
                 console.log(res)
 
-                if (detailBox) {
-                    console.log(detailBox)
-                    detailBox.classList.add('hidden');
-                }        
-                
+                if (Object.keys(this.errors).length === 0) {
+                    // Hide the detailBox only if there are no validation errors
+                    if (detailBox) {
+                        detailBox.classList.add('hidden');
+                    }
+                } else {
+                    // Optionally: Log or handle the situation where there are validation errors
+                    console.log('Validation errors present. DetailBox remains visible.');
+                }
+
                 }catch(error) {
                     console.log(error);
                 }
