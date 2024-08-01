@@ -10,7 +10,7 @@ class Participant(models.Model):
     seat_no = models.CharField(max_length=50)
     dob = models.DateField()
     gender = models.CharField(max_length=10)
-    facial_feature = models.TextField(default=None, null=True)
+    facial_feature = models.TextField(default=None, null=True, blank=True)
     face = models.BooleanField(default=False)
     role = models.CharField(max_length=50)
     phone_1 = models.CharField(max_length=20)
