@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Case, When, IntegerField
 from django.http import JsonResponse
+import json
 
 # Create your views here.
 
@@ -108,7 +109,7 @@ def index_v2(request):
     if request.method == "GET":
         events = Event.objects.all()
         if request.headers["Accept"] != "application/json":
-            return render(request, "attendance/index_v2.html", {"events": events})
+            return render(request, "attendance/index_v2.html", {"events": events, "eventsJson" : json.dumps(list(events.values("id", "name")))})
 
         filters = Q()
         limit = 10
