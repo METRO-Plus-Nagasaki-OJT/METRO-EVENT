@@ -75,7 +75,7 @@ def index(request):
             "attendances": attendances_page,
             "paginator": paginator,
         }
-
+     
         return render(request, "attendance/index.html", context)
 
 
@@ -96,9 +96,11 @@ def update(request, id):
 
         if len(obj.keys()):
             Attendance.objects.filter(id=id).update(**obj)
-
+        if request.headers["Accept"] == "application/json" :
+           return JsonResponse({
+                "attendance": Attendance.objects.filter(id=id).values()[0] or None
+           })
         messages.success(request, "Attendance updated.")
-
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
@@ -136,6 +138,7 @@ def index_v2(request):
             first_day_of_the_current_month = timezone.now().replace(
                 day=1, hour=0, minute=0, second=0, microsecond=0
             )
+            print(first_day_of_the_current_month)
             filters &= Q(created_at__gte=first_day_of_the_current_month)
 
         attendances = (
@@ -147,7 +150,7 @@ def index_v2(request):
                 )
             )
             .filter(filters)
-            .prefetch_related("participant")[0 : int(limit)]
+            .prefetch_related("participant")
         )
 
         data = []

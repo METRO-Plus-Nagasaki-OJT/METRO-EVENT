@@ -23,13 +23,17 @@ def adding_attendance(next_day):
             Attendance.objects.create(participant_id=participant_id, date=next_day)
 
 def attendance_scheduling():
-    if current_weekday != 5 or current_weekday != 6:
-        if current_weekday == 4:
-            next_monday = today + timedelta(days=3)
-            adding_attendance(next_monday)
-        else:
-            adding_attendance(tomorrow)
-        print("finished creating")
+    attendance_for_today = Attendance.objects.filter(date=today).count()
+    if attendance_for_today == 0:
+        if current_weekday != 5 or current_weekday != 6:
+            if current_weekday == 4:
+                next_monday = today + timedelta(days=3)
+                adding_attendance(next_monday)
+            else:
+                adding_attendance(today)
+            print("finished creating")
+    else:
+        pass
 
 def row_check(participant_id):
     try:
@@ -41,7 +45,4 @@ def row_check(participant_id):
 class Command(BaseCommand):
     help = 'Run Attendance Schedule Automation Code'
     def handle(self, *args, **kwargs):
-        now = timezone.localtime(timezone.now())
-        if now.hour >= 12:
-            print('Running custom automation code')
-            attendance_scheduling()
+        attendance_scheduling()
