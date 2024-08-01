@@ -340,7 +340,6 @@
                                             cropFaceCanvas.width = faceWidth
                                             cropFaceCanvas.height = faceHeight
                                             faceCtx.drawImage(video, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight)
-                                            this.loader = true
                                             this.recognizeFace(cropFaceCanvas.toDataURL())
                                           
                                         }, 1000)
@@ -538,6 +537,7 @@
                     }
                 },
                 recognizeFace(base64) {
+                    this.loader = true
                     this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false, event_id: 3, in: this.in }))
 
                 },
