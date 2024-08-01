@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
-current_weekday = datetime.weekday(tomorrow)
+current_weekday = datetime.weekday(today)
 
 def get_event_ids():
     now = timezone.localtime(timezone.now())
@@ -23,14 +23,14 @@ def adding_attendance(next_day):
             Attendance.objects.create(participant_id=participant_id, date=next_day)
 
 def attendance_scheduling():
-    attendance_for_today = Attendance.objects.filter(date=today).count()
+    attendance_for_today = Attendance.objects.filter(date=tomorrow).count()
     if attendance_for_today == 0:
         if current_weekday != 5 or current_weekday != 6:
             if current_weekday == 4:
                 next_monday = today + timedelta(days=3)
                 adding_attendance(next_monday)
             else:
-                adding_attendance(today)
+                adding_attendance(tomorrow)
             print("finished creating")
     else:
         pass

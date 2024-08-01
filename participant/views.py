@@ -69,9 +69,18 @@ def participant(request):
                 participant.face = True
         participant.save()
         row_check(participant.id)
-        train_unknown_classifier()
+        #train_unknown_classifier()
         create_qr(participant.id)
-        send_qr(email, "", "", True, 'common/QR.png')
+        send_qr(email, "登録確認とバックアップQRコード", 
+                f"""{participant.name}様,
+
+{participant.event.name}にご登録いただきありがとうございます。皆様のご参加を楽しみにしております。
+                
+スムーズなチェックインを確保するために、顔認識システムを使用しています。しかし、万が一のために、バックアップ用のQRコードをご用意いたしました。
+                
+このメールを保管し、イベント当日にお持ちください。顔認識システムに問題が発生した場合、このQRコードをスタッフに提示して迅速に確認を受けてください。
+""",
+                 True, 'common/QR.png')
         cache.delete(f"{event_id}")
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
@@ -170,13 +179,6 @@ def delete_participant(request, participant_id):
         return JsonResponse({'message': 'Participant deleted successfully.'})
     else:
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
-
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import Participant
-from event.models import Event
-from .qr_creator import create_qr, send_qr
 
 @csrf_exempt
 def update_participant(request, participant_id):
