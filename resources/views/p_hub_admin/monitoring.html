@@ -71,7 +71,7 @@
             </button>
         </div>
         <div id="participantsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Participants will be inserted here by JavaScript -->
+
         </div>
     </div>
 </div>
@@ -116,7 +116,6 @@
 
                     document.getElementById('participantsContainer').classList.remove('hidden');
 
-                    // Connect to WebSocket
                     socket = new WebSocket(`ws://${window.location.host}/ws/attendance/monitor/`);
 
                     socket.onopen = function (event) {
@@ -136,7 +135,6 @@
                             const badge = participantDiv.querySelector('.badge');
                             badge.textContent = status !=="False" ? "entry" : "leave";
 
-                            // Update background color based on status
                             participantDiv.classList.remove('bg-green-200', 'bg-orange-200');
                             if (status !=="False") {
                                 participantDiv.classList.add('bg-green-200');
