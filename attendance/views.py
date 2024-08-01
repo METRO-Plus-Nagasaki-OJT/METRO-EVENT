@@ -75,7 +75,7 @@ def index(request):
             "attendances": attendances_page,
             "paginator": paginator,
         }
-
+     
         return render(request, "attendance/index.html", context)
 
 
@@ -96,9 +96,11 @@ def update(request, id):
 
         if len(obj.keys()):
             Attendance.objects.filter(id=id).update(**obj)
-
+        if request.headers["Accept"] == "application/json" :
+           return JsonResponse({
+                "attendance": Attendance.objects.filter(id=id).values()[0] or None
+           })
         messages.success(request, "Attendance updated.")
-
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
