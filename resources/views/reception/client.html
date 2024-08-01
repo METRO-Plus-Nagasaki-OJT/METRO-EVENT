@@ -323,14 +323,14 @@
                                 let height = boundingBox.height * 2 *  window.innerHeight
                                 let x = (boundingBox.xCenter - ((boundingBox.width * 1.7) / 2)) * window.innerWidth;
                                 let y = (boundingBox.yCenter - ((boundingBox.height * 2) / 2)) * window.innerHeight;
-
+                                facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                 if (Math.abs(x - prevX) < 15) {
                                     x = prevX
                                     y = prevY
                                     width = prevWidth
                                     height = prevHeight
+
                                     if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION && !this.messageStatus) {
-                                        facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                         timeout = setTimeout(() => {
                                             timeout = null
                                             const faceWidth = boundingBox.width * video.videoWidth
@@ -517,7 +517,7 @@
                                             }
                                         }
 
-                                        if (faceFPS(currentTime) && !this.qrLoader) {
+                                        if (faceFPS(currentTime)) {
 
                                             await faceDetection.send({ image: video });
                                         }
