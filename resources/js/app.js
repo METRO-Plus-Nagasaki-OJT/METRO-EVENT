@@ -74,6 +74,18 @@ const Clover = {
                 return { value: false };
             };
         },
+        onlyWordCharacter: function (message) {
+            return function (field, val) {
+                var regex = /^\w+$/;
+                if (!val.match(regex)) {
+                    return {
+                        rule: 'onlyWordCharacter',
+                        value: message || `The ${field} must be special charactes !#=`,
+                    };
+                }
+                return { value: false };
+            };
+        },
         min({ target, amount }, message) {
             return function (field, value) {
                 if (target === 'string') {
