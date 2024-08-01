@@ -393,7 +393,7 @@ Attendance
             },
             get showResult() {
                 const from = this.pageNumber * this.limit + 1
-                const to = 1 * this.pageNumber + this.limit
+                const to = from + this.limit
                 return `showing ${from} to ${to >= this.total ? this.total : to} of ${this.total} result`
             },
             parseJapaneseDate(japaneseDate) {
