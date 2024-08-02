@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from email.mime.image import MIMEImage
+from email.utils import formataddr
 import os
 
 def create_qr(id):
