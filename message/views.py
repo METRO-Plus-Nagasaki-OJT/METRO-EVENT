@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Message
 from django.http import JsonResponse
 from event.models import Event
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
 # Create your views here.
@@ -35,6 +36,15 @@ def message_view(request):
     elif request.method == "GET":
         messages = Message.objects.all().order_by('-id')
         events = Event.objects.all()
+        now = timezone.now()
+        for message in messages:
+            if message.startDate and message.endDate:
+                if now < message.startDate:
+                    message.status_display = 'Upcoming'
+                elif message.startDate <= now <= message.endDate:
+                    message.status_display = 'Current'
+                else:
+                    message.status_display = 'End'
 
     return render(request, 'message/message.html', context = {'messages': messages, 'events': events})
 
