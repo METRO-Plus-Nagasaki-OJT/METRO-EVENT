@@ -1,4 +1,5 @@
 from django.db import models
+from event.models import Event
 
 # Create your models here.
 class Message(models.Model):
@@ -8,6 +9,7 @@ class Message(models.Model):
     startDate = models.DateTimeField(blank=True, null=True)
     endDate = models.DateTimeField(blank=True, null=True)
     createdDate = models.DateTimeField(blank=True, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     # type = models.CharField(max_length = 255, blank=True, null=True)
 
     def __str__(self):

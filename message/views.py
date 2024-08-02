@@ -14,9 +14,13 @@ def message_view(request):
         startDate = request.POST.get('startDate')
         endDate = request.POST.get('endDate')
         createdDate = request.POST.get('createdDate')
+        event_id = request.POST.get('event')
         # message_type = request.POST.get('type', None)
 
+        print(f"Received data: subject={subject}, sender={sender}, content={content}, startDate={startDate}, endDate={endDate}, createdDate={createdDate}, event_id={event_id}")
+        
         try:
+            event = get_object_or_404(Event, id=event_id)
             message = Message(
                 subject = subject,
                 sender = sender,
@@ -24,6 +28,7 @@ def message_view(request):
                 startDate = startDate,
                 endDate = endDate,
                 createdDate = createdDate,
+                event = event,
                 # type = message_type
 
             )
