@@ -139,7 +139,6 @@ def index_v2(request):
             first_day_of_the_current_month = timezone.now().replace(
                 day=1, hour=0, minute=0, second=0, microsecond=0
             )
-            print(first_day_of_the_current_month)
             filters &= Q(created_at__gte=first_day_of_the_current_month)
 
         attendances = (

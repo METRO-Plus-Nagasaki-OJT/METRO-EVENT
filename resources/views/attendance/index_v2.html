@@ -392,9 +392,9 @@ Attendance
                 }
             },
             get showResult() {
-                const from = 1 * this.pageNumber + 1
-                const to = 1 * this.pageNumber + this.limit
-                return `showing ${from} to ${to > this.total ? this.total : to} of ${this.total} result`
+                const from = this.pageNumber * this.limit + 1
+                const to = from + this.limit
+                return `showing ${from} to ${to >= this.total ? this.total : to} of ${this.total} result`
             },
             parseJapaneseDate(japaneseDate) {
                 const [year, month, day] = japaneseDate.replace(/[年月日]/g, '/').split('/');
@@ -510,8 +510,8 @@ Attendance
                         borderRadius: "5px"
                     },
                 })
-                fetcherToast.showToast()
                 if (!this.fetcher) {
+                    fetcherToast.showToast()
                     this.fetcher = true
                     window.history.pushState({ path: this.newUrl }, '', this.newUrl)
                     setTimeout(() => {
