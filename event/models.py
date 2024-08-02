@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from datetime import datetime
+from django.utils.timezone import localtime
 # Create your models here.
 
 class Event(models.Model):
@@ -12,3 +13,6 @@ class Event(models.Model):
     memo = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def toLocaleString(self, key):
+        return datetime.fromisoformat(localtime(key).isoformat()).strftime('%Y/%m/%d %H:%M')
