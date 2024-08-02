@@ -8,6 +8,9 @@ from email import encoders
 from email.mime.image import MIMEImage
 from email.utils import formataddr
 import os
+from cryptography.fernet import Fernet
+
+cipher_suite = Fernet(os.getenv("P_HUB_EK"))
 
 def create_qr(id):
     logo_path = "common/present_hub_logo.png"
@@ -19,7 +22,8 @@ def create_qr(id):
     QRcode = qrcode.QRCode(version=6,
         error_correction=qrcode.constants.ERROR_CORRECT_H
     )
-    QRcode.add_data(id)
+    encrypted_data = cipher_suite.encrypt(str(id).encode())
+    QRcode.add_data(encrypted_data)
     QRcode.make()
     QRimg = QRcode.make_image(
     fill_color=(63,131,248), back_color="white").convert('RGB')
