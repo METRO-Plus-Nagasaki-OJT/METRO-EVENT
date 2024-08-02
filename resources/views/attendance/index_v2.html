@@ -510,8 +510,8 @@ Attendance
                         borderRadius: "5px"
                     },
                 })
-                fetcherToast.showToast()
                 if (!this.fetcher) {
+                    fetcherToast.showToast()
                     this.fetcher = true
                     window.history.pushState({ path: this.newUrl }, '', this.newUrl)
                     setTimeout(() => {
