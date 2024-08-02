@@ -9,6 +9,62 @@ Attendance
 {% block content %}
 
 <div class="p-2" x-data="data">
+    <div id="event-modal" tabindex="-1" aria-hidden="true" 
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700" @click.outside="event = ''">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        イベントリスト
+                    </h3>
+                    <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-hide="event-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class=" bg-white p-5">
+                    <div class="relative w-full">
+                        <div class="absolute   inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-4 h-4 text-gray-500 dark:text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                            </svg>
+                        </div>
+                        <input autocomplete="off" x-model="event" type="search" name="event-search"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="イベント名を検索する..." />
+                    </div>
+                    <div class="border mt-3 rounded-lg">
+                        <ul class="h-[200px] overflow-y-scroll">
+                            <li @click="handleEventSelect" data-id=""
+                                class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full">All</li>
+                            <template x-for="event in computeEvent" :key="event.id">
+                                <li @click="handleEventSelect" x-bind:data-id="event.id"
+                                    class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full"
+                                    x-text="event.name"></li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Modal footer -->
+                <div
+                    class="flex items-center justify-end p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                    <button x-ref="hideEventSearch" data-modal-hide="event-modal" type="button"
+                        class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">キャンセル</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <form x-bind:action="edit.id" method="post" @submit.prevent="handleUpdate">
         {% csrf_token %}
         <button type="button" x-ref="modalButton" hidden data-modal-target="update-modal"
@@ -105,28 +161,39 @@ Attendance
     </form>
     <div>
         <div class="grid grid-cols-6 gap-5">
-            <div class="col-span-2" @click.outside="hideEventSearch">
+            <div class="col-span-2">
                 <label for="event" class="font-bold text-sm">日々</label>
-                <input placeholder="イベントを選択してください" @click="eventSearch = true" x-ref="eventSearch" type="text" name="event"  readonly 
+                <input placeholder="イベントを選択してください" data-modal-toggle="event-modal" data-modal-target="event-modal"
+                    x-ref="eventSearch" type="text" name="event" readonly value="All"
                     class="bg-gray-50 border border-gray-300 text-gray-900  cursor-pointer text-sm rounded-lg focus:ring-0  focus:shadow-none focus:outline-none focus:border-gray-300 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                <div class="relative">
-                    <div x-show="eventSearch" x-cloak  x-transition:enter.duration.500ms
-                    x-transition:leave.duration.400ms class="absolute shadow-md bg-white border z-50  border-gray-300 rounded-lg top-[5px] left-0 right-0 p-5">
+                <!-- <div class="relative">
+                    <div x-show="eventSearch" x-cloak x-transition:enter.duration.500ms
+                        x-transition:leave.duration.400ms
+                        class="absolute shadow-md bg-white border z-50  border-gray-300 rounded-lg top-[5px] left-0 right-0 p-5">
                         <div class="relative w-full">
                             <div class="absolute   inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-500 dark:text-gray-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                  </svg>                                  
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor"
+                                    class="w-4 h-4 text-gray-500 dark:text-gray-400">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                </svg>
                             </div>
-                            <input autocomplete="off" x-model="event" type="text" name="event-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search branch name..."  />
+                            <input autocomplete="off" x-model="event" type="text" name="event-search"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Search branch name..." />
                         </div>
                         <ul class="h-[150px] overflow-y-scroll mt-3">
+                            <li @click="handleEventSelect" id=""
+                                class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full">All</li>
                             <template x-for="event in computeEvent" :key="event.id">
-                                <li @click="handleEventSelect" x-bind:id="event.id" class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full" x-text="event.name"></li>
+                                <li @click="handleEventSelect" x-bind:id="event.id"
+                                    class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full"
+                                    x-text="event.name"></li>
                             </template>
                         </ul>
                     </div>
-                </div>
+                </div> -->
                 <!-- <label for="event" class="font-bold text-sm">イベント</label>
                 <select id="event" name="event" @change="handleChange"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
@@ -172,7 +239,8 @@ Attendance
             </div>
             <div class="flex flex-1 items-center justify-end gap-2">
                 <label for="search" class="font-bold text-sm">検索</label>
-                <input type="text" @input.debounce.500ms="search = $el.value" id="search" name="search" placeholder="欲しいものを検索してください"
+                <input type="text" @input.debounce.500ms="search = $el.value" id="search" name="search"
+                    placeholder="欲しいものを検索してください"
                     class="bg-gray-50 border w-[30%] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
         </div>
@@ -392,9 +460,8 @@ Attendance
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data("data", () => ({
-            events: JSON.parse("{{eventsJson|safe|escapejs}}"),
+            events: JSON.parse("{{eventsJson|safe|escapejs}}" || "[]"),
             event: "",
-            eventSearch : false,
             newUrl: "",
             fetcher: false,
             updating: false,
@@ -443,7 +510,7 @@ Attendance
                 }
                 const selectDate = "{{request.GET.date}}"
                 const selectedDates = "{{request.GET.date}}".includes(",") ? selectDate.split(",").map(d => new Date(d)) :
-                    selectDate ? [new Date(selectDate)] : [new Date()]
+                    selectDate ? [new Date(selectDate)] : [new Date(this.firstDateOfCurrentMonth())]
 
 
                 new AirDatepicker('#date-range', {
@@ -472,11 +539,7 @@ Attendance
                 });
                 this.fetchData()
             },
-            hideEventSearch(){
-                this.eventSearch = false
-                this.event= ''
-            },
-            get computeEvent(){
+            get computeEvent() {
                 if (!this.event) return this.events
                 return this.events.filter(ev => ev.name.toLowerCase().includes(this.event.toLowerCase()))
             },
@@ -518,10 +581,10 @@ Attendance
                 const value = el.value
                 this.updateUrl({ name, value })
             },
-            handleEventSelect(){
+            handleEventSelect() {
                 this.$refs.eventSearch.value = this.$el.innerText;
-                this.eventSearch = false  
-                this.updateUrl({ name: "event", value: this.$el.id })
+                this.updateUrl({ name: "event", value: this.$el.dataset.id })
+                this.$refs.hideEventSearch.click()
             },
             updateUrl({ name, value }) {
                 const url = new URL(window.location.href)
@@ -594,6 +657,13 @@ Attendance
                 const attendance = this.attendances.find(att => att.id === id)
                 this.edit = attendance
                 this.$refs.modalButton.click()
+            },
+            firstDateOfCurrentMonth() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = '01';
+                return `${year}/${month}/${day}`
             },
             async handleUpdate() {
 
