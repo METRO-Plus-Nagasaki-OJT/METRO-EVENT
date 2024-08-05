@@ -14,7 +14,11 @@ from participant.models import Participant
 from attendance.models import Attendance
 import datetime
 from django.core.cache import cache
+from attendance.setting_env_variable import set_env_variable
+from cryptography.fernet import Fernet
+import os
 
+cipher_suite = Fernet(os.getenv("P_HUB_EK"))
 qr_reader = QReader()
 
 def get_participants(id):
@@ -126,11 +130,15 @@ class ImageConsumer(WebsocketConsumer):
                 add_attendance(in_out_status, pred_id)
                 self.broadcast_attendance_update(pred_id, in_out_status, event_id)
         else:
+            #set_env_variable("ENCRYPTION_KEY", "nDjgKXPfLCRuQ3fvYSg-rJ0kg-tUTPx_GJvHYgsr2Rg=", system=True)
             qr_code = read_qr(image)
-            if qr_code is not None and qr_code[0] in participant_id_qr:
-                success_message = True
-                add_attendance(in_out_status, int(qr_code[0]))
-                self.broadcast_attendance_update(int(qr_code[0]), in_out_status, event_id)
+            if qr_code is None:
+                success_message = False
+            else:
+                encrypted_id = cipher_suite.decrypt(qr_code[0].encode()).decode()       
+                if encrypted_id in participant_id_qr:
+                    success_message = True
+                    add_attendance(in_out_status, int(encrypted_id))
 
         self.send(text_data=json.dumps({"success": success_message, "qr_code": is_qr}))
 
