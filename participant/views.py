@@ -18,7 +18,6 @@ from attendance.management.commands.create_schedule_attendance import row_check
 @csrf_exempt
 def participant(request):
     if request.method == 'POST':
-        # Retrieve data from POST request
         name = request.POST.get('name')
         email = request.POST.get('email')
         seat_no = request.POST.get('seat_no')
@@ -78,8 +77,13 @@ def participant(request):
     elif request.method == 'GET':
         search_term = request.GET.get('search', '') 
         event_id = request.GET.get('event')
+        
+        # Set default event if not provided
+        if not event_id:
+            default_event = Event.objects.first()
+            event_id = default_event.id if default_event else None
+        
         participants = Participant.objects.filter(event_id=event_id).order_by('-created_at')
-
         if search_term:
             participants = participants.filter(
                 name__icontains=search_term
@@ -159,7 +163,6 @@ def update_participant(request, participant_id):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, id=participant_id)
         
-        # Retrieve data from POST request
         name = request.POST.get('editname')
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
@@ -196,7 +199,6 @@ def update_participant(request, participant_id):
         participant.event = event
         participant.profile = profile
 
-        # Save participant object
         participant.save()
 
         # Send email notification if email_status is true
@@ -227,8 +229,7 @@ def participants_view(request):
         participants = participants.filter(
             name__icontains=search_term
         )
-        print(search_term)
-        print(participants)
+
     if selected_event:
         participants = participants.filter(event_id=selected_event)
 

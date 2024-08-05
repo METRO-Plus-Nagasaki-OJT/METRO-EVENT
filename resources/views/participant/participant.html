@@ -37,7 +37,8 @@
         <select id="events" name="event"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
             {% for event in events %}
-            <option value="{{ event.id }}">{{ event.name }}</option>
+            <option value="{{ event.id }}" {% if event.id is selected_event %}selected{% endif %}>{{ event.name }}
+            </option>
             {% endfor %}
         </select>
     </div>
@@ -509,44 +510,7 @@
         const sessionPerPage = sessionStorage.getItem('per_page');
         const storedPerPage = localStorage.getItem('per_page');
 
-        //search function
-        // searchInput.addEventListener('input', function () {
-        //     const searchTerm = searchInput.value.toLowerCase();
-        //     const ptRows = document.querySelectorAll('#ptList tr');
-
-        //     ptRows.forEach(row => {
-        //         console.log('Row:', row);
-
-        //         const ptName = row.querySelector('.participant-name');
-        //         const ptID = row.querySelector('td:nth-child(4)');
-
-        //         if (ptName && ptID) {
-        //             const ptNameText = ptName.textContent.toLowerCase();
-        //             const ptIdText = ptID.textContent.toLowerCase();
-
-        //             console.log('ptNameText:', ptNameText);
-        //             console.log('ptIdText:', ptIdText);
-
-        //             if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
-        //                 row.style.display = '';
-        //             } else {
-        //                 row.style.display = 'none';
-        //             }
-        //         } else {
-        //             console.log('ptName or ptID not found in row.');
-        //         }
-        //     });
-        // });
-
-        searchInput.addEventListener('input', function () {
-            const searchTerm = searchInput.value.toLowerCase();
-            console.log('Msg : ', searchTerm)
-            updateTable(paginationSelect.value);
-        });
-
-
-
-        function updateTable(perPage = null, searchTerm = '', event = null) {
+        function updateTable(perPage = null, searchTerm = '', event = '') {
             const urlParams = new URLSearchParams(window.location.search);
 
             if (perPage) {
@@ -562,8 +526,6 @@
                 urlParams.set('event', event);
             }
 
-            console.log('Fetching data with params:', urlParams.toString()); // Debugging line
-
             fetch(`${window.location.pathname}?${urlParams.toString()}`, {
                 method: 'GET',
                 headers: {
@@ -572,7 +534,6 @@
             })
                 .then(response => response.text())
                 .then(data => {
-                    // console.log('Data fetched:', data); // Debugging line
                     const newTableBody = new DOMParser().parseFromString(data, 'text/html').querySelector('#ptList').innerHTML;
                     const newPaginationControls = new DOMParser().parseFromString(data, 'text/html').querySelector('.flex.justify-between.items-center.mt-4.px-5').innerHTML;
 
@@ -589,39 +550,29 @@
                 .catch(error => console.error('Error:', error));
         }
 
-        // Initial table update
-        updateTable(sessionPerPage);
-
-        if (isReload && sessionPerPage && paginationSelect) {
-            paginationSelect.value = sessionPerPage;
-        } else if (paginationSelect) {
-            paginationSelect.value = "{{ per_page }}"; // Ensure this is correctly rendered
-        }
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedEvent = eventSelect.value;
+            updateTable(paginationSelect.value, searchTerm, selectedEvent);
+        });
 
         if (paginationSelect) {
             paginationSelect.addEventListener('change', function () {
                 const perPage = paginationSelect.value;
                 sessionStorage.setItem('per_page', perPage);
-                updateTable(perPage);
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedEvent = eventSelect.value;
+                updateTable(perPage, searchTerm, selectedEvent);
             });
         }
 
         if (eventSelect) {
             eventSelect.addEventListener('change', function () {
                 const selectedEvent = eventSelect.value;
-                updateTable(null, null, selectedEvent);
-            });
-        }
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
                 const searchTerm = searchInput.value.toLowerCase();
-                console.log('Search term:', searchTerm); // Debugging line
-                updateTable(null, searchTerm);
+                updateTable(paginationSelect.value, searchTerm, selectedEvent);
             });
         }
-
-
 
         function attachListeners() {
             attachDetailsListeners();
@@ -632,8 +583,7 @@
             document.querySelectorAll('.open-edit-modal').forEach(button => {
                 button.addEventListener('click', function () {
                     const participantId = this.dataset.participantId;
-                    console.log(`Open modal for participant ID: ${participantId}`); // Debugging line
-                    // Implement modal logic here
+
                 });
             });
         }
@@ -645,8 +595,8 @@
                     e.preventDefault();
                     if (!prevPageButton.disabled) {
                         const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
-                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                        const event = eventSelect ? eventSelect.value : '';
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const event = eventSelect.value;
                         updateTablePage(currentPage - 1, searchTerm, event);
                     }
                 });
@@ -658,8 +608,8 @@
                     e.preventDefault();
                     if (!nextPageButton.disabled) {
                         const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
-                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                        const event = eventSelect ? eventSelect.value : '';
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const event = eventSelect.value;
                         updateTablePage(currentPage + 1, searchTerm, event);
                     }
                 });
@@ -678,8 +628,6 @@
                 urlParams.set('event', event);
             }
 
-            console.log('Fetching data with page:', page, 'and params:', urlParams.toString()); // Debugging line
-
             fetch(`${window.location.pathname}?${urlParams.toString()}`, {
                 method: 'GET',
                 headers: {
@@ -702,6 +650,14 @@
                     attachListeners();
                 })
                 .catch(error => console.error('Error:', error));
+        }
+
+        updateTable(sessionPerPage);
+
+        if (isReload && sessionPerPage && paginationSelect) {
+            paginationSelect.value = sessionPerPage;
+        } else if (paginationSelect) {
+            paginationSelect.value = "{{ per_page }}";
         }
 
         attachListeners();
@@ -1243,22 +1199,34 @@
         }))
 
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const dropdownButton = document.getElementById('dropdownDefaultButton');
-            const dropdownMenu = document.getElementById('dropdown');
+        $(document).ready(function () {
+            const eventsDropdown = $('#events');
+            const defaultEventId = '{{ selected_event }}';
 
+            if (defaultEventId) {
+                fetchParticipants(defaultEventId);
+            }
 
-
-
-            dropdownButton.addEventListener('click', function () {
-                dropdownMenu.classList.toggle('hidden');
+            eventsDropdown.change(function () {
+                const selectedEventId = $(this).val();
+                fetchParticipants(selectedEventId);
             });
 
-            window.addEventListener('click', function (event) {
-                if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                    dropdownMenu.classList.add('hidden');
-                }
-            });
+            function fetchParticipants(eventId) {
+                $.get(`/get-participants/${eventId}/`, function (data) {
+                    $('#participants-list').html(data);
+                    attachDetailsButtonClickHandler();
+                });
+            }
+
+            function attachDetailsButtonClickHandler() {
+                $('.details-button').click(function () {
+                    const participantId = $(this).data('id');
+                    console.log('Details button clicked for participant ID:', participantId);
+                });
+            }
+
+            attachDetailsButtonClickHandler();
 
             // Handle CSV download
             const downloadCSV = document.getElementById('downloadCSV');
