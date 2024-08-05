@@ -12,6 +12,27 @@
     font-style: normal;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #928d8d; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #7c7b7b; 
+}
+
 .dela-gothic-one-regular {
   font-family: "Dela Gothic One", sans-serif;
   font-weight: 400;

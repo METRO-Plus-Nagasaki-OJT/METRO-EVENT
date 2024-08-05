@@ -219,18 +219,16 @@ def participants_view(request):
     per_page = int(request.GET.get('per_page', 10))
     search_term = request.GET.get('search', '')
     selected_event = request.GET.get('event')
+    print(search_term)
 
     # Filter participants by search term and event
     participants = Participant.objects.all()
     if search_term:
         participants = participants.filter(
             name__icontains=search_term
-        ) | participants.filter(
-            seat_no__icontains=search_term
-        ) | participants.filter(
-            email__icontains=search_term
         )
-
+        print(search_term)
+        print(participants)
     if selected_event:
         participants = participants.filter(event_id=selected_event)
 
