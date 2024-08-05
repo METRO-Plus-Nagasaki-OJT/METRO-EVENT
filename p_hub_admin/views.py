@@ -6,8 +6,9 @@ from django.utils import timezone
 from participant.models import Participant
 from django.db.models import Q
 from attendance.models import Attendance
+from utils.decorators import authenticated_user_exempt
 
-# Create your views here.
+@authenticated_user_exempt
 def login_view(request):
     if request.method == "POST":
         username = request.POST['username']

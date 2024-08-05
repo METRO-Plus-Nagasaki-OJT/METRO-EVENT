@@ -9,9 +9,7 @@ from django.utils import timezone
 from django.db.models import Case, When, IntegerField
 from django.http import JsonResponse
 import json
-
 # Create your views here.
-
 
 def index(request):
     if request.method == "GET":
@@ -107,8 +105,8 @@ def update(request, id):
 
 def index_v2(request):
     if request.method == "GET":
-        events = Event.objects.all()
         if request.headers["Accept"] != "application/json":
+            events = Event.objects.all()
             return render(
                 request,
                 "attendance/index_v2.html",
