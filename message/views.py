@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Message
 from django.http import JsonResponse
 from event.models import Event
+from participant.models import Participant
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
@@ -92,3 +93,22 @@ def get_message_details(request, message_id):
             #"finishedDate": event.updated_at.isoformat()
         }
         return JsonResponse(detail)
+
+def autocomplete_suggestions(request):
+    query = request.GET.get('q', '')
+    event_id = request.GET.get('event_id', '')
+
+    if not query or not event_id:
+        return JsonResponse([], safe = False)
+
+    try:
+        participants = Participant.objects.filter(
+            event_id = event_id,
+            name__icontains = query
+        ).values('id', 'name') [:10]
+
+        return JsonResponse(list(participants), safe = False)
+
+    except Exception as e:
+        print(e)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status = 500)

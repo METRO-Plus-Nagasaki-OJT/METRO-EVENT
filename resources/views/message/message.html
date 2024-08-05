@@ -39,7 +39,7 @@
                             <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
                             <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
                         </div>
-                        <div x-data = "suggestions">
+                        <div x-data = "autocompleteComponent" x-init = "init()">
                             <label for="sender" class="block text-sm font-medium text-gray-700"> Sender </label>
                             <div class = "relative">
                                 <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
@@ -49,7 +49,7 @@
                                     x-clover-verify>
                                 <!-- Suggestions container -->     
                                 <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
-                                    <template x-for="suggestion in suggestions">
+                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
                                         <div x-text="suggestion.name" 
                                             class="px-4 py-2 cursor-pointer hover:bg-gray-100"
                                             x-on:click="selectSuggestion(suggestion)">
@@ -376,27 +376,45 @@
         }
     });
 
-    // Create and Edit 
+    // Create and Edit and Suggestions
     document.addEventListener('alpine:init', () => {
         // Suggestions
-        //Alpine.data('suggestions', () => {
-        //    senderInput: '',
-        //    suggestions: [],
+        Alpine.data('autocompleteComponent', () => ({
+            senderInput: '',
+            suggestions: [],
+            selectedEvent: '',
 
-        //    async fetchSuggestions() {
-        //        if (this.senderInput.length < 2) {
-        //            this.suggestions = [];
-        //            return;
-        //        }
+            init() {
+                this.selectedEvent = document.getElementById('event').value;
+                document.getElementById('event').addEventListener('change', (event) => {
+                this.selectedEvent = event.target.value;
+                });
+            },
+
+            async fetchSuggestions() {
+                if (this.senderInput.length < 2) {
+                    this.suggestions = [];
+                    return;
+                }
                 
-        //        const eventId = document.querySelector('#event')?.value;
-        //        if (!eventId) return;
+                try {
+                    const response = await fetch(`autocomplete-suggestions/?q=${encodeURIComponent(this.senderInput)}&event_id=${encodeURIComponent(this.selectedEvent)}`);
+                    console.log("Sender Input:", this.senderInput);
+                    console.log("Selected Event:", this.selectedEvent);
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    const data = await response.json();
+                    this.suggestions = data;
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }    
+            },
+            
 
-        //        try {
-        //            const respose = await fetch(``)
-        //        }
-        //    }
-        //})
+            selectSuggestion(suggestion) {
+                this.senderInput = suggestion.name;
+                this.suggestions = [];
+            }
+        }));
 
         // Create
         Alpine.data('newMessageBox', () => ({
