@@ -31,7 +31,6 @@ def get_participants(id):
         return participant_ids, embeddings, participant_id_qr
     else:
         p_in_ongoing_events = Participant.objects.filter(event__id=id, face=True)
-        print(p_in_ongoing_events)
         participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
         participant_id_qr = [str(id) for id in list(Participant.objects.filter(event__id=id).values_list('id', flat=True))]
         embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
@@ -85,9 +84,9 @@ def verify(encode, threshold, embeddings, participant_ids):
 def add_attendance(in_status, participant_id):
     today = datetime.datetime.now()
     attendance = Attendance.objects.get(participant_id=participant_id, date=today.date())
-    if in_status == True and attendance.entry_1 == None:
+    if in_status == True:
         attendance.entry_1 = today.time()
-    elif in_status == False and attendance.leave_1 == None:
+    else:
         attendance.leave_1 = today.time()
     attendance.save()
 

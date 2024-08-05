@@ -19,7 +19,7 @@
 
     .custom-select-option {
         font-size: 1.1rem;
-        padding: 1rem; 
+        padding: 1rem;
     }
 
     .participantsContainer {
@@ -67,7 +67,7 @@
                 <span class="font-extrabold text-md">専門学校</span>
                 <h2 class="font-extrabold text-2xl leading-tight">メトロ IT ビジネスカレッジ</h2>
             </div>
-        
+
             <div class="text-center flex items-center justify-center">
                 <span class="text-lg font-bold">AI開発チーム</span>
             </div>
@@ -96,6 +96,9 @@
     let currentChunk = 0;
     let participantsChunks = [];
     let intervalId;
+    let participantId;
+    let newStatus;
+    let participantDiv;
 
     document.getElementById('monitorButton').addEventListener('click', function () {
         const eventId = document.getElementById('event').value;
@@ -124,22 +127,20 @@
                         console.log('Parsed data:', data);
 
                         // Ensure data.status is a string
-                        const status = typeof data.status === 'string' ? data.status : String(data.status);
+                        status = typeof data.status === 'string' ? data.status : String(data.status);
 
-                        const participantDiv = document.querySelector(`[data-participant-id="${data.participant_id}"]`);
-                        if (participantDiv) {
-                            const badge = participantDiv.querySelector('.badge');
-                            badge.textContent = status !== "False" ? "entry" : "leave";
-
-                            participantDiv.classList.remove('bg-green-200', 'bg-orange-200');
-                            if (status !== "False") {
-                                participantDiv.classList.add('bg-green-200');
-                            } else {
-                                participantDiv.classList.add('bg-orange-200');
-                            }
-                        } else {
-                            console.log('Participant not found');
+                        if (status == 'True') {
+                            status = 'entry'
                         }
+                        else {
+                            status = 'leave'
+                        }
+
+                        participantId = data.participant_id
+                        newStatus = status
+                        console.log('fffffffff', status)
+
+                        displayParticipantsChunk();
                     };
 
                     socket.onerror = function (error) {
@@ -179,7 +180,7 @@
         const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
         document.getElementById('currentDateTime').textContent = now.toLocaleDateString('ja-JP', options);
     }
-    
+
     updateDateTime();
     setInterval(updateDateTime, 1000);
 
@@ -199,20 +200,109 @@
             const participantDiv = document.createElement('div');
             participantDiv.className = 'participantCard';
             participantDiv.dataset.participantId = participant.id;
-            participantDiv.innerHTML = `
-                <h4 class="text-lg font-medium">${participant.name}</h4>
-                <p class="text-sm">番号: ${participant.seat_no}</p>
-                <span class="badge ${participant.status}">${participant.status.charAt(0).toUpperCase() + participant.status.slice(1)}</span>
-            `;
 
+            participantDiv.innerHTML = `
+            <h4 class="text-lg font-medium">${participant.name}</h4>
+            <p class="text-sm">番号: ${participant.seat_no}</p>
+            <span class="badge ${participant.status}">${participant.status.charAt(0).toUpperCase() + participant.status.slice(1)}</span>
+        `;
+
+            // Apply color based on the status
             if (participant.status === 'entry') {
                 participantDiv.classList.add('bg-green-200');
             } else if (participant.status === 'leave') {
                 participantDiv.classList.add('bg-orange-200');
+            } else {
+                participantDiv.classList.add('bg-gray-200');
             }
 
             participantsList.appendChild(participantDiv);
         });
     }
+
+    function updateParticipantStatus(participantId, newStatus) {
+        participantsChunks.forEach(chunk => {
+            chunk.forEach(participant => {
+                if (participant.id === parseInt(participantId)) {
+                    participant.status = newStatus;
+                }
+            });
+        });
+
+        // Refresh the current chunk to reflect the updated status
+        displayParticipantsChunk();
+    }
+
+    document.getElementById('monitorButton').addEventListener('click', function () {
+        const eventId = document.getElementById('event').value;
+
+        if (eventId) {
+            const url = `/p-hub-admin/participants/${eventId}/`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    participantsChunks = chunkArray(data.participants, 16);
+                    currentChunk = 0;
+                    displayParticipantsChunk();
+
+                    document.getElementById('participantsContainer').classList.remove('hidden');
+
+                    socket = new WebSocket(`ws://${window.location.host}/ws/attendance/monitor/`);
+
+                    socket.onopen = function (event) {
+                        console.log('WebSocket connection opened');
+                    };
+
+                    socket.onmessage = function (event) {
+                        console.log('Received WebSocket message:', event.data);
+                        const data = JSON.parse(event.data);
+                        console.log('Parsed data:', data);
+
+                        // Ensure data.status is a string
+                        let status = typeof data.status === 'string' ? data.status : String(data.status);
+
+                        if (status == 'True') {
+                            status = 'entry';
+                        } else {
+                            status = 'leave';
+                        }
+
+                        participantId = data.participant_id;
+                        newStatus = status;
+                        console.log('Status update:', status);
+
+                        // Update the participant status
+                        updateParticipantStatus(participantId, newStatus);
+                    };
+
+                    socket.onerror = function (error) {
+                        console.error('WebSocket error:', error);
+                    };
+
+                    socket.onclose = function (event) {
+                        console.log('WebSocket connection closed:', event);
+                    };
+
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                    }
+                    intervalId = setInterval(() => {
+                        currentChunk = (currentChunk + 1) % participantsChunks.length;
+                        displayParticipantsChunk();
+                    }, 3000);
+                })
+                .catch(error => {
+                    console.error('Error fetching participants:', error);
+                });
+        }
+    });
+
+
+
+    // function updateParticipantStatus(participantId, newStatus) {
+
+    // }
+
 </script>
 {% endblock script %}
