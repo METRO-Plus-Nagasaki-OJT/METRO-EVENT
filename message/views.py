@@ -94,7 +94,15 @@ def get_message_details(request, message_id):
 
     if request.method == 'GET':
         message = get_object_or_404(Message, id = message_id)
-        #event = get_object_or_404(Event, id = event_id)
+        
+        if message.type:
+            if message.type == 'one':
+                message.type = '1'
+            elif message.type == 'many':
+                message.type = '2'
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Invalid type provided.'}, status=400)
+
         detail = {
             "id": message.id,
             "subject": message.subject,

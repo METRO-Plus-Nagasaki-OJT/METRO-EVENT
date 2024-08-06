@@ -169,25 +169,21 @@
 
 <!-- messagePages and Search Bar -->
 <div class="flex justify-between items-center mb-4 px-5">
-    <div class="flex items-center pb-4 mr-3">
+    <div class="flex justify-start pb-4 mr-3">
         <select id="pagination"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" style="width: 200px;">
-            <option value="10" {% if per_page is "10" %}selected{% endif %}>10</option>
-            <option value="20" {% if per_page is "20" %}selected{% endif %}>20</option>
-            <option value="50" {% if per_page is "50" %}selected{% endif %}>50</option>
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            style="width: 200px;">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
         </select>
-        <label for="pagination" class = "ml-2 font-medium text-gray-700"> Shown Pages </label>
-    </div>
-    <div class="relative flex items-center">
-        <input type="text" id="search"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pl-10"
-            placeholder="Search by name">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg aria-hidden="true" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                    d="M12.9 14.32a8 8 0 111.41-1.41l5.38 5.38a1 1 0 01-1.42 1.42l-5.37-5.39zM8 14A6 6 0 108 2a6 6 0 000 12z"
-                    clip-rule="evenodd" />
-            </svg>
+        <p class="pt-2 ml-2">件表示</p>
+    </div>      
+    <div class="flex justify-end pb-4 mr-3">
+        <div class="ml-4">
+
+            <input id="searchInput" type="text" placeholder="検索..."
+                class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
         </div>
     </div>
 </div>
@@ -208,7 +204,7 @@
         <tbody>
 
             {% for message in messages %}
-            <tr class="bg-white border-b">
+            <tr class="bg-white border-b" data-sender="{{ message.sender }}" data-subject="{{ message.subject }}">
                 <td class="py-4 px-6">
                     <button
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 open-edit-modal"
@@ -243,57 +239,16 @@
     </table>
 </div>
 
-<div class="flex justify-between items-center mt-4 px-5">
-    <div class="text-sm text-gray-700">
-        Showing <span class="font-medium">{{ page.start_index }}</span> to
-        <span class="font-medium">{{ page.end_index}}</span> of
-        <span class="font-medium">{{ page.paginator.count }}</span> results
-    </div>
-    <nav aria-label="Page navigation">
-        <ul class="inline-flex items-center -space-x-px">
-            {% if page.has_previous %}
-            <li>
-                <a href="?page={{ page.previous_page_number }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700">
-                    <span class="sr-only">Previous</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L13 7.414V17a1 1 0 11-2 0V7.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </a>
-            </li>
-            {% endif %}
-            {% for num in page.paginator.page_range %}
-            <li>
-                <a href="?page={{ num }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">
-                    {{ num }}</a>
-            </li>
-            {% endfor %}
-            {% if page.has_next %}
-            <li>
-                <a href="?page={{ page.next_page_number }}&per_page={{ per_page }}"
-                    class="block py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700">
-                    <span class="sr-only">Next</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M7.707 15.707a1 1 0 01-1.414-1.414L11.586 9 6.293 3.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    <div class="mt-4 flex justify-end py-3 px-3">
-        showing to results
-        <span class="ml-2 inline-flex">
-            <button class="px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
-            <button class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
-            <button class="px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
-        </span>
-    </div>
+<div id="pagination" class="mt-4 flex justify-end py-3 px-3">
+    <span id="showingResults">Showing results for page 1 </span>
+    <span class="ml-2 inline-flex" id="paginationControls">
+        <button id="prevBtn"
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
+        <button id="pageBtn"
+            class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
+        <button id="nextBtn"
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
+    </span>
 </div>
 
 {% endblock content %}
@@ -505,6 +460,88 @@
         }));
     })
     
+    document.addEventListener('DOMContentLoaded', () => {
+    const rowsPerPageSelect = document.getElementById('pagination');
+    const rows = Array.from(document.querySelectorAll('tbody tr'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageBtn = document.getElementById('pageBtn');
+    const showingResults = document.getElementById('showingResults');
+    const searchInput = document.getElementById('searchInput');
 
+    let currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
+    let rowsPerPage = parseInt(sessionStorage.getItem('rowsPerPage')) || 10;
+    let searchTerm = sessionStorage.getItem('searchTerm') || '';
+
+    rowsPerPageSelect.value = rowsPerPage;
+    searchInput.value = searchTerm;
+
+    function filterRows() {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return rows.filter(row => {
+            const sender = (row.dataset.sender || '').toLowerCase();
+            const subject = (row.dataset.subject || '').toLowerCase();
+            return sender.includes(lowerCaseSearchTerm) || subject.includes(lowerCaseSearchTerm);
+        });
+    }
+
+    function renderPagination(filteredRows) {
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        pageBtn.textContent = currentPage;
+        showingResults.textContent = `Showing results for page ${currentPage}`;
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function updateTable(filteredRows) {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        rows.forEach(row => row.style.display = 'none');
+        filteredRows.slice(start, end).forEach(row => row.style.display = '');
+    }
+
+    function handlePageChange() {
+        const filteredRows = filterRows();
+        renderPagination(filteredRows);
+        updateTable(filteredRows);
+        sessionStorage.setItem('currentPage', currentPage);
+    }
+
+    rowsPerPageSelect.addEventListener('change', (event) => {
+        rowsPerPage = parseInt(event.target.value, 10);
+        sessionStorage.setItem('rowsPerPage', rowsPerPage);
+        currentPage = 1;
+        handlePageChange();
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            handlePageChange();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        const filteredRows = filterRows();
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            handlePageChange();
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        searchTerm = searchInput.value.toLowerCase();
+        sessionStorage.setItem('searchTerm', searchTerm);
+        currentPage = 1;
+        handlePageChange();
+    });
+
+    handlePageChange();
+});
+
+    
+    
 </script>
 {% endblock script %}
