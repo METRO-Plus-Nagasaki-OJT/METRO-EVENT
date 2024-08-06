@@ -183,7 +183,7 @@ def update_participant(request, participant_id):
             img = profile.read()
             profile = base64.b64encode(img).decode('utf-8')
         else:
-            profile = participant.profile
+            profile = None
 
         # Update participant fields
         participant.name = name

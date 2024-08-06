@@ -243,7 +243,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">性別</label>
                                 <div class="mt-1 flex pt-4">
-                                    <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
+                                    <input type="radio" id="editmale" name="editgender" value="1" class="mr-1">
                                     <label for="editmale" class="mr-4">男性</label>
                                     <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
                                     <label for="editfemale">女性</label>
@@ -663,11 +663,9 @@
         attachListeners();
     });
 
-
-
     document.addEventListener('DOMContentLoaded', function () {
-        const openEditButtons = document.querySelectorAll('.open-edit-modal');
         const editModal = document.getElementById('editModal');
+        const participantModal = document.getElementById('participantModal');
         let originalData = {};
 
         document.body.addEventListener("click", function (e) {
@@ -692,51 +690,20 @@
                         return response.json();
                     })
                     .then(data => {
-                        // console.log('Fetched data:', data);
-
                         // Save original data
                         originalData = data;
 
-                        document.getElementById('editname').value = data.name || '';
-                        document.getElementById('editemail').value = data.email || '';
-                        document.getElementById('editseat_no').value = data.seat_no || '';
-                        document.getElementById('editdob').value = data.dob || '';
-                        document.getElementById('editphone_1').value = data.phone_1 || '';
-                        document.getElementById('editphone_2').value = data.phone_2 || '';
-                        document.getElementById('editmemo').value = data.memo || '';
-                        document.getElementById('editaddress').value = data.address || '';
-                        document.getElementById('editrole').value = data.role || '';
-                        document.getElementById('editStart').value = data.created_at || '';
-                        document.getElementById('editEnd').value = data.updated_at || '';
+                        // Populate the form with the fetched data
+                        restoreOriginalData();
 
-                        if (data.gender === 'male') {
-                            document.getElementById('male').checked = true;
-                        } else if (data.gender === 'female') {
-                            document.getElementById('female').checked = true;
-                        } else {
-                            document.getElementById('male').checked = false;
-                            document.getElementById('female').checked = false;
-                        }
-
-                        const editImgContainer = document.getElementById('editimageContainer');
-                        editImgContainer.innerHTML = '';
-                        if (data.image_data) {
-                            const img = document.createElement('img');
-                            img.src = `data:image/jpeg;base64,${data.image_data}`;
-                            img.classList.add('h-full', 'w-full', 'object-cover');
-                            editImgContainer.appendChild(img);
-                        }
-
-                        const editProfileField = document.getElementById('editpf');
-                        if (data.editPf) {
-                            editProfileField.value = 'True';
-                        } else {
-                            editProfileField.value = 'False';
-                        }
-
+                        // Show the modal
                         editModal.classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching participant data:', error));
+            }
+
+            if (e.target.tagName.toLowerCase() === "button" && e.target.classList.contains("open-participant-modal")) {
+                participantModal.classList.remove('hidden');
             }
         });
 
@@ -744,17 +711,17 @@
         if (cancelEditButton) {
             cancelEditButton.addEventListener('click', function () {
                 // Clear inputs
-                const inputs = editModal.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = false;
-                    } else {
-                        input.value = '';
-                    }
-                });
+                clearEditModalInputs();
 
                 // Hide the modal
                 editModal.classList.add('hidden');
+            });
+        }
+
+        const cancelParticipantButton = document.getElementById('cancelRegistration');
+        if (cancelParticipantButton) {
+            cancelParticipantButton.addEventListener('click', function () {
+                participantModal.classList.add('hidden');
             });
         }
 
@@ -772,13 +739,13 @@
             document.getElementById('editStart').value = originalData.created_at || '';
             document.getElementById('editEnd').value = originalData.updated_at || '';
 
-            if (originalData.gender === 'male') {
-                document.getElementById('male').checked = true;
-            } else if (originalData.gender === 'female') {
-                document.getElementById('female').checked = true;
+            if (originalData.gender === '1') {
+                document.getElementById('editmale').checked = true;
+            } else if (originalData.gender === '0') {
+                document.getElementById('editfemale').checked = true;
             } else {
-                document.getElementById('male').checked = false;
-                document.getElementById('female').checked = false;
+                document.getElementById('editmale').checked = false;
+                document.getElementById('editfemale').checked = false;
             }
 
             const editImgContainer = document.getElementById('editimageContainer');
@@ -791,29 +758,26 @@
             }
 
             const editProfileField = document.getElementById('editpf');
-            if (originalData.editPf) {
-                editProfileField.value = 'True';
-            } else {
-                editProfileField.value = 'False';
-            }
+            editProfileField.value = originalData.editPf ? 'True' : 'False';
         }
 
-        const openParticipantButtons = document.querySelectorAll('.open-participant-modal');
-        const participantModal = document.getElementById('participantModal');
-
-        openParticipantButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                participantModal.classList.remove('hidden');
+        // Clear inputs when cancel button is clicked
+        function clearEditModalInputs() {
+            const inputs = editModal.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
             });
-        });
 
-        const cancelParticipantButton = document.getElementById('cancelRegistration');
-        if (cancelParticipantButton) {
-            cancelParticipantButton.addEventListener('click', function () {
-                participantModal.classList.add('hidden');
-            });
+            const editImgContainer = document.getElementById('editimageContainer');
+            editImgContainer.innerHTML = '';
         }
     });
+
+
 
 
     // Image preview handling
