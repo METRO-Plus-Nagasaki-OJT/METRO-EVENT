@@ -23,7 +23,7 @@ def adding_attendance(next_day):
             Attendance.objects.create(participant_id=participant_id, date=next_day)
 
 def attendance_scheduling():
-    attendance_for_today = Attendance.objects.filter(date=today).count()
+    attendance_for_today = Attendance.objects.filter(date=tomorrow).count()
     if attendance_for_today == 0:
         if current_weekday != 5 or current_weekday != 6:
             if current_weekday == 4:
