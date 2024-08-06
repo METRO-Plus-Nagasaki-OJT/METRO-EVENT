@@ -16,10 +16,16 @@ def message_view(request):
         endDate = request.POST.get('endDate')
         createdDate = request.POST.get('createdDate')
         event_id = request.POST.get('event')
-        # message_type = request.POST.get('type', None)
+        type_value = request.POST.get('type')
 
-        print(f"Received data: subject={subject}, sender={sender}, content={content}, startDate={startDate}, endDate={endDate}, createdDate={createdDate}, event_id={event_id}")
+        print(f"Received data: subject={subject}, sender={sender}, content={content}, startDate={startDate}, endDate={endDate}, createdDate={createdDate}, event_id={event_id}, type_value-{type_value}")
         
+        if type_value == '1':
+            message_type = 'one'
+        elif type_value == "2":
+            message_type = 'many'
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid type selected.'}, status = 400)
         try:
             event = get_object_or_404(Event, id=event_id)
             message = Message(
@@ -30,7 +36,7 @@ def message_view(request):
                 endDate = endDate,
                 createdDate = createdDate,
                 event = event,
-                # type = message_type
+                type = message_type
 
             )
             message.save()
@@ -61,6 +67,7 @@ def get_message_details(request, message_id):
         detailcontent = request.POST.get('detailcontent')
         detailstartDate = request.POST.get('detailstartDate')
         detailendDate = request.POST.get('detailendDate')
+        detailtype = request.POST.get('detailtype')
 
         if detailsubject.strip():
             message.subject = detailsubject
@@ -70,6 +77,13 @@ def get_message_details(request, message_id):
             message.startDate = detailstartDate
         if detailendDate.strip():
             message.endDate = detailendDate
+        if detailtype:
+            if detailtype == '1':
+                message.type = 'one'
+            elif detailtype == '2':
+                message.type = 'many'
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Invalid type provided.'}, status=400)
 
         try:
             message.save()
@@ -88,9 +102,7 @@ def get_message_details(request, message_id):
             "startDate": message.startDate,
             "endDate": message.endDate,
             "createdDate": message.createdDate,
-            #"type": message.type,
-            #"createdDate": event.created_at.isoformat(),
-            #"finishedDate": event.updated_at.isoformat()
+            "type": message.type,
         }
         return JsonResponse(detail)
 

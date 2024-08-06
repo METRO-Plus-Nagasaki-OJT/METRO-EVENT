@@ -81,11 +81,10 @@
                         </div>                       
                         <div>
                             <label for = "type" class = "block text-sm font-medium text-gray-700"> Type </label>
-                            <select id="type"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
-                            {% comment %} {% for type in types %}
-                            <option value="{{ type.id }}">{{ type.name }}</option>
-                            {% endfor %} {% endcomment %}
+                            <select id="type" name = "type" 
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                                <option value = "1"> One Time </option>
+                                <option value = "2"> Many Times </option>
                             </select>                        
                         </div>
                         <input type="hidden" name="createdDate" :value="createdDate">
@@ -140,11 +139,10 @@
                         </div>                       
                         <div>
                             <label for = "detailtype" class = "block text-sm font-medium text-gray-700"> Type </label>
-                            <select id="detailtype"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
-                            {% comment %} {% for type in types %}
-                            <option value="{{ type.id }}">{{ type.name }}</option>
-                            {% endfor %} {% endcomment %}
+                            <select id="detailtype" name = "detailtype"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                                <option value = "1"> One Time </option>
+                                <option value = "2"> Many Times </option>
                             </select>                        
                         </div>
                         <div>
@@ -423,7 +421,6 @@
                 "sender" : [Clover.rule.required("Please input sender.")],
                 "startDate" : [Clover.rule.required("Please choose startDate")],
                 "endDate" : [Clover.rule.required("Please choose endDate")],
-                //"type" : [Clover.rule.required()],
             },
             errors: {},
             createdDate: '',
@@ -464,9 +461,8 @@
         Alpine.data('DetailBox', () => ({
             rule: {
                 "detailsubject" : [Clover.rule.required("Please input subject.")],
-                "detailstartDate" : [Clover.rule.required("Please choose startDate")],
-                "detailendDate" : [Clover.rule.required("Please choose endDate")],
-                //"detailtype" : [Clover.rule.required()],
+                "detailstartDate" : [Clover.rule.required("Please choose startDate.")],
+                "detailendDate" : [Clover.rule.required("Please choose endDate.")],
             },
             errors: {},
             async submit(){
