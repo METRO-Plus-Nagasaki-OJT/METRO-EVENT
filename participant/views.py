@@ -185,7 +185,6 @@ def update_participant(request, participant_id):
             embeddable = True 
         else:
             profile = None
-            print(profile)
         # Update participant fields
         participant.name = name
         participant.email = email
