@@ -8,9 +8,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Case, When, IntegerField
 from django.http import JsonResponse
-
+import json
 # Create your views here.
-
 
 def index(request):
     if request.method == "GET":
@@ -75,7 +74,7 @@ def index(request):
             "attendances": attendances_page,
             "paginator": paginator,
         }
-     
+
         return render(request, "attendance/index.html", context)
 
 
@@ -96,19 +95,26 @@ def update(request, id):
 
         if len(obj.keys()):
             Attendance.objects.filter(id=id).update(**obj)
-        if request.headers["Accept"] == "application/json" :
-           return JsonResponse({
-                "attendance": Attendance.objects.filter(id=id).values()[0] or None
-           })
+        if request.headers["Accept"] == "application/json":
+            return JsonResponse(
+                {"attendance": Attendance.objects.filter(id=id).values()[0] or None}
+            )
         messages.success(request, "Attendance updated.")
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 def index_v2(request):
     if request.method == "GET":
-        events = Event.objects.all()
         if request.headers["Accept"] != "application/json":
-            return render(request, "attendance/index_v2.html", {"events": events})
+            events = Event.objects.all()
+            return render(
+                request,
+                "attendance/index_v2.html",
+                {
+                    "events": events,
+                    "eventsJson": json.dumps(list(events.values("id", "name"))),
+                },
+            )
 
         filters = Q()
         limit = 10
@@ -118,10 +124,13 @@ def index_v2(request):
         if request.GET.get("event"):
             filters &= Q(participant__event=request.GET.get("event"))
         if request.GET.get("name"):
-            for value in  request.GET.get("name").split(","):
+            for k, value in enumerate(request.GET.get("name").split(",")):
                 value = value.strip()
                 if value:
-                     filters |= Q(participant__name__icontains=value)
+                    if k == 0:
+                        filters &= Q(participant__name__icontains=value)
+                    else:
+                        filters |= Q(participant__name__icontains=value)
         if request.GET.get("date"):
             date_range = []
             for k, value in enumerate(request.GET.get("date").split(",")):
@@ -139,7 +148,6 @@ def index_v2(request):
             first_day_of_the_current_month = timezone.now().replace(
                 day=1, hour=0, minute=0, second=0, microsecond=0
             )
-            print(first_day_of_the_current_month)
             filters &= Q(created_at__gte=first_day_of_the_current_month)
 
         attendances = (
@@ -156,18 +164,20 @@ def index_v2(request):
 
         data = []
         for attendance in attendances:
-            data.append({
-                'id': attendance.id,
-                'status': attendance.status,
-                'participant': {
-                    'id': attendance.participant.id,
-                    'name': attendance.participant.name,  
-                },
-                'entry_1': attendance.entry_1,
-                'leave_1': attendance.leave_1,
-                'entry_2': attendance.entry_2,
-                'leave_2': attendance.leave_2,
-                'date': attendance.date
-            })
+            data.append(
+                {
+                    "id": attendance.id,
+                    "status": attendance.status,
+                    "participant": {
+                        "id": attendance.participant.id,
+                        "name": attendance.participant.name,
+                    },
+                    "entry_1": attendance.entry_1,
+                    "leave_1": attendance.leave_1,
+                    "entry_2": attendance.entry_2,
+                    "leave_2": attendance.leave_2,
+                    "date": attendance.date,
+                }
+            )
 
         return JsonResponse({"attendances": data, "limit": int(limit)})

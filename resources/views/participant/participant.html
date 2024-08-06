@@ -693,8 +693,47 @@
                         // Save original data
                         originalData = data;
 
+<<<<<<< HEAD
                         // Populate the form with the fetched data
                         restoreOriginalData();
+=======
+                        document.getElementById('editname').value = data.name || '';
+                        document.getElementById('editemail').value = data.email || '';
+                        document.getElementById('editseat_no').value = data.seat_no || '';
+                        document.getElementById('editdob').value = data.dob || '';
+                        document.getElementById('editphone_1').value = data.phone_1 || '';
+                        document.getElementById('editphone_2').value = data.phone_2 || '';
+                        document.getElementById('editmemo').value = data.memo || '';
+                        document.getElementById('editaddress').value = data.address || '';
+                        document.getElementById('editrole').value = data.role || '';
+                        document.getElementById('editStart').value = data.created_at || '';
+                        document.getElementById('editEnd').value = data.updated_at || '';
+
+                        if (data.gender === 1) {
+                            document.getElementById('editmale').checked = true;
+                        } else if (data.gender === 0) {
+                            document.getElementById('editfemale').checked = true;
+                        } else {
+                            document.getElementById('editmale').checked = false;
+                            document.getElementById('editfemale').checked = false;
+                        }
+
+                        const editImgContainer = document.getElementById('editimageContainer');
+                        editImgContainer.innerHTML = '';
+                        if (data.image_data) {
+                            const img = document.createElement('img');
+                            img.src = `data:image/jpeg;base64,${data.image_data}`;
+                            img.classList.add('h-full', 'w-full', 'object-cover');
+                            editImgContainer.appendChild(img);
+                        }
+
+                        const editProfileField = document.getElementById('editpf');
+                        if (data.editPf) {
+                            editProfileField.value = 'True';
+                        } else {
+                            editProfileField.value = 'False';
+                        }
+>>>>>>> 8ee8f46a5ad0f77127bd203684a34a40e00edf09
 
                         // Show the modal
                         editModal.classList.remove('hidden');

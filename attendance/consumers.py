@@ -12,27 +12,42 @@ from qreader import QReader
 from attendance.face_capture import get_encode, check_modelnembed, load_pickle
 from participant.models import Participant
 from attendance.models import Attendance
+from event.models import Event
 import datetime
 from django.core.cache import cache
+from cryptography.fernet import Fernet
+import os
+from attendance.crypto_key_gen import load_key, generate_key
+from django.utils import timezone
 
+key_path = "common/p_hub_key.key"
+if os.path.exists(key_path):
+    key = load_key(key_path)    
+else:
+    generate_key(key_path)
+    key = load_key(key_path) 
+
+cipher_suite = Fernet(key)
 qr_reader = QReader()
 
-def get_participants(id):
-    cache.delete(f"{id}")
-    data = cache.get(f"{id}")
+def get_participants():
+    current = timezone.localtime(timezone.now())
+    cache.delete("embeds")
+    data = cache.get("embeds")
     if data:
         embeddings = data["embeddings"]
         participant_ids = data["participant_ids"]
         participant_id_qr = data["participant_id_qr"]
         return participant_ids, embeddings, participant_id_qr
     else:
-        p_in_ongoing_events = Participant.objects.filter(event__id=id, face=True)
+        ongoing_event_ids = list(Event.objects.filter(end_time__gt=current).values_list('id', flat=True))
+        p_in_ongoing_events = Participant.objects.filter(event__id__in=ongoing_event_ids, face=True)
         participant_ids = [str(id) for id in list(p_in_ongoing_events.values_list('id', flat=True))]
-        participant_id_qr = [str(id) for id in list(Participant.objects.filter(event__id=id).values_list('id', flat=True))]
+        participant_id_qr = [str(id) for id in list(Participant.objects.filter(event__id__in=ongoing_event_ids).values_list('id', flat=True))]
         embeddings = [json.loads(i) for i in list(p_in_ongoing_events.values_list('facial_feature', flat=True))]
-        cache.set(f"{id}", {"participant_ids": participant_ids, "embeddings": embeddings, "participant_id_qr": participant_id_qr},60 * 60 * 60 * 0)
+        cache.set("embeds", {"participant_ids": participant_ids, "embeddings": embeddings, "participant_id_qr": participant_id_qr},60 * 60 * 60 * 0)
         return participant_ids, embeddings, participant_id_qr
-
+            
 def compare_embeddings_cosine(embedding1, embedding2):
     similarity = 1 - cosine(embedding1, embedding2)
     return similarity
@@ -86,6 +101,10 @@ def add_attendance(in_status, participant_id):
         attendance.leave_1 = today.time()
     attendance.save()
 
+def get_participant_data(correct_id):
+    participant = Participant.objects.get(id=correct_id)
+    name, email = participant.name, participant.email
+    return name, email
 
 class ImageConsumer(WebsocketConsumer):
     def connect(self):
@@ -109,13 +128,12 @@ class ImageConsumer(WebsocketConsumer):
         is_qr = text_data_json["qr_code"]
         event_id = text_data_json["event_id"]
         in_out_status = text_data_json["in"]
-
         success_message = False
         base64_data = img_base64.split(",")[1]
         byte_data = base64.b64decode(base64_data)
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
-        participant_ids, embeddings, participant_id_qr = get_participants(event_id)
+        participant_ids, embeddings, participant_id_qr = get_participants()
 
         if not is_qr:
             encode = get_encode(image)
@@ -123,15 +141,21 @@ class ImageConsumer(WebsocketConsumer):
             if pred:
                 success_message = True
                 add_attendance(in_out_status, pred_id)
+                name, email = get_participant_data(pred_id)
                 self.broadcast_attendance_update(pred_id, in_out_status, event_id)
         else:
             qr_code = read_qr(image)
-            if qr_code is not None and qr_code[0] in participant_id_qr:
-                success_message = True
-                add_attendance(in_out_status, int(qr_code[0]))
-                self.broadcast_attendance_update(int(qr_code[0]), in_out_status, event_id)
+            if qr_code is None:
+                success_message = False
+            else:
+                encrypted_id = cipher_suite.decrypt(qr_code[0].encode()).decode()       
+                if encrypted_id in participant_id_qr:
+                    success_message = True
+                    add_attendance(in_out_status, int(encrypted_id))
+                    name, email = get_participant_data(encrypted_id)
+                    self.broadcast_attendance_update(encrypted_id, in_out_status, event_id)
 
-        self.send(text_data=json.dumps({"success": success_message, "qr_code": is_qr}))
+        self.send(text_data=json.dumps({"success": success_message, "qr_code": is_qr, "name":name, "email":email}))
 
     def broadcast_attendance_update(self, participant_id, status, event_id):
         if not isinstance(status, str):

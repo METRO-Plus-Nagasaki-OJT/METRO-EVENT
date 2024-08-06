@@ -3,13 +3,16 @@ from .models import *
 from django.http import HttpResponseServerError,JsonResponse
 from django.db.models import Count
 from django.utils import timezone
+from datetime import datetime
+from django.utils.timezone import localtime
 # Create your views here.
 def index(request):
-    
     if request.method=="POST":
             name=request.POST.get("name")
-            start=request.POST.get("starttime")
-            end=request.POST.get("endtime")
+            start= datetime.strptime(request.POST.get("starttime"),'%Y-%m-%dT%H:%M' )
+            
+            end= datetime.strptime(request.POST.get("endtime"),'%Y-%m-%dT%H:%M' )
+            print(start, '-', end)
             venue=request.POST.get("venue")
             organizer_id=request.POST.get("organizer")
             memo=request.POST.get("memo")
@@ -36,7 +39,7 @@ def index(request):
 
 def edit(request,id):
     event = get_object_or_404(Event, id=id)
-    
+    print(event.start_time)
     if request.method == 'POST':
         # Get form data
         name = request.POST.get('editname')
@@ -65,10 +68,13 @@ def edit(request,id):
     
     else:
         users = User.objects.all()
+
+        print( event.start_time.strftime('%Y/%m/%d %H:%M:%S'))
+        print(event.start_time)
         context = {
             'name': event.name,
-            'created_at': event.start_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'updated_at': event.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_at':event.toLocaleString(event.start_time),
+            'updated_at':event.toLocaleString(event.end_time),
             'venue': event.venue,
             'memo': event.memo,
             'user_id': event.admin.id

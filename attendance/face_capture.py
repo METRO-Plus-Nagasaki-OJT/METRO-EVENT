@@ -8,8 +8,8 @@ def capture_face(img):
     try:
         detection = DeepFace.extract_faces(img, detector_backend="retinaface", enforce_detection=False)[0]
         print(detection)
-        x, y, w, h = detection['facial_area']['x'], detection['facial_area']['y'], detection['facial_area']['w'], detection['facial_area']['h']
-        if w < 100 and h < 100:
+        x, y, w, h, left_eye, right_eye = detection['facial_area']['x'], detection['facial_area']['y'], detection['facial_area']['w'], detection['facial_area']['h'], detection['facial_area']['left_eye'], detection['facial_area']['right_eye']
+        if (w < 100 and h < 100) and ((x == 0 and y == 0) or (not left_eye and not right_eye)):
             return None, False
         else:
             face = img[y:y+h, x:x+w]

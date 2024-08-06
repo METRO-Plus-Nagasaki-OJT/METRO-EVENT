@@ -41,7 +41,7 @@
         </div>
     </div>
     <div class="overflow-x-auto relative shadow-md sm:rounded-lg px-5">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <table id="event-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                     <th scope="col" class="p-4">
@@ -52,16 +52,22 @@
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center">
                            イベントID
-                            
+                           <a id="sort-event-id" class="sort-asc" data-sort-order="asc"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
+                          </svg></a>
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
                         <div class="flex items-center ml-3">
                             
                            イベント名
-                           <a href="#"><svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"/>
-                          </svg></a>
+                           <span><svg @click="handleSort" data-sort="event__name" :class="{'text-green-500': data.sort === '-participant__name', 'text-red-500': data.sort === 'participant__name'}" class="w-3 h-3 ms-1.5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
+                        </svg></span>
                         </div>
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -116,16 +122,16 @@
                         {{ e.name }}
                     </td>
                     <td class="px-8 py-4  text-gray-900 whitespace-nowrap dark:text-white">
-                        {{ e.start_time }} - {{ e.end_time }}
+                        {{ e.start_time|date:"Y/m/d H:i" }} - {{ e.end_time|date:"Y/m/d H:i" }}
                     </td>
                     <td class="px-7 py-4  text-gray-900 whitespace-nowrap dark:text-white">
                         {{ e.attendance_count }} / {{ e.participant_count }}
                     </td>
                     <td class="px-7 py-4">
                         <span class="status-text
-                            {% if e.status == 'Upcoming' %}  px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full
-                        {% elif e.status == 'Open' %}  px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full
-                        {% elif e.status == 'Closed' %}  px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full
+                            {% if e.status == '今後' %}  px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full
+                        {% elif e.status == '開始' %}  px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full
+                        {% elif e.status == '終了' %}  px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full
                         {% else %} text-gray-500
                         {% endif %}">
                         {{ e.status }}
@@ -174,32 +180,36 @@
                                     placeholder="イベント名を入力">
                                  
                             </div>
-                            <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.name"></span>
-
+                            <div class="flex gap-3 justify-end">
+                            <span class="text-red-600 error-message" x-text="errors.name"></span>
+                        </div>
                             <div class="flex gap-3 justify-between items-center "> 
                                 <label for="period"
                                     class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">
                                     開始日
                                     </label>
-                                <input x-clover-verify type="datetime-local" name="starttime" id="starttime"
+                                <input x-clover-verify type="datetime-local" name="starttime" id="starttime" value="{{request.GET.date}}"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block  w-2/3 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="開始日を入力" onchange="validateTime()">
+                                    placeholder="開始日を入力" onchange="validateTime();">
 
                             </div>
-                            <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.starttime"></span>
-                           
+                            <div class="flex gap-3 justify-end">
+                            <span class="text-red-600 error-message" x-text="errors.starttime"></span>
+                        </div>
                             <div class="flex gap-3 justify-between items-center ">
                                 <label for="period"
                                     class="block  text-sm font-medium text-gray-900 dark:text-white mr-12">
                                     終了日
                                 </label>
-                                <input type="datetime-local" name="endtime" id="endtime"
+                                <input lang="ja" type="datetime-local" name="endtime" id="endtime"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block  w-2/3 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="終了日を入力" onchange="validateTime()">
 
                             </div>
-                            <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.endtime"></span>
+                            <div class="flex gap-3 justify-end">
+                            <span class="text-red-600 error-message" x-text="errors.endtime"></span>
                             <span id="time-error" class="text-red-600 text-sm mt-1 error-message"></span>
+                        </div>
                             <div class="flex gap-3 justify-between items-center ">
                                 <label for="venue"
                                     class="block text-sm font-medium text-gray-900 dark:text-white mr-14">会場</label>
@@ -208,8 +218,9 @@
                                     placeholder="会場を入力">
 
                             </div>
-                            <span class="text-red-600  ml-4 pl-24 error-message" x-text="errors.venue"></span>
-    
+                            <div class="flex gap-3 justify-end">
+                            <span class="text-red-600  error-message" x-text="errors.venue"></span>
+                        </div>
 
                             <div class="flex gap-3 justify-between items-center ">
                                 <label for="venue"
@@ -221,8 +232,9 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <span class="text-red-600  ml-4 pl-24 error-message" x-text="errors.organizer"></span>
-
+                            <div class="flex gap-3 justify-end">
+                            <span class="text-red-600 error-message" x-text="errors.organizer"></span>
+                            </div>
                             <div class="flex gap-3 justify-between items-center">
                                 <label for="memo"
                                     class="block text-sm font-medium text-gray-900 dark:text-white mr-14">メモ</label>
@@ -230,8 +242,10 @@
                                     class="block w-2/3 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="メモを入力"></textarea>
                             </div>
-                            <span class="text-red-600  ml-4 pl-24 pb-11 error-message" x-text="errors.memo"></span>
+                            <div class="flex gap-3 justify-end">
+                            <span class="text-red-600 pb-11 error-message" x-text="errors.memo"></span>
                         </div>
+                            </div>
 
                         <div id="ConfirmationModal"
                         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
@@ -297,8 +311,9 @@
                                 placeholder="Type event name">
                                 
                         </div>
+                        <div class="flex gap-3 justify-end">
                         <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.editname"></span>
-
+                        </div>
 
                         <div class="flex gap-3 justify-between items-center ">
                             <label for="period"
@@ -308,8 +323,11 @@
                             <input type="text"  id="edit-start" 
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block pointer-events-none w-2/3 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" readonly>
+                               
                         </div>
+                        <div class="flex gap-3 justify-end">
                         <span class="text-red-600 ml-4 pl-24 error-message"></span>
+                        </div>
                         <div class="flex gap-3 justify-between items-center  ">
                             <label for="period"
                                 class="block  text-sm font-medium text-gray-900 dark:text-white mr-14">終了日</label>
@@ -317,7 +335,9 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block pointer-events-none  w-2/3 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" value="endtime" readonly >
                         </div>
+                        <div class="flex gap-3 justify-end">
                         <span class="text-red-600 ml-4 pl-24 error-message"></span>
+                        </div>
 
                         <div class="flex gap-3 justify-between items-center  ">
                             <label for="venue"
@@ -326,7 +346,9 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-2/3 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event venue">
                         </div>
+                        <div class="flex gap-3 justify-end">
                         <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.editvenue"></span>
+                        </div>
 
                         <div class="flex gap-3 justify-between items-center ">
                             <label for=""
@@ -338,7 +360,9 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="flex gap-3 justify-end">
                         <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.editorganizer"></span>
+                        </div>
 
                         <div class="flex gap-3 justify-between items-center ">
                             <label for="memo"
@@ -357,7 +381,10 @@
                                 placeholder="Type event period" onchange="editvalidateTime()">
                                 
                         </div>
-                        <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.editstarttime"></span>
+                        <div class="flex gap-3 justify-end">
+                        
+                        <span class="text-red-600 error-message" x-text="errors.editstarttime"></span>
+                        </div>
     
                         <div class="flex gap-3 justify-between items-center ">
                             <label for="endtime"
@@ -367,8 +394,10 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-2/3 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type event period" onchange="editvalidateTime()" >
                         </div>
+                        <div class="flex gap-3 justify-end">
                         <span class="text-red-600 ml-4 pl-24 error-message" x-text="errors.editendtime"></span>
-                        <span id="timeerror" class="text-red-600 text-sm mt-1 pl-24 error-message"></span>
+                        <span id="timeerror" class="text-red-600 text-sm mt-1 error-message"></span>
+                        </div>
                     </div>
                     <div class="flex justify-end pb-4 mt-5">
                         <button type="submit"
@@ -476,7 +505,7 @@
                     })
                     .then(data => {
                         console.log('Fetched data:', data); // Log the fetched data
-
+                        console.log(data.created_at)
                         // Update edit modal fields with fetched data
                         document.getElementById('edit-name').value = data.name || '';
                         document.getElementById('edit-start').value = data.created_at || '';
@@ -521,7 +550,7 @@
         function closeModal() {
             modal.classList.add('hidden');
             modal.setAttribute('aria-hidden', 'true');
-        }
+        }   
 
         modalCloseButtons.addEventListener('click', function () {
             closeModal();
@@ -552,10 +581,10 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('addmodal', () => ({
             rule: {
-                name: [Clover.rule.required("名前が必要です。"),Clover.rule.onlyWordCharacter("名前は特殊文字である必要があります")],
+                name: [Clover.rule.required("名前が必要です。"),Clover.rule.onlyWordCharacter("名前は特殊文字である必要がありません")],
                 starttime: [Clover.rule.required("始まる時間が必要です。"),],
                 endtime: [Clover.rule.required("終わる時間が必要です")],
-                venue: [Clover.rule.required("会場が必要です")],
+                venue: [Clover.rule.required("会場が必要です"),Clover.rule.onlyWordCharacter("会場は特殊文字である必要がありません")],
                 organizer: [Clover.rule.required("担当者が必要です")],
             
             },
@@ -596,10 +625,10 @@
   
         Alpine.data('editform', () => ({
             rule: {
-                editname: [Clover.rule.required("名前が必要です。")],
+                editname: [Clover.rule.required("名前が必要です。"),Clover.rule.onlyWordCharacter("名前は特殊文字である必要がありません")],
                 editstarttime: [Clover.rule.required("始まる時間が必要です。")],
                 editendtime: [Clover.rule.required("終わる時間が必要です")],
-                editvenue: [Clover.rule.required("会場が必要です")],
+                editvenue: [Clover.rule.required("会場が必要です"),Clover.rule.onlyWordCharacter("会場は特殊文字である必要がありません")],
                 editorganizer: [Clover.rule.required("担当者が必要です")],
                
             },
@@ -891,5 +920,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     handlePageChange();
 });
+document.addEventListener("alpine:init", () => {
+    Alpine.data("sort", ()=> ({
+            data: {
+                sort: '{{request.GET.sort}}'
+            },
+            handleSort(){
+                const el = this.$el
+                const sort = el.dataset.sort 
+                if(sort === this.data.sort) {
+                    this.data.sort = `-${sort}`
+                } else {
+                    this.data.sort = sort
+                }
+                const url = new URL(window.location.href)
+                url.searchParams.set("sort", this.data.sort)
+                window.location.href = url.toString()
+            }
+        }))
+})
 </script>
 {% endblock script %}

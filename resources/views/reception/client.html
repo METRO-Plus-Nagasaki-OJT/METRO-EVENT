@@ -323,7 +323,7 @@
                                 let height = boundingBox.height * 2 *  window.innerHeight
                                 let x = (boundingBox.xCenter - ((boundingBox.width * 1.7) / 2)) * window.innerWidth;
                                 let y = (boundingBox.yCenter - ((boundingBox.height * 2) / 2)) * window.innerHeight;
-                                facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
+
                                 if (Math.abs(x - prevX) < 15) {
                                     x = prevX
                                     y = prevY
@@ -331,6 +331,7 @@
                                     height = prevHeight
 
                                     if (!timeout && !this.loader && this.currentState === this.state().FACE_DECTION && !this.messageStatus) {
+                                        facebox.style.display = this.currentState !== this.state().FACE_DECTION ? "none" : "block"
                                         timeout = setTimeout(() => {
                                             timeout = null
                                             const faceWidth = boundingBox.width * video.videoWidth
@@ -340,7 +341,6 @@
                                             cropFaceCanvas.width = faceWidth
                                             cropFaceCanvas.height = faceHeight
                                             faceCtx.drawImage(video, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight)
-                                            this.loader = true
                                             this.recognizeFace(cropFaceCanvas.toDataURL())
                                           
                                         }, 1000)
@@ -538,6 +538,7 @@
                     }
                 },
                 recognizeFace(base64) {
+                    this.loader = true
                     this.socket.send(JSON.stringify({ "image_url": base64, "qr_code": false, event_id: 3, in: this.in }))
 
                 },
