@@ -2,11 +2,11 @@
 {% extends "dashboard/master.html" %}
 
 {% block page_en %}
-    
+
 {% endblock page_en %}
 
 {% block page_jp %}
-    
+
 {% endblock page_jp %}
 
 {% load static %}
@@ -25,7 +25,7 @@
 
 <div class="mb-4 bg-gray-200 px-1">
     <h2 class="text-2xl">PARTICIPANT</h2>
-    <span>Participants List</span>
+    <span>参加者登録</span>
 </div>
 
 <div class="px-5 py-5">
@@ -33,20 +33,20 @@
 
     <!-- Events Dropdown -->
     <div class="mb-4 flex items-center">
-        <label for="events" class="mr-2 text-sm font-medium text-gray-700">Select Event:</label>
+        <label for="events" class="mr-2 text-sm font-medium text-gray-700">イベント : </label>
         <select id="events" name="event"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 lg:w-1/2">
             {% for event in events %}
-            <option value="{{ event.id }}">{{ event.name }}</option>
+            <option value="{{ event.id }}" {% if event.id is selected_event %}selected{% endif %}>{{ event.name }}
+            </option>
             {% endfor %}
         </select>
     </div>
 
     <!-- New Participant Button -->
     <div class="mb-4">
-        <button id="openModal"
-            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Register
-            New Participant</button>
+        <button id="openModal" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 
+            font-medium rounded-lg text-sm px-5 py-2.5 text-center">新規作成</button>
     </div>
 
     <!-- Register Modal -->
@@ -56,7 +56,7 @@
             action="{% url 'participant' %}" method="post">
             {% csrf_token %}
             <div class="bg-blue-500 px-4 py-4">
-                <h3 class="text-xl mb-4 text-white pt-3">Register New Participant</h3>
+                <h3 class="text-xl mb-4 text-white pt-3">新規作成</h3>
             </div>
             <div class="flex flex-wrap -mx-2">
                 <!-- Image Container -->
@@ -69,19 +69,19 @@
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="cameraButton" type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="initCamera">Camera</button>
+                            @click="initCamera">カメラ</button>
                         <canvas id="captureCanvas" class="hidden"></canvas>
                         <button id="captureButton" type="button" name="profile"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="captureImage" :disabled="!isCameraReady">Capture</button>
+                            @click="captureImage" :disabled="!isCameraReady">キャプチャ</button>
                         <input type="file" id="fileInput" name="fileInput" accept="image/*" class="hidden"
                             x-ref="fileInput" @change="uploadImage($event)">
                         <button type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="$refs.fileInput.click()">Upload Image</button>
+                            @click="$refs.fileInput.click()">アップロード</button>
                         <button id="deleteImage" type="button"
                             class="text-red-600 bg-red-300 hover:bg-red-500 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="deleteImage">Delete Image</button>
+                            @click="deleteImage">削除</button>
                     </div>
                 </div>
 
@@ -89,40 +89,40 @@
                 <div class="w-full sm:w-2/3 p-2 pt-5">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <label for="name" class="block text-sm font-medium text-gray-700">名前</label>
                             <input type="text" id="name" name="name" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.name" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700">メール</label>
                             <input type="email" id="email" name="email" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.email" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="seat_no" class="block text-sm font-medium text-gray-700">SeatNo</label>
+                            <label for="seat_no" class="block text-sm font-medium text-gray-700">学籍番号</label>
                             <input type="text" id="seat_no" name="seat_no" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.seat_no" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="dob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
+                            <label for="dob" class="block text-sm font-medium text-gray-700">生年月日</label>
                             <input type="date" id="dob" name="dob" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.dob" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Gender</label>
+                            <label class="block text-sm font-medium text-gray-700">性別</label>
                             <div class="mt-1 flex pt-4">
                                 <input type="radio" id="male" name="gender" value="1" class="mr-1" checked>
-                                <label for="male" class="mr-4">Male</label>
+                                <label for="male" class="mr-4">男性</label>
                                 <input type="radio" id="female" name="gender" value="0" class="mr-1">
-                                <label for="female">Female</label>
+                                <label for="female">女性</label>
                             </div>
                         </div>
                         <div>
-                            <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+                            <label for="role" class="block text-sm font-medium text-gray-700">役割</label>
                             <select id="role" name="role" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                 <option value="1">Student</option>
@@ -132,24 +132,24 @@
                             <span x-text="errors.role" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="phone_1" class="block text-sm font-medium text-gray-700">PhNo1</label>
+                            <label for="phone_1" class="block text-sm font-medium text-gray-700">携帯1</label>
                             <input type="text" id="phone_1" name="phone_1" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.phone_1" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="phone_2" class="block text-sm font-medium text-gray-700">PhNo2</label>
+                            <label for="phone_2" class="block text-sm font-medium text-gray-700">携帯2</label>
                             <input type="text" id="phone_2" name="phone_2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
 
                         <div class="sm:col-span-2 mt-4">
-                            <label for="memo" class="block text-sm font-medium text-gray-700">Memo</label>
+                            <label for="memo" class="block text-sm font-medium text-gray-700">メモ</label>
                             <textarea id="memo" rows="2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
                         </div>
                         <div class="sm:col-span-2 mt-4">
-                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <label for="address" class="block text-sm font-medium text-gray-700">住所</label>
                             <textarea id="address" rows="2" name="address" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
                             <span x-text="errors.address" class="text-red-600"></span>
@@ -161,10 +161,10 @@
                 <div id="ConfirmationModal"
                     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
                     <div class="bg-white p-5 rounded-lg w-full sm:w-1/3">
-                        <h3 class="text-xl mb-4 text-gray-700">You Are Registered!</h3>
+                        <h3 class="text-xl mb-4 text-gray-700">登録されています!</h3>
                         <div class="flex justify-end space-x-4">
                             <button id="confirmRegister" type="button"
-                                class="text-white bg-gray-700 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">OK</button>
+                                class="text-white bg-gray-700 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">はい</button>
                         </div>
                     </div>
                 </div>
@@ -172,9 +172,9 @@
                 <!-- Register and Cancel Buttons -->
                 <div class="mt-4 flex justify-end w-full">
                     <button id="registerParticipant" type="submit"
-                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">作成</button>
                     <button id="cancelRegistration" type="button"
-                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">閉じる</button>
                 </div>
             </div>
         </form>
@@ -185,7 +185,7 @@
         <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" x-data="editModal" x-clover-form="submit">
             {% csrf_token %}
             <div class="bg-blue-500 px-4 py-4">
-                <h3 class="text-xl mb-4 text-white pt-3">Update Details</h3>
+                <h3 class="text-xl mb-4 text-white pt-3">詳細</h3>
             </div>
             <div class="flex flex-wrap -mx-2">
                 <!-- Image Container -->
@@ -197,19 +197,19 @@
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="editCameraButton" @click="initCamera" type="button"
-                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">Camera</button>
+                            class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full">カメラ</button>
                         <canvas id="editcaptureCanvas" class="hidden"></canvas>
                         <button id="editcaptureButton" type="button" name="profile"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="captureImage" :disabled="!isCameraReady">Capture</button>
+                            @click="captureImage" :disabled="!isCameraReady">キャプチャ</button>
                         <input type="file" id="editfileInput" name="editfileInput" accept="image/*" class="hidden"
                             x-ref="editfileInput" @change="uploadImage($event)">
                         <button type="button"
                             class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="triggerFileInput">Upload Image</button>
+                            @click="triggerFileInput">アップロード</button>
                         <button id="deleteEditImage" type="button"
                             class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1 w-full"
-                            @click="deleteEditImage">Delete Image</button>
+                            @click="deleteEditImage">削除</button>
                     </div>
                 </div>
 
@@ -217,45 +217,45 @@
                 <div class="w-full sm:w-2/3 p-7">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <label for="name" class="block text-sm font-medium text-gray-700">名前</label>
                             <input type="text" id="editname" name="editname" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editname" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="editemail" class="block text-sm font-medium text-gray-700">Email</label>
+                            <label for="editemail" class="block text-sm font-medium text-gray-700">メール</label>
                             <input type="email" id="editemail" name="editemail" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editemail" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="editseat_no" class="block text-sm font-medium text-gray-700">SeatNo</label>
+                            <label for="editseat_no" class="block text-sm font-medium text-gray-700">学籍番号</label>
                             <input type="text" id="editseat_no" name="editseat_no"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
                         <div>
-                            <label for="editdob" class="block text-sm font-medium text-gray-700">DateOfBirth</label>
+                            <label for="editdob" class="block text-sm font-medium text-gray-700">生年月日</label>
                             <input type="date" id="editdob" name="editdob" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editdob" class="text-red-600"></span>
                         </div>
                         <div class="col-span-2 grid grid-cols-3 gap-2">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Gender</label>
+                                <label class="block text-sm font-medium text-gray-700">性別</label>
                                 <div class="mt-1 flex pt-4">
                                     <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
-                                    <label for="editmale" class="mr-4">Male</label>
+                                    <label for="editmale" class="mr-4">男性</label>
                                     <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
-                                    <label for="editfemale">Female</label>
+                                    <label for="editfemale">女性</label>
                                 </div>
                             </div>
                             <div>
-                                <label for="editpf" class="block text-sm font-medium text-gray-700">Profile</label>
+                                <label for="editpf" class="block text-sm font-medium text-gray-700">顔状況</label>
                                 <input type="text" id="editpf" name="editpf" disabled
                                     class="mt-1 block w-[200px] border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="editrole" class="block text-sm font-medium text-gray-700">Role</label>
+                                <label for="editrole" class="block text-sm font-medium text-gray-700">役割</label>
                                 <select id="editrole" name="editrole"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                     <option value="1">Student</option>
@@ -266,36 +266,36 @@
                             </div>
                         </div>
                         <div>
-                            <label for="editphone_1" class="block text-sm font-medium text-gray-700">PhNo1</label>
+                            <label for="editphone_1" class="block text-sm font-medium text-gray-700">携帯1</label>
                             <input type="text" id="editphone_1" name="editphone_1" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <span x-text="errors.editphone_1" class="text-red-600"></span>
                         </div>
                         <div>
-                            <label for="editphone_2" class="block text-sm font-medium text-gray-700">PhNo2</label>
+                            <label for="editphone_2" class="block text-sm font-medium text-gray-700">携帯2</label>
                             <input type="text" id="editphone_2"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                         </div>
                         <div class="col-span-2 grid grid-cols-2 gap-3">
                             <div>
-                                <label for="editStart" class="block text-sm font-medium text-gray-700">StartDate</label>
+                                <label for="editStart" class="block text-sm font-medium text-gray-700">作成日</label>
                                 <input id="editStart" rows="2" type="text" disabled
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             </div>
                             <div>
-                                <label for="editEnd" class="block text-sm font-medium text-gray-700">EndDate</label>
+                                <label for="editEnd" class="block text-sm font-medium text-gray-700">更新日</label>
                                 <input id="editEnd" rows="2" name="editEnd" type="text" disabled
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             </div>
                         </div>
                         <div class="col-span-2 grid grid-cols-2 gap-3">
                             <div>
-                                <label for="editmemo" class="block text-sm font-medium text-gray-700">Memo</label>
+                                <label for="editmemo" class="block text-sm font-medium text-gray-700">メモ</label>
                                 <textarea id="editmemo" rows="2"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
                             </div>
                             <div>
-                                <label for="editaddress" class="block text-sm font-medium text-gray-700">Address</label>
+                                <label for="editaddress" class="block text-sm font-medium text-gray-700">住所</label>
                                 <textarea id="editaddress" rows="2" name="editaddress" x-clover-verify
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
                                 <span x-text="errors.editaddress" class="text-red-600"></span>
@@ -308,7 +308,7 @@
                                     class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600">
                                 </div>
                                 <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                    Turn on to send email about updated information!!
+                                    今回の更新でユーザーにメールを送信します!!
                                 </span>
                             </label>
                         </div>
@@ -320,14 +320,14 @@
                 <div id="deleteConfirmationModal"
                     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
                     <div class="bg-white p-5 rounded-lg w-full sm:w-1/3">
-                        <h3 class="text-xl mb-4 text-gray-700">Are you sure you want to delete your information?</h3>
+                        <h3 class="text-xl mb-4 text-gray-700">情報を削除してもよろしいですか?</h3>
                         <div class="flex justify-end space-x-4">
                             <button id="confirmDelete" type="button"
                                 class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5"
-                                @click="confirmDelete">Yes</button>
+                                @click="confirmDelete">はい</button>
                             <button id="cancelDelete" type="button"
                                 class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
-                                @click="hideDeleteConfirmation">Cancel</button>
+                                @click="hideDeleteConfirmation">閉じる</button>
                         </div>
                     </div>
                 </div>
@@ -335,13 +335,13 @@
                 <!-- Edit and Cancel Buttons -->
                 <div class="mt-4 flex justify-end w-full">
                     <button id="updateParticipant" type="submit"
-                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Update</button>
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">作成</button>
 
                     <button id="deleteEdit" type="button"
-                        class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Delete</button>
+                        class="text-white bg-red-500 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">削除</button>
 
                     <button id="cancelEdit" type="button"
-                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">閉じる</button>
                 </div>
             </div>
         </form>
@@ -352,7 +352,7 @@
 <!-- Pagination Controls and Search Bar -->
 <div class="flex justify-between items-center mb-4 px-5">
     <div class="flex items-center">
-        <label for="pagination" class="mr-2 text-sm font-medium text-gray-700">Show:</label>
+        <label for="pagination" class="mr-2 text-sm font-medium text-gray-700">件表示 : </label>
         <select id="pagination"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
             <option value="10" {% if per_page is "10" %}selected{% endif %}>10</option>
@@ -378,7 +378,7 @@
         font-medium rounded-lg text-sm px-5 py-2.5 
         text-center inline-flex items-center dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
             type="button">
-            Export As
+            出力
             <svg class="w-4 h-4 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -413,21 +413,21 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
                 <th scope="col" class="py-3 px-6 w-4"></th>
-                <th scope="col" class="py-3 px-6">Participant ID</th>
-                <th scope="col" class="py-3 px-6">Name</th>
-                <th scope="col" class="py-3 px-6">Seat Number</th>
-                <th scope="col" class="py-3 px-6">Date of Birth</th>
-                <th scope="col" class="py-3 px-6">Phone Number</th>
-                <th scope="col" class="py-3 px-6">Status</th>
+                <th scope="col" class="py-3 px-6">参加者ID</th>
+                <th scope="col" class="py-3 px-6">名前</th>
+                <th scope="col" class="py-3 px-6">学籍番号</th>
+                <th scope="col" class="py-3 px-6">生年月日</th>
+                <th scope="col" class="py-3 px-6">携帯</th>
+                <th scope="col" class="py-3 px-6">顔状況</th>
             </tr>
         </thead>
         <tbody id="ptList">
             {% for participant in page.object_list %}
             <tr class="bg-white border-b">
-                <td class="py-4 px-6">
+                <td class="py-4 px-6 w-[130px]">
                     <button
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-1 open-edit-modal"
-                        data-participant-id="{{ participant.id }}">Details</button>
+                        data-participant-id="{{ participant.id }}">詳細</button>
                 </td>
                 <td class="py-4 px-6">{{ participant.id }}</td>
                 <td class="py-4 px-6 participant-name">{{ participant.name }}</td>
@@ -436,13 +436,15 @@
                 <td class="py-4 px-6">{{ participant.phone_1 }}</td>
                 <td class="py-4 px-6">
                     {% if participant.face %}
-                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
-                            True
-                        </span>
+                    <span
+                        class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
+                        True
+                    </span>
                     {% else %}
-                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
-                            False
-                        </span>
+                    <span
+                        class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
+                        False
+                    </span>
                     {% endif %}
                 </td>
             </tr>
@@ -454,26 +456,26 @@
 <!-- Pagination Controls -->
 <div class="flex justify-between items-center mt-4 px-5">
     <div class="text-sm text-gray-700">
-        Showing <span class="font-medium">{{ page.start_index }}</span> to
-        <span class="font-medium">{{ page.end_index }}</span> of
-        <span class="font-medium">{{ page.paginator.count }}</span> results
+        <span class="font-medium">{{ page.paginator.count }}</span> 件中
+        <span class="font-medium">{{ page.start_index }}</span> から
+        <span class="font-medium">{{ page.end_index }}</span> まで表示
+
     </div>
     <div class="flex items-center space-x-2">
         {% if page.has_previous %}
         <button class="prev-page bg-blue-500 text-white py-2 px-4 rounded"
-            data-page="{{ page.previous_page_number }}">Previous</button>
+            data-page="{{ page.previous_page_number }}">前</button>
         {% else %}
-        <button class="prev-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed"
-            disabled>Previous</button>
+        <button class="prev-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>前</button>
         {% endif %}
 
         <span class="current-page">{{ page.number }}</span>
 
         {% if page.has_next %}
         <button class="next-page bg-blue-500 text-white py-2 px-4 rounded"
-            data-page="{{ page.next_page_number }}">Next</button>
+            data-page="{{ page.next_page_number }}">次</button>
         {% else %}
-        <button class="next-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>Next</button>
+        <button class="next-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>次</button>
         {% endif %}
     </div>
 </div>
@@ -508,37 +510,7 @@
         const sessionPerPage = sessionStorage.getItem('per_page');
         const storedPerPage = localStorage.getItem('per_page');
 
-        updateTable(sessionPerPage);
-
-        if (isReload && sessionPerPage && paginationSelect) {
-            paginationSelect.value = sessionPerPage;
-        } else if (paginationSelect) {
-            paginationSelect.value = "{{ per_page }}";
-        }
-
-        if (paginationSelect) {
-            paginationSelect.addEventListener('change', function () {
-                const perPage = paginationSelect.value;
-                sessionStorage.setItem('per_page', perPage);
-                updateTable(perPage);
-            });
-        }
-
-        if (eventSelect) {
-            eventSelect.addEventListener('change', function () {
-                const selectedEvent = eventSelect.value;
-                updateTable(null, null, selectedEvent);
-            });
-        }
-
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                const searchTerm = searchInput.value.toLowerCase();
-                updateTable(null, searchTerm);
-            });
-        }
-
-        function updateTable(perPage = null, searchTerm = '', event = null) {
+        function updateTable(perPage = null, searchTerm = '', event = '') {
             const urlParams = new URLSearchParams(window.location.search);
 
             if (perPage) {
@@ -578,6 +550,30 @@
                 .catch(error => console.error('Error:', error));
         }
 
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedEvent = eventSelect.value;
+            updateTable(paginationSelect.value, searchTerm, selectedEvent);
+        });
+
+        if (paginationSelect) {
+            paginationSelect.addEventListener('change', function () {
+                const perPage = paginationSelect.value;
+                sessionStorage.setItem('per_page', perPage);
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedEvent = eventSelect.value;
+                updateTable(perPage, searchTerm, selectedEvent);
+            });
+        }
+
+        if (eventSelect) {
+            eventSelect.addEventListener('change', function () {
+                const selectedEvent = eventSelect.value;
+                const searchTerm = searchInput.value.toLowerCase();
+                updateTable(paginationSelect.value, searchTerm, selectedEvent);
+            });
+        }
+
         function attachListeners() {
             attachDetailsListeners();
             attachPaginationListeners();
@@ -587,7 +583,7 @@
             document.querySelectorAll('.open-edit-modal').forEach(button => {
                 button.addEventListener('click', function () {
                     const participantId = this.dataset.participantId;
-                    console.log(`Open modal for participant ID: ${participantId}`);
+
                 });
             });
         }
@@ -599,8 +595,8 @@
                     e.preventDefault();
                     if (!prevPageButton.disabled) {
                         const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
-                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                        const event = eventSelect ? eventSelect.value : '';
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const event = eventSelect.value;
                         updateTablePage(currentPage - 1, searchTerm, event);
                     }
                 });
@@ -612,8 +608,8 @@
                     e.preventDefault();
                     if (!nextPageButton.disabled) {
                         const currentPage = parseInt(document.querySelector('.current-page')?.textContent) || 1;
-                        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                        const event = eventSelect ? eventSelect.value : '';
+                        const searchTerm = searchInput.value.toLowerCase();
+                        const event = eventSelect.value;
                         updateTablePage(currentPage + 1, searchTerm, event);
                     }
                 });
@@ -656,8 +652,17 @@
                 .catch(error => console.error('Error:', error));
         }
 
+        updateTable(sessionPerPage);
+
+        if (isReload && sessionPerPage && paginationSelect) {
+            paginationSelect.value = sessionPerPage;
+        } else if (paginationSelect) {
+            paginationSelect.value = "{{ per_page }}";
+        }
+
         attachListeners();
     });
+
 
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -687,7 +692,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log('Fetched data:', data);
+                        // console.log('Fetched data:', data);
 
                         // Save original data
                         originalData = data;
@@ -860,15 +865,15 @@
                             // window.location.href = ""
                             this.showConfirmation();
                         } else {
-                            console.log(response.message);
+                            // console.log(response.message);
                         }
 
                     } catch (error) {
-                        console.log(error);
+                        // console.log(error);
                     }
 
                 } else {
-                    console.log(this.errors);
+                    // console.log(this.errors);
                 }
             },
 
@@ -1041,21 +1046,20 @@
                             alert("Your Information is Updated!")
 
                             if (sendEmailNotification && response.updatedInfo && response.updatedInfo.email) {
-                                console.log(response.updatedInfo)
                                 this.sendEmailNotification(response.updatedInfo.email);
                             }
 
                             window.location.href = "/participant";
                         } else {
-                            console.log(response.message)
+                            // console.log(response.message)
                         }
 
                     } catch (error) {
-                        console.log(error)
+                        // console.log(error)
                     }
 
                 } else {
-                    console.log(this.errors)
+                    // console.log(this.errors)
                 }
             },
 
@@ -1194,46 +1198,35 @@
 
         }))
 
-        const searchInput = document.getElementById('search');
 
-        searchInput.addEventListener('input', function () {
-            const searchTerm = searchInput.value.toLowerCase();
-            const ptRows = document.querySelectorAll('#ptList tr');
+        $(document).ready(function () {
+            const eventsDropdown = $('#events');
+            const defaultEventId = '{{ selected_event }}';
 
-            ptRows.forEach(row => {
-                const ptName = row.querySelector('.participant-name');
-                const ptID = row.querySelector('td:nth-child(4)');
+            if (defaultEventId) {
+                fetchParticipants(defaultEventId);
+            }
 
-                if (ptName || ptID) {
-                    const ptNameText = ptName.textContent.toLowerCase();
-                    const ptIdText = ptID.textContent.toLowerCase();
-                    if (ptNameText.includes(searchTerm) || ptIdText.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                }
-            });
-        });
-
-        searchInput.addEventListener('input', function () {
-            const searchTerm = searchInput.value.toLowerCase();
-            updateTable(paginationSelect.value);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const dropdownButton = document.getElementById('dropdownDefaultButton');
-            const dropdownMenu = document.getElementById('dropdown');
-
-            dropdownButton.addEventListener('click', function () {
-                dropdownMenu.classList.toggle('hidden');
+            eventsDropdown.change(function () {
+                const selectedEventId = $(this).val();
+                fetchParticipants(selectedEventId);
             });
 
-            window.addEventListener('click', function (event) {
-                if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                    dropdownMenu.classList.add('hidden');
-                }
-            });
+            function fetchParticipants(eventId) {
+                $.get(`/get-participants/${eventId}/`, function (data) {
+                    $('#participants-list').html(data);
+                    attachDetailsButtonClickHandler();
+                });
+            }
+
+            function attachDetailsButtonClickHandler() {
+                $('.details-button').click(function () {
+                    const participantId = $(this).data('id');
+                    console.log('Details button clicked for participant ID:', participantId);
+                });
+            }
+
+            attachDetailsButtonClickHandler();
 
             // Handle CSV download
             const downloadCSV = document.getElementById('downloadCSV');

@@ -95,9 +95,9 @@ def verify(encode, threshold, embeddings, participant_ids):
 def add_attendance(in_status, participant_id):
     today = datetime.datetime.now()
     attendance = Attendance.objects.get(participant_id=participant_id, date=today.date())
-    if in_status == True and attendance.entry_1 == None:
+    if in_status == True:
         attendance.entry_1 = today.time()
-    elif in_status == False and attendance.leave_1 == None:
+    else:
         attendance.leave_1 = today.time()
     attendance.save()
 
