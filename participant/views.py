@@ -68,10 +68,10 @@ def participant(request):
         
         participant.save()
         row_check(participant.id)
-        train_unknown_classifier()
+        #train_unknown_classifier()
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
-        cache.delete(f"{event_id}")
+        cache.delete(f"embeds")
         
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
@@ -173,15 +173,16 @@ def update_participant(request, participant_id):
         event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
         email_status = request.POST.get('email_status')
-
+        embeddable = False 
         # Handle base64-encoded image data if provided
         if 'editfileInput' in request.FILES:
             profile = request.FILES["editfileInput"]
-            img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')
+            img = base64.b64encode(profile.read())
+            profile = img.decode('utf-8')
+            embeddable = True 
         else:
-            profile = participant.profile
-
+            profile = None
+            print(profile)
         # Update participant fields
         participant.name = name
         participant.email = email
@@ -195,6 +196,14 @@ def update_participant(request, participant_id):
         participant.address = address
         participant.event = event
         participant.profile = profile
+        if embeddable:
+            image_np = np.frombuffer(base64.b64decode(img), dtype=np.uint8)
+            np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
+            face, detection_status = capture_face(np_img)
+            if detection_status:
+                encoding = get_encode(face)
+                participant.facial_feature = json.dumps(encoding)
+                participant.face = True
 
         # Save participant object
         participant.save()

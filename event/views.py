@@ -5,7 +5,6 @@ from django.db.models import Count
 from django.utils import timezone
 # Create your views here.
 def index(request):
-    
     if request.method=="POST":
             name=request.POST.get("name")
             start=request.POST.get("starttime")

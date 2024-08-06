@@ -9,8 +9,15 @@ from email.mime.image import MIMEImage
 from email.utils import formataddr
 import os
 from cryptography.fernet import Fernet
+from attendance.crypto_key_gen import load_key, generate_key
 
-cipher_suite = Fernet(os.getenv("P_HUB_EK"))
+key_path = "common/p_hub_key.key"
+if os.path.exists(key_path):
+    key = load_key(key_path)    
+else:
+    generate_key(key_path)
+    key = load_key(key_path)
+cipher_suite = Fernet(key)
 
 def create_qr(id):
     logo_path = "common/present_hub_logo.png"
