@@ -57,7 +57,7 @@ Attendance
                         <ul class="h-[200px] overflow-y-scroll">
                             <li x-show="!event" @click="handleEventSelect" data-id=""
                                 class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full">
-                                All</li>
+                                全て</li>
                             <template x-for="event in computeEvent"
                                 :key="event.id">
                                 <li @click="handleEventSelect"
@@ -187,11 +187,11 @@ Attendance
     <div>
         <div class="grid grid-cols-6 gap-5">
             <div class="col-span-2">
-                <label for="event" class="font-bold text-sm">日々</label>
+                <label for="event" class="font-bold text-sm">イベント</label>
                 <input placeholder="イベントを選択してください" data-modal-show="event-modal"
-                    x-ref="eventSearch" type="text" name="event" readonly
-                    value="All"
-                    class="bg-gray-50 border border-gray-300 text-gray-900  cursor-pointer text-sm rounded-lg focus:ring-0  focus:shadow-none focus:outline-none focus:border-gray-300 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                    x-ref="eventSearch" type="button" name="event" readonly
+                    value="全て"
+                    class="bg-gray-50 border text-left border-gray-300 text-gray-900  cursor-pointer text-sm rounded-lg focus:ring-0  focus:shadow-none focus:outline-none focus:border-gray-300 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
             </div>
             <div class="col-span-2">
                 <label for="date-range" class="font-bold text-sm">日々</label>

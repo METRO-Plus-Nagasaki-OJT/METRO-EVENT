@@ -304,8 +304,16 @@ Event
                             <td class="px-6 py-4" x-text="event.attendance">
 
                             </td>
-                            <td class="px-6 py-4" x-text="event.status">
-
+                            <td class="px-6 py-4">
+                                <span x-text="event.status.label"
+                                    x-show="event.status.value === 1"
+                                    class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"></span>
+                                <span x-text="event.status.label"
+                                    x-show="event.status.value === 2"
+                                    class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"></span>
+                                <span x-text="event.status.label"
+                                    x-show="event.status.value === 3"
+                                    class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300"></span>
                             </td>
                         </tr>
 
@@ -378,7 +386,7 @@ Event
             },
             get showResult() {
                 const from = this.pageNumber * this.limit + 1
-                const to = from + this.limit
+                const to = this.pageNumber * this.limit + this.limit
                 return `showing ${from} to ${to >= this.total ? this.total : to} of ${this.total} result`
             },
             init() {
@@ -408,13 +416,13 @@ Event
                 }
 
                 this.total = events.length
-
+        
                 if (this.sort) {
                     const sortBy = this.sort.includes("-") ? "desc" : "asc"
                     const key = this.sort.replace("-", "")
                     events = events.sort((a, b) => {
-                        const valueA = a[key];
-                        const valueB = b[key];
+                        const valueA = key === 'status' ? a[key].value : a[key];
+                        const valueB = key === 'status' ? b[key].value : b[key];;
                         const comparison = `${valueA}`.localeCompare(`${valueB}`)
                         return sortBy === "asc" ? comparison : -comparison
                     })
