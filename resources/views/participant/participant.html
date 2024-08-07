@@ -52,8 +52,8 @@
     <!-- Register Modal -->
     <div id="participantModal" x-data="participantModal"
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-        <form class="bg-white p-5 rounded-lg w-full sm:w-2/3" enctype="multipart/form-data" x-clover-form="submit"
-            action="{% url 'participant' %}" method="post">
+        <form id="ptForm" class="bg-white p-5 rounded-lg w-full sm:w-2/3" enctype="multipart/form-data"
+            x-clover-form="submit" action="{% url 'participant' %}" method="post">
             {% csrf_token %}
             <div class="bg-blue-500 px-4 py-4">
                 <h3 class="text-xl mb-4 text-white pt-3">新規作成</h3>
@@ -92,25 +92,25 @@
                             <label for="name" class="block text-sm font-medium text-gray-700">名前</label>
                             <input type="text" id="name" name="name" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.name" class="text-red-600"></span>
+                            <span x-text="errors.name" class="text-red-600 error-message"></span>
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">メール</label>
                             <input type="email" id="email" name="email" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.email" class="text-red-600"></span>
+                            <span x-text="errors.email" class="text-red-600 error-message"></span>
                         </div>
                         <div>
                             <label for="seat_no" class="block text-sm font-medium text-gray-700">学籍番号</label>
                             <input type="text" id="seat_no" name="seat_no" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.seat_no" class="text-red-600"></span>
+                            <span x-text="errors.seat_no" class="text-red-600 error-message"></span>
                         </div>
                         <div>
                             <label for="dob" class="block text-sm font-medium text-gray-700">生年月日</label>
                             <input type="date" id="dob" name="dob" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.dob" class="text-red-600"></span>
+                            <span x-text="errors.dob" class="text-red-600 error-message"></span>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">性別</label>
@@ -123,19 +123,18 @@
                         </div>
                         <div>
                             <label for="role" class="block text-sm font-medium text-gray-700">役割</label>
-                            <select id="role" name="role" x-clover-verify
+                            <select id="role" name="role"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                 <option value="1">Student</option>
                                 <option value="2">Staff</option>
                                 <option value="3">Guest</option>
                             </select>
-                            <span x-text="errors.role" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="phone_1" class="block text-sm font-medium text-gray-700">携帯1</label>
                             <input type="text" id="phone_1" name="phone_1" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <span x-text="errors.phone_1" class="text-red-600"></span>
+                            <span x-text="errors.phone_1" class="text-red-600 error-message"></span>
                         </div>
                         <div>
                             <label for="phone_2" class="block text-sm font-medium text-gray-700">携帯2</label>
@@ -152,7 +151,7 @@
                             <label for="address" class="block text-sm font-medium text-gray-700">住所</label>
                             <textarea id="address" rows="2" name="address" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
-                            <span x-text="errors.address" class="text-red-600"></span>
+                            <span x-text="errors.address" class="text-red-600 error-message"></span>
                         </div>
                     </div>
                 </div>
@@ -230,8 +229,9 @@
                         </div>
                         <div>
                             <label for="editseat_no" class="block text-sm font-medium text-gray-700">学籍番号</label>
-                            <input type="text" id="editseat_no" name="editseat_no"
+                            <input type="text" id="editseat_no" name="editseat_no" x-clover-verify
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <span x-text="errors.editseat_no" class="text-red-600"></span>
                         </div>
                         <div>
                             <label for="editdob" class="block text-sm font-medium text-gray-700">生年月日</label>
@@ -243,7 +243,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">性別</label>
                                 <div class="mt-1 flex pt-4">
-                                    <input type="radio" id="editmale" name="editgender" value="1" class="mr-1" checked>
+                                    <input type="radio" id="editmale" name="editgender" value="1" class="mr-1">
                                     <label for="editmale" class="mr-4">男性</label>
                                     <input type="radio" id="editfemale" name="editgender" value="0" class="mr-1">
                                     <label for="editfemale">女性</label>
@@ -663,11 +663,9 @@
         attachListeners();
     });
 
-
-
     document.addEventListener('DOMContentLoaded', function () {
-        const openEditButtons = document.querySelectorAll('.open-edit-modal');
         const editModal = document.getElementById('editModal');
+        const participantModal = document.getElementById('participantModal');
         let originalData = {};
 
         document.body.addEventListener("click", function (e) {
@@ -692,51 +690,20 @@
                         return response.json();
                     })
                     .then(data => {
-                        // console.log('Fetched data:', data);
-
                         // Save original data
                         originalData = data;
 
-                        document.getElementById('editname').value = data.name || '';
-                        document.getElementById('editemail').value = data.email || '';
-                        document.getElementById('editseat_no').value = data.seat_no || '';
-                        document.getElementById('editdob').value = data.dob || '';
-                        document.getElementById('editphone_1').value = data.phone_1 || '';
-                        document.getElementById('editphone_2').value = data.phone_2 || '';
-                        document.getElementById('editmemo').value = data.memo || '';
-                        document.getElementById('editaddress').value = data.address || '';
-                        document.getElementById('editrole').value = data.role || '';
-                        document.getElementById('editStart').value = data.created_at || '';
-                        document.getElementById('editEnd').value = data.updated_at || '';
+                        // Populate the form with the fetched data
+                        restoreOriginalData();
 
-                        if (data.gender === 'male') {
-                            document.getElementById('male').checked = true;
-                        } else if (data.gender === 'female') {
-                            document.getElementById('female').checked = true;
-                        } else {
-                            document.getElementById('male').checked = false;
-                            document.getElementById('female').checked = false;
-                        }
-
-                        const editImgContainer = document.getElementById('editimageContainer');
-                        editImgContainer.innerHTML = '';
-                        if (data.image_data) {
-                            const img = document.createElement('img');
-                            img.src = `data:image/jpeg;base64,${data.image_data}`;
-                            img.classList.add('h-full', 'w-full', 'object-cover');
-                            editImgContainer.appendChild(img);
-                        }
-
-                        const editProfileField = document.getElementById('editpf');
-                        if (data.editPf) {
-                            editProfileField.value = 'True';
-                        } else {
-                            editProfileField.value = 'False';
-                        }
-
+                        // Show the modal
                         editModal.classList.remove('hidden');
                     })
                     .catch(error => console.error('Error fetching participant data:', error));
+            }
+
+            if (e.target.tagName.toLowerCase() === "button" && e.target.classList.contains("open-participant-modal")) {
+                participantModal.classList.remove('hidden');
             }
         });
 
@@ -744,17 +711,19 @@
         if (cancelEditButton) {
             cancelEditButton.addEventListener('click', function () {
                 // Clear inputs
-                const inputs = editModal.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = false;
-                    } else {
-                        input.value = '';
-                    }
-                });
+                clearEditModalInputs();
 
                 // Hide the modal
                 editModal.classList.add('hidden');
+            });
+        }
+
+        const cancelParticipantButton = document.getElementById('cancelRegistration');
+        if (cancelParticipantButton) {
+            cancelParticipantButton.addEventListener('click', function () {
+                participantModal.classList.add('hidden');
+                resetForm();
+                resetErrors();
             });
         }
 
@@ -772,13 +741,13 @@
             document.getElementById('editStart').value = originalData.created_at || '';
             document.getElementById('editEnd').value = originalData.updated_at || '';
 
-            if (originalData.gender === 'male') {
-                document.getElementById('male').checked = true;
-            } else if (originalData.gender === 'female') {
-                document.getElementById('female').checked = true;
+            if (originalData.gender === '1') {
+                document.getElementById('editmale').checked = true;
+            } else if (originalData.gender === '0') {
+                document.getElementById('editfemale').checked = true;
             } else {
-                document.getElementById('male').checked = false;
-                document.getElementById('female').checked = false;
+                document.getElementById('editmale').checked = false;
+                document.getElementById('editfemale').checked = false;
             }
 
             const editImgContainer = document.getElementById('editimageContainer');
@@ -791,29 +760,26 @@
             }
 
             const editProfileField = document.getElementById('editpf');
-            if (originalData.editPf) {
-                editProfileField.value = 'True';
-            } else {
-                editProfileField.value = 'False';
-            }
+            editProfileField.value = originalData.editPf ? 'True' : 'False';
         }
 
-        const openParticipantButtons = document.querySelectorAll('.open-participant-modal');
-        const participantModal = document.getElementById('participantModal');
-
-        openParticipantButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                participantModal.classList.remove('hidden');
+        // Clear inputs when cancel button is clicked
+        function clearEditModalInputs() {
+            const inputs = editModal.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
             });
-        });
 
-        const cancelParticipantButton = document.getElementById('cancelRegistration');
-        if (cancelParticipantButton) {
-            cancelParticipantButton.addEventListener('click', function () {
-                participantModal.classList.add('hidden');
-            });
+            const editImgContainer = document.getElementById('editimageContainer');
+            editImgContainer.innerHTML = '';
         }
     });
+
+
 
 
     // Image preview handling
@@ -827,21 +793,40 @@
             captureCanvas: null,
             isCameraReady: false,
             rule: {
-                name: [Clover.rule.required()],
-                email: [Clover.rule.required(), Clover.rule.mail()],
-                seat_no: [Clover.rule.required(), Clover.rule.number()],
-                dob: [Clover.rule.required()],
-                role: [Clover.rule.required()],
-                phone_1: [Clover.rule.required()],
-                address: [Clover.rule.required()],
+                name: [Clover.rule.required("名前が必要です。"), Clover.rule.onlyWordCharacter("名前は特殊文字である必要があります")],
+                email: [Clover.rule.required("メールが必要です。"), Clover.rule.mail('入力された電子メールの形式が正しくありません')],
+                seat_no: [Clover.rule.required("座席番号が必要です。"), Clover.rule.number('数字のみを入力してください。')],
+                dob: [Clover.rule.required("生年月日が必要です。")],
+                phone_1: [Clover.rule.required('携帯番号が必要です。'), Clover.rule.number('数字のみを入力してください。')],
+                address: [Clover.rule.required("住所が必要です。")],
             },
             errors: {},
+
+            resetForm() {
+                const form = document.getElementById('ptForm');
+                if (form) {
+                    form.reset();
+                }
+                this.deleteImage();
+            },
+
+            resetErrors() {
+                this.errors = {}; 
+
+                document.querySelectorAll('.error-message').forEach(message => {
+                    message.textContent = '';
+                });
+
+                document.querySelectorAll('.form-input').forEach(input => {
+                    input.classList.remove('error');
+                });
+            },
+
             async submit() {
                 const form = this.$el;
                 const formData = new FormData(form);
                 const eventDropdown = document.getElementById('events');
 
-                // Check if eventDropdown exists and append its value
                 if (eventDropdown && eventDropdown.value) {
                     formData.append("event", eventDropdown.value);
                 } else {
@@ -862,18 +847,17 @@
 
                         const response = await res.json();
                         if (response.status === 'success') {
-                            // window.location.href = ""
                             this.showConfirmation();
                         } else {
-                            // console.log(response.message);
+
                         }
 
                     } catch (error) {
-                        // console.log(error);
+                        
                     }
 
                 } else {
-                    // console.log(this.errors);
+                    
                 }
             },
 
@@ -967,9 +951,11 @@
             showConfirmation() {
                 document.getElementById('ConfirmationModal').classList.remove('hidden');
             },
+
             hideConfirmation() {
                 document.getElementById('ConfirmationModal').classList.add('hidden');
             },
+
             confirmRegister() {
                 this.hideConfirmation();
                 window.location.href = "/participant";
@@ -981,14 +967,9 @@
                 const cancelButton = document.getElementById('cancelRegistration');
                 if (cancelButton) {
                     cancelButton.addEventListener('click', () => {
-                        const inputs = this.$el.querySelectorAll('input, textarea, select');
-                        inputs.forEach(input => {
-                            if (input.type === 'checkbox' || input.type === 'radio') {
-                                input.checked = false;
-                            } else {
-                                input.value = '';
-                            }
-                        });
+                        this.resetForm();
+                        this.resetErrors();
+                        this.stopCamera();
 
                         document.getElementById('participantModal').classList.add('hidden');
                     });
@@ -1002,48 +983,61 @@
             captureCanvas: null,
             isCameraReady: false,
             rule: {
-                editname: [Clover.rule.required()],
-                editemail: [Clover.rule.mail()],
-                editseat_no: [Clover.rule.required()],
-                editdob: [Clover.rule.required()],
-                editrole: [Clover.rule.required()],
-                editphone_1: [Clover.rule.required()],
-                editaddress: [Clover.rule.required()],
+                editname: [Clover.rule.required("名前が必要です。"), Clover.rule.onlyWordCharacter("名前は特殊文字である必要があります")],
+                editemail: [Clover.rule.required("メールが必要です。"), Clover.rule.mail('入力された電子メールの形式が正しくありません')],
+                editseat_no: [Clover.rule.required("座席番号が必要です。"), Clover.rule.number('数字のみを入力してください。')],
+                editdob: [Clover.rule.required("生年月日が必要です。")],
+                editphone_1: [Clover.rule.required('携帯番号が必要です。'), Clover.rule.number('数字のみを入力してください。')],
+                editaddress: [Clover.rule.required("住所が必要です。")],
             },
-            errors: {
+            errors: {},
 
+            resetForm() {
+                const inputs = document.querySelectorAll('#editModal input, #editModal textarea, #editModal select');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
             },
+
+            resetErrors() {
+                this.errors = {};
+            },
+
             async submit() {
-                const form = this.$el
-                const formData = new FormData(form)
-                const eventDropdown = document.getElementById('events')
+                const form = this.$el;
+                const formData = new FormData(form);
+                const eventDropdown = document.getElementById('events');
 
-                // Check if eventDropdown exists and append its value
                 if (eventDropdown && eventDropdown.value) {
-                    formData.append("event", eventDropdown.value)
+                    formData.append("event", eventDropdown.value);
                 } else {
-                    this.errors.event = "Event is required"
-                    return
+                    this.errors.event = "Event is required";
+                    return;
                 }
 
                 const emailNotificationCheckbox = document.getElementById('emailNotificationCheckbox');
                 const sendEmailNotification = emailNotificationCheckbox.checked;
-                formData.append("email_status", sendEmailNotification)
+                formData.append("email_status", sendEmailNotification);
+
                 if (!Object.keys(this.errors).length) {
                     try {
                         const res = await fetch(`participant/update/${currentParticipantId}/`, {
                             method: "POST",
                             body: formData,
-                        })
+                        });
 
                         if (!res.ok) {
-                            throw res
+                            throw res;
                         }
 
                         const response = await res.json();
 
                         if (response.status === 'success') {
-                            alert("Your Information is Updated!")
+                            alert("Your Information is Updated!");
 
                             if (sendEmailNotification && response.updatedInfo && response.updatedInfo.email) {
                                 this.sendEmailNotification(response.updatedInfo.email);
@@ -1051,15 +1045,13 @@
 
                             window.location.href = "/participant";
                         } else {
-                            // console.log(response.message)
+                            
                         }
-
                     } catch (error) {
-                        // console.log(error)
+                        console.error('Error:', error);
                     }
-
                 } else {
-                    // console.log(this.errors)
+                    
                 }
             },
 
@@ -1093,7 +1085,6 @@
                     this.captureCanvas.height = this.videoElement.videoHeight;
                     context.drawImage(this.videoElement, 0, 0, this.captureCanvas.width, this.captureCanvas.height);
 
-                    // Convert canvas image to Blob
                     this.captureCanvas.toBlob(blob => {
                         const file = new File([blob], 'captured_image.jpeg', { type: 'image/jpeg' });
 
@@ -1151,9 +1142,9 @@
             deleteEditImage() {
                 const editImgContainer = document.getElementById('editimageContainer');
                 editImgContainer.innerHTML = '';
-                const image = new Image()
-                image.src = "/public/common/default.jpg"
-                editImgContainer.appendChild(image)
+                const image = new Image();
+                image.src = "/public/common/default.jpg";
+                editImgContainer.appendChild(image);
             },
 
             showDeleteConfirmation() {
@@ -1172,7 +1163,7 @@
                 fetch(url, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRFToken': "{{ csrf_token  }}"
+                        'X-CSRFToken': "{{ csrf_token }}"
                     }
                 })
                     .then(response => {
@@ -1188,15 +1179,32 @@
                         console.error('Error deleting participant:', error);
                     });
             },
+
             init() {
                 document.getElementById('deleteEdit').addEventListener('click', this.showDeleteConfirmation.bind(this));
                 document.getElementById('confirmDelete').addEventListener('click', this.confirmDelete.bind(this));
                 document.getElementById('cancelDelete').addEventListener('click', this.hideDeleteConfirmation.bind(this));
+                document.getElementById('cancelEdit').addEventListener('click', () => {
+                    this.stopCamera();
+                    this.resetForm();
+                    // Hide the modal
+                    document.getElementById('editModal').classList.add('hidden');
+                });
+
+                const cancelButton = document.getElementById('cancelEdit');
+                if (cancelButton) {
+                    cancelButton.addEventListener('click', () => {
+                        this.resetForm();
+                        this.resetErrors();
+                        this.stopCamera();
+
+                        document.getElementById('participantModal').classList.add('hidden');
+                    });
+                }
             }
+        }));
 
 
-
-        }))
 
 
         $(document).ready(function () {

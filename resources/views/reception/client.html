@@ -118,10 +118,10 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </div>
-                            <div class="text-3xl font-semibold text-center">
-                                ワインヤンリン
+                            <div class="text-3xl font-semibold text-center" x-data>
+                                <span x-text="$store.reception.name"></span>
                                 <br>
-                                1年○○○○療法
+                                <span x-text="$store.reception.email"></span>
                             </div>
                         </div>
                         <!-- <div class="bg-red-700 bg-opacity-45 max-w-[350px] text-white mt-5 p-2 rounded-lg">
@@ -243,6 +243,8 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
+                name:'',
+                email : '',
                 faceRecognizationFailAlert: false,
                 messageStatus: false,
                 qrLoader: false,
@@ -416,6 +418,8 @@
                         if (data.success) {
                             facebox.style.display = "none"
                             this.verify = true
+                            this.name = data.name
+                            this.email = data.email
                             this.messageStatus = true
                             const asyncMessages = new AsyncIterable(this.messages, settings.eventMessageDuration)
                             for await (let m of asyncMessages) {

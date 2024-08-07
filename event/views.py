@@ -45,6 +45,21 @@ def index(request):
         )
         .order_by("id")
     )
+    if request.method=="POST":
+            name=request.POST.get("name")
+            start= datetime.strptime(request.POST.get("starttime"),'%Y-%m-%dT%H:%M' )
+            
+            end= datetime.strptime(request.POST.get("endtime"),'%Y-%m-%dT%H:%M' )
+            print(start, '-', end)
+            venue=request.POST.get("venue")
+            organizer_id=request.POST.get("organizer")
+            memo=request.POST.get("memo")
+            organizer = User.objects.get(id=organizer_id) 
+            event=Event(name=name,start_time=start,end_time=end,venue=venue,memo=memo,admin=organizer)
+            event.save()
+            return JsonResponse({"success":"True"})
+    current_time=timezone.now()
+    events = Event.objects.annotate(participant_count=Count('participant'),attendance_count=Count('participant__attendance')).values('id', 'name', 'start_time', 'end_time', 'participant_count', 'attendance_count').order_by('id')
     for event in events:
         if event["start_time"] <= current_time <= event["end_time"]:
             event["status"] = "Open"
