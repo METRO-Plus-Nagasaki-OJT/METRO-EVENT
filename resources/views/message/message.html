@@ -296,6 +296,7 @@
 
     closeMessageButton.addEventListener('click', () => {
         messageBox.classList.add('hidden'); 
+        window.location.reload();
     })
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -355,6 +356,7 @@
         if (cancelEditionButton) {
             cancelEditionButton.addEventListener('click', function () {
                 detailBox.classList.add('hidden');
+                window.location.reload();
             });
         }
     });
@@ -468,6 +470,7 @@
 
                 if (messageBox) {
                     messageBox.classList.add('hidden');
+                    window.location.reload();
                 }        
                 
                 }catch(error) {
@@ -511,6 +514,7 @@
                     // Hide the detailBox only if there are no validation errors
                     if (detailBox) {
                         detailBox.classList.add('hidden');
+                        window.location.reload();
                     }
                 } else {
                     // Optionally: Log or handle the situation where there are validation errors
