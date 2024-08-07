@@ -134,7 +134,7 @@
 
                     document.getElementById('participantsContainer').classList.remove('hidden');
 
-                    socket = new WebSocket(`ws://${window.location.host}/ws/attendance/monitor/`);
+                    socket = new WebSocket(`wss://${window.location.hostname}:8833/ws/attendance/monitor/`);
 
                     socket.onopen = function (event) {
                         console.log('WebSocket connection opened');
