@@ -38,6 +38,7 @@ def participant(request):
             img = base64.b64encode(profile.read())
             profile = img.decode('utf-8')
             embeddable = True
+            print("Yayyy!")
         else:
             profile = None
 

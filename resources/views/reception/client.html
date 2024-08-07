@@ -222,7 +222,7 @@
             async *[Symbol.asyncIterator]() {
                 const timeout = this.timeout
                 for (let item of this.data) {
-                    await new Promise(resolve => setTimeout(resolve, timeout));
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                     yield item;
                 }
             }
@@ -240,11 +240,12 @@
 
         const handFPS = setFPS(settings.handFPS)
         const faceFPS = setFPS(settings.faceFPS)
+        const qrFps = setFPS(20)
 
         document.addEventListener('alpine:init', () => {
             Alpine.store("reception", {
-                name:'',
-                email : '',
+                name: '',
+                email: '',
                 faceRecognizationFailAlert: false,
                 messageStatus: false,
                 qrLoader: false,
@@ -322,7 +323,7 @@
                             if (detection) {
                                 let boundingBox = detection.boundingBox;
                                 let width = boundingBox.width * 1.7 * window.innerWidth
-                                let height = boundingBox.height * 2 *  window.innerHeight
+                                let height = boundingBox.height * 2 * window.innerHeight
                                 let x = (boundingBox.xCenter - ((boundingBox.width * 1.7) / 2)) * window.innerWidth;
                                 let y = (boundingBox.yCenter - ((boundingBox.height * 2) / 2)) * window.innerHeight;
 
@@ -344,7 +345,7 @@
                                             cropFaceCanvas.height = faceHeight
                                             faceCtx.drawImage(video, faceX, faceY, faceWidth, faceHeight, 0, 0, faceWidth, faceHeight)
                                             this.recognizeFace(cropFaceCanvas.toDataURL())
-                                          
+
                                         }, 1000)
                                     }
                                 } else {
@@ -367,7 +368,7 @@
 
                             } else {
                                 facebox.style.display = "none"
-                                if (!resetTimeout && !this.messageStatus) {
+                                if (!resetTimeout || !this.messageStatus) {
                                     resetTimeout = setTimeout(() => {
                                         resetTimeout = null
                                         this.reset()
@@ -391,7 +392,7 @@
                 },
                 connectSocket() {
                     this.socket = new WebSocket(
-                        'wss://' + window.location.hostname + ":8833" + '/ws/attendance/1/'
+                        'wss://' + window.location.hostname + ":8833" + '/ws/attendance/' + Math.floor(Math.random() * 6) + 1 + '/'
                     );
 
                     this.socket.onopen = () => {
@@ -417,6 +418,7 @@
 
                         if (data.success) {
                             facebox.style.display = "none"
+                            this.currentState = this.state().FACE_DECTION
                             this.verify = true
                             this.name = data.name
                             this.email = data.email
@@ -428,6 +430,7 @@
                                 }
                             }
                             this.messageStatus = false
+                            this.loader = true
                             return
                         }
 
@@ -449,7 +452,7 @@
                         if (this.failCount === 2) {
                             facebox.style.display = "none"
                             this.faceRecognizationFailAlert = true
-                            this.failCount === 0
+                            this.failCount = 0
                             setTimeout(() => {
                                 this.faceRecognizationFailAlert = false
                                 this.currentState = this.state().QR_DECETION
@@ -504,9 +507,8 @@
                                     context.drawImage(video, drawX, drawY, drawWidth, drawHeight);
 
                                     if (this.socketReady) {
-                                        if (handFPS(currentTime)) {
-                                            await hands.send({ image: video });
 
+                                        if (qrFps(currentTime)) {
                                             if (this.currentState === this.state().QR_DECETION) {
                                                 const imageData = context.getImageData(0, 0, width, height)
                                                 const qr = jsQR(imageData.data, imageData.width, imageData.height)
@@ -520,6 +522,12 @@
                                                     this.qrLoader = false
                                                 }
                                             }
+                                        }
+
+                                        if (handFPS(currentTime)) {
+                                            await hands.send({ image: video });
+
+                                        
                                         }
 
                                         if (faceFPS(currentTime)) {
