@@ -790,15 +790,19 @@
 
             const editImgContainer = document.getElementById('editimageContainer');
             editImgContainer.innerHTML = '';
+
             if (originalData.image_data) {
                 const img = document.createElement('img');
                 img.src = `data:image/jpeg;base64,${originalData.image_data}`;
                 img.classList.add('h-full', 'w-full', 'object-cover');
                 editImgContainer.appendChild(img);
+            } else {
+                // If no image_data, show default image
+                const defaultImg = new Image();
+                defaultImg.src = "/public/common/default.jpg";
+                defaultImg.classList.add('h-full', 'w-full', 'object-cover');
+                editImgContainer.appendChild(defaultImg);
             }
-
-            const editProfileField = document.getElementById('editpf');
-            editProfileField.value = originalData.editPf ? 'True' : 'False';
         }
 
         // Clear inputs when cancel button is clicked
@@ -816,6 +820,7 @@
             editImgContainer.innerHTML = '';
         }
     });
+
 
     // Image preview handling
     const imageContainer = document.getElementById('imageContainer');
