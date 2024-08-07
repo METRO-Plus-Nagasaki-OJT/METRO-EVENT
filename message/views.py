@@ -5,6 +5,7 @@ from event.models import Event
 from participant.models import Participant
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User 
 
 # Create your views here.
 def message_view(request):
@@ -114,7 +115,7 @@ def get_message_details(request, message_id):
         }
         return JsonResponse(detail)
 
-def autocomplete_suggestions(request):
+def autocomplete_subject_suggestions(request):
     query = request.GET.get('q', '')
     event_id = request.GET.get('event_id', '')
 
@@ -132,3 +133,21 @@ def autocomplete_suggestions(request):
     except Exception as e:
         print(e)
         return JsonResponse({'status': 'error', 'message': str(e)}, status = 500)
+
+def autocomplete_sender_suggestions(request):
+    query = request.GET.get('q', '')
+
+    if not query:
+        return JsonResponse([], safe=False)
+
+    try:
+        # Query the User model for user names that contain the search query
+        users = User.objects.filter(
+            username__icontains=query
+        ).values('id', 'username')[:10]
+        
+        return JsonResponse(list(users), safe=False)
+
+    except Exception as e:
+        print(e)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

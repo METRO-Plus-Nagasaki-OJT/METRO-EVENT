@@ -11,7 +11,7 @@
 <div class = "px-5 py-5"> 
     <div class = "mb-4">
         <button id = "newMessage" class ="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring font-medium rounded-lg px-5 py-3 text-center"> 
-            + Create Message
+            + メッセージの作成
         </button>
     </div>
 
@@ -20,13 +20,13 @@
         <form class="bg-white p-5 rounded-lg w-full sm:max-w-lg mx-auto" x-clover-form="submitForm" action="{% url 'message' %}" method="post">
             {% csrf_token %}
             <div class ="bg-blue-500 px-4 py-3">
-                <h3 class ="text-xl mb-4 text-white pt-3"> Create Message </h3>
+                <h3 class ="text-xl mb-4 text-white pt-3"> メッセージの作成 </h3>
             </div>
             <div class ="flex flex-wrap -mx-2">
                 <div class = "w-full px-4 py-3">
                     <div class = "space-y-4">
                         <div>
-                            <label for = "event" class = "block text-sm font-medium text-gray-700"> Event </label>
+                            <label for = "event" class = "block text-sm font-medium text-gray-700"> イベント </label>
                             <select id="event" name = "event"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
                             {% for event in events %}
@@ -34,15 +34,10 @@
                             {% endfor %}
                             </select>                        
                         </div>
-                        <div>
-                            <label for = "subject" class = "block text-sm font-medium text-gray-700"> Subject </label>
-                            <input type = "text" id = "subject" name ="subject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
-                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
-                        </div>
-                        <div x-data = "autocompleteComponent" x-init = "init()">
-                            <label for="sender" class="block text-sm font-medium text-gray-700"> Sender </label>
+                        <div x-data = "autocompleteComponent2" x-init = "init()">
+                            <label for="subject" class="block text-sm font-medium text-gray-700"> 件名 </label>
                             <div class = "relative">
-                                <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                <input type = "text" id="subject" name="subject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
                                     x-model="senderInput" 
                                     x-on:input="fetchSuggestions" 
                                     autocomplete="off"
@@ -57,14 +52,34 @@
                                     </template>
                                 </div>
                             </div>
+                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        <div x-data = "autocompleteComponent1" x-init = "init()">
+                            <label for="sender" class="block text-sm font-medium text-gray-700"> 送信者 </label>
+                            <div class = "relative">
+                                <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="senderInput" 
+                                    x-on:input="fetchSuggestions" 
+                                    autocomplete="off"
+                                    x-clover-verify>
+                                <!-- Suggestions container -->     
+                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
+                                        <div x-text="suggestion.username" 
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                             <div x-text="errors.sender" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
-                            <label for = "content" class = "block text-sm font-medium text-gray-700"> Content </label>
+                            <label for = "content" class = "block text-sm font-medium text-gray-700"> 内容 </label>
                             <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
                         </div>
                         <div>
-                            <label for = "period" class ="block text-sm font-medium text-gray-700"> Period </label>
+                            <label for = "period" class ="block text-sm font-medium text-gray-700"> 期間 </label>
                             <div class="flex flex-col space-y-2">
                                 <div class="flex space-x-4">
                                     <div class="flex-1">
@@ -80,7 +95,7 @@
                             </div>
                         </div>                       
                         <div>
-                            <label for = "type" class = "block text-sm font-medium text-gray-700"> Type </label>
+                            <label for = "type" class = "block text-sm font-medium text-gray-700"> タイプ </label>
                             <select id="type" name = "type" 
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
                                 <option value = "1"> One Time </option>
@@ -93,9 +108,9 @@
 
                 <div class="mt-8 flex justify-end w-full">
                     <button id="createMessage" type="submit"
-                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">Register</button>
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">登録</button>
                     <button id="cancelCreation" type="button"
-                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">Cancel</button>
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">キャンセル</button>
                 </div>
             </div>
         </form>
@@ -107,22 +122,22 @@
             <input type="hidden"  name="messageId"/>
             {% csrf_token %}
             <div class ="bg-blue-500 px-4 py-3">
-                <h3 class ="text-xl mb-4 text-white pt-3"> Detail </h3>
+                <h3 class ="text-xl mb-4 text-white pt-3"> 詳細 </h3>
             </div>
             <div class ="flex flex-wrap -mx-2">
                 <div class = "w-full px-4 py-3">
                     <div class = "space-y-4">
                         <div>
-                            <label for = "detailsubject" class = "block text-sm font-medium text-gray-700"> Subject </label>
+                            <label for = "detailsubject" class = "block text-sm font-medium text-gray-700"> 件名 </label>
                             <input type = "text" id = "detailsubject" name ="detailsubject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
                             <div x-text="errors.detailsubject" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
-                            <label for = "detailcontent" class = "block text-sm font-medium text-gray-700"> Content </label>
+                            <label for = "detailcontent" class = "block text-sm font-medium text-gray-700"> 内容 </label>
                             <textarea type = "text" id = "detailcontent" name = "detailcontent" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
                         </div>
                         <div>
-                            <label for = "detailperiod" class ="block text-sm font-medium text-gray-700"> Period </label>
+                            <label for = "detailperiod" class ="block text-sm font-medium text-gray-700"> 期間 </label>
                             <div class="flex flex-col space-y-2">
                                 <div class="flex space-x-4">
                                     <div class="flex-1">
@@ -138,7 +153,7 @@
                             </div>
                         </div>                       
                         <div>
-                            <label for = "detailtype" class = "block text-sm font-medium text-gray-700"> Type </label>
+                            <label for = "detailtype" class = "block text-sm font-medium text-gray-700"> タイプ </label>
                             <select id="detailtype" name = "detailtype"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
                                 <option value = "1"> One Time </option>
@@ -146,11 +161,11 @@
                             </select>                        
                         </div>
                         <div>
-                            <label for = "detailcreatedDate" class ="block text-sm font-medium text-gray-700"> Created Date </label>
+                            <label for = "detailcreatedDate" class ="block text-sm font-medium text-gray-700"> 作成日 </label>
                             <input type = "datetime-local" id = "detailcreatedDate" name = "detailcreatedDate" class = "mt-1 block w-full border-gray-300 bg-gray-500 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" readonly>
                         </div>
                         <div>
-                            <label for = "detailfinishedDate" class ="block text-sm font-medium text-gray-700"> Finished Date </label>      
+                            <label for = "detailfinishedDate" class ="block text-sm font-medium text-gray-700"> 終了日 </label>      
                             <input type = "datetime-local" id = "detailfinishedDate" name = "detailfinishedDate" class = "mt-1 block w-full border-gray-300 bg-gray-500 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" readonly>
                         </div>
                     </div>
@@ -158,9 +173,9 @@
 
                 <div class="mt-8 flex justify-end w-full">
                     <button id="editMessage" type="submit"
-                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"> Edit </button>
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"> 編集 </button>
                     <button id="cancelEdition" type="button"
-                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"> Cancel </button>
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"> キャンセル </button>
                 </div>
             </div>
         </form>
@@ -194,11 +209,11 @@
         <thead class = "text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
                 <th scope ="col" class = "px-6 py-3 w-4"></th>
-                <th scope ="col" class = "px-6 py-3 w-4"> Message ID </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> Sender </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> Subject </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> Period </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> Situation </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> メッセージID </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 送信者 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 件名 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 期間 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 状況 </th>
             </tr>
         </thead>
         <tbody>
@@ -208,7 +223,7 @@
                 <td class="py-4 px-6">
                     <button
                         class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 open-edit-modal"
-                        data-message-id="{{ message.id }}"> Details </button>
+                        data-message-id="{{ message.id }}"> 詳細 </button>
                 </td>
                 <td class="py-4 px-6">{{ message.id }}</td>
                 <td class="py-4 px-6">{{ message.sender }}</td>
@@ -217,19 +232,19 @@
                 <td class="py-4 px-6">
                     {% if message.status_display == 'Upcoming' %}
                     <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
-                        Upcoming
+                        今後の予定
                     </span>
                     {% elif message.status_display == 'Current' %}
                         <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">
-                            Current
+                            現在の予定
                         </span>
                     {% elif message.status_display == 'End' %}
                         <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
-                            End
+                            終了の予定
                         </span>
                     {% else %}
                         <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-full">
-                            No Dates
+                            日付なし
                         </span>
                     {% endif %}
                 </td>
@@ -240,14 +255,14 @@
 </div>
 
 <div id="pagination" class="mt-4 flex justify-end py-3 px-3">
-    <span id="showingResults">Showing results for page 1 </span>
+    <span id="showingResults"> 1ページ目の結果を表示中 </span>
     <span class="ml-2 inline-flex" id="paginationControls">
         <button id="prevBtn"
-            class="page-Btn px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</button>
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">前</button>
         <button id="pageBtn"
             class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
         <button id="nextBtn"
-            class="page-Btn px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</button>
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">次</button>
     </span>
 </div>
 
@@ -331,8 +346,40 @@
 
     // Create and Edit and Suggestions
     document.addEventListener('alpine:init', () => {
-        // Suggestions
-        Alpine.data('autocompleteComponent', () => ({
+        // Suggestions (User)
+        Alpine.data('autocompleteComponent1', () => ({
+            senderInput: '',
+            suggestions: [],
+            
+            async fetchSuggestions() {
+                if (this.senderInput.length < 2) {
+                    this.suggestions = [];
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`autocomplete-suggestions-sender/?q=${encodeURIComponent(this.senderInput)}`);
+                    
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    
+                    const data = await response.json();
+                    console.log("Sender Input:", this.senderInput);
+                    this.suggestions = data;
+
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }    
+            },
+        
+            selectSuggestion(suggestion) {
+                this.senderInput = suggestion.username; 
+                this.suggestions = [];
+            }
+        }));
+        
+
+        // Suggestions (Participant)
+        Alpine.data('autocompleteComponent2', () => ({
             senderInput: '',
             suggestions: [],
             selectedEvent: '',
@@ -351,7 +398,7 @@
                 }
                 
                 try {
-                    const response = await fetch(`autocomplete-suggestions/?q=${encodeURIComponent(this.senderInput)}&event_id=${encodeURIComponent(this.selectedEvent)}`);
+                    const response = await fetch(`autocomplete-suggestions-subject/?q=${encodeURIComponent(this.senderInput)}&event_id=${encodeURIComponent(this.selectedEvent)}`);
                     console.log("Sender Input:", this.senderInput);
                     console.log("Selected Event:", this.selectedEvent);
                     if (!response.ok) throw new Error('Network response was not ok.');
@@ -378,6 +425,8 @@
                 "endDate" : [Clover.rule.required("Please choose endDate")],
             },
             errors: {},
+            error: false,
+            errorMessage: '',
             createdDate: '',
             init() {
                 this.createdDate = new Date().toISOString().slice(0, 16); 
@@ -488,7 +537,7 @@
     function renderPagination(filteredRows) {
         const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
         pageBtn.textContent = currentPage;
-        showingResults.textContent = `Showing results for page ${currentPage}`;
+        showingResults.textContent = `${currentPage}ページ目の結果を表示中`;
 
         prevBtn.disabled = currentPage === 1;
         nextBtn.disabled = currentPage === totalPages;
