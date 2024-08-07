@@ -127,9 +127,24 @@
             <div class ="flex flex-wrap -mx-2">
                 <div class = "w-full px-4 py-3">
                     <div class = "space-y-4">
-                        <div>
-                            <label for = "detailsubject" class = "block text-sm font-medium text-gray-700"> 件名 </label>
-                            <input type = "text" id = "detailsubject" name ="detailsubject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                        <div x-data = "autocompleteComponent2" x-init = "init()">
+                            <label for="detailsubject" class="block text-sm font-medium text-gray-700"> 件名 </label>
+                            <div class = "relative">
+                                <input type = "text" id="detailsubject" name="detailsubject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="senderInput" 
+                                    x-on:input="fetchSuggestions" 
+                                    autocomplete="off"
+                                    x-clover-verify>
+                                <!-- Suggestions container -->     
+                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
+                                        <div x-text="suggestion.name" 
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                             <div x-text="errors.detailsubject" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
