@@ -391,7 +391,7 @@
                 },
                 connectSocket() {
                     this.socket = new WebSocket(
-                        'ws://' + window.location.host + '/ws/attendance/1/'
+                        'wss://' + window.location.hostname + ":8833" + '/ws/attendance/1/'
                     );
 
                     this.socket.onopen = () => {
@@ -449,11 +449,12 @@
                         if (this.failCount === 2) {
                             facebox.style.display = "none"
                             this.faceRecognizationFailAlert = true
+                            this.failCount === 0
                             setTimeout(() => {
                                 this.faceRecognizationFailAlert = false
                                 this.currentState = this.state().QR_DECETION
                                 this.loader = false
-                            }, 3000);
+                            }, 2000);
                             return
                         }
 
