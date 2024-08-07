@@ -4,12 +4,10 @@ from django.http import JsonResponse
 from event.models import Event
 from django.utils import timezone
 from participant.models import Participant
-from django.db.models import Q
 from attendance.models import Attendance
 from utils.decorators import authenticated_user_exempt
 from django.http import HttpResponse
-from django.urls import reverse
-
+from django.contrib import messages
 
 @authenticated_user_exempt
 def login_view(request):
@@ -19,6 +17,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            messages.success(request, "Your profile was updated.") 
             return JsonResponse({"success": True})
         else:
             return JsonResponse({"success": False, "error": "Invalid credentials"})

@@ -1,0 +1,575 @@
+{% extends 'dashboard/master.html' %}
+{% load static %}
+{% block page_en %}
+Event
+{% endblock page_en %}
+{% block page_jp %}
+出席
+{% endblock page_jp %}
+{% block content %}
+
+<div class="p-2" x-data="data">
+    <div x-ref="crudModal" id="crud-modal" tabindex="-1" aria-hidden="true"
+        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full  max-w-2xl max-h-full" method="post">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <!-- Modal header -->
+                <div
+                    class="flex bg-blue-500 text-white items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                    <h3
+                        class="text-lg font-semibold text-white dark:text-white">
+                        イベントの登録
+                    </h3>
+                    <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                        data-modal-toggle="crud-modal">
+                        <svg class="w-3 h-3" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <form class="p-4 md:p-5" method="post"
+                    x-clover-form="handleCloverSubmit">
+                    {% csrf_token %}
+                    <div class="grid gap-4 mb-4 grid-cols-2">
+                        <div class="col-span-1 items-center">
+                            <label for="name"
+                                class="block w-[15%] mb-2 text-sm font-medium text-gray-900 dark:text-white">名前</label>
+                            <input type="text" name="name" x-model="form.name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="イベント名を入力">
+                            <span class="text-red-600 text-sm error-message"
+                                x-text="errors.name"></span>
+                        </div>
+                        <div class="col-span-1 items-center">
+                            <label for="venue"
+                                class="block w-[15%] mb-2 text-sm font-medium text-gray-900 dark:text-white">会場</label>
+                            <input type="text" name="venue" x-model="form.venue"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="会場を入力">
+                            <span class="text-red-600 text-sm error-message"
+                                x-text="errors.venue"></span>
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="start_time"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">開始日</label>
+                            <input x-model="form.start_time"
+                                type="datetime-local" name="start_time"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <span class="text-red-600 text-sm error-message"
+                                x-text="errors.start_time"></span>
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label for="end_time"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">終了日</label>
+                            <input x-model="form.end_time" type="datetime-local"
+                                name="end_time"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <span class="text-red-600 text-sm error-message"
+                                x-text="errors.end_time"></span>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="col-span-2 items-center">
+                                <label for="user"
+                                    class="block w-[15%] mb-2 text-sm font-medium text-gray-900 dark:text-white">担当者</label>
+                                <select name="user" x-model="form.user"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    {% for user in users %}
+                                    <option value="{{user.id}}">
+                                        {{user.username}}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <span class="text-red-600 text-sm error-message"
+                                    x-text="errors.user"></span>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="col-span-2">
+                                <label for="memo"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">メモ</label>
+                                <textarea x-model="form.memo" name="memo"
+                                    rows="4"
+                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    placeholder="メモを入力"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end items-center">
+                        <button type="submit"
+                            class="text-white bg-blue-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">提出</button>
+                        <button data-modal-hide="crud-modal" type="button"
+                            class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                            カネル</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <button data-modal-show="crud-modal"
+                class="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">新規作成</button>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+            <div class="flex flex-1 items-center text-sm">
+                <select id="pagination" name="limit"
+                    @change="limit = Number($el.value)"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+                <label for="pagination" class="ml-3 font-bold">ページを表示</label>
+            </div>
+            <div class="flex flex-1 items-center justify-end gap-2">
+                <label for="search" class="font-bold text-sm">検索</label>
+                <input type="text" @input.debounce.500ms="search = $el.value"
+                    id="search" name="search" placeholder="欲しいものを検索してください"
+                    class="bg-gray-50 border w-[30%] border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <div class="relative overflow-x-auto  sm:rounded-lg">
+            <table
+                class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead
+                    class="text-xs  text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="py-3 font-bold">
+                        </th>
+                        <th scope="col" class="px-6 py-3 ">
+                            <div class="flex items-center">
+                                イベントID
+                                <button class="flex flex-col ml-2"
+                                    @click="handleSort" data-sort="id">
+                                    <svg :class="{'text-gray-400': sort === 'id'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                    </svg>
+                                    <svg :class="{'text-gray-400': sort === '-id'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                イベント名
+                                <div class="flex flex-col">
+                                    <button class="flex flex-col ml-2"
+                                        @click="handleSort" data-sort="name">
+                                        <svg :class="{'text-gray-400': sort === 'name'}"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none" viewBox="0 0 24 24"
+                                            stroke-width="5"
+                                            stroke="currentColor"
+                                            class="size-[0.5rem]">
+                                            <path stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                        </svg>
+                                        <svg :class="{'text-gray-400': sort === '-name'}"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none" viewBox="0 0 24 24"
+                                            stroke-width="5"
+                                            stroke="currentColor"
+                                            class="size-[0.5rem]">
+                                            <path stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                日付
+                                <button class="flex flex-col ml-2"
+                                    @click="handleSort" data-sort="date">
+                                    <svg :class="{'text-gray-400': sort === 'date'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                    </svg>
+                                    <svg :class="{'text-gray-400': sort === '-date'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                参加者
+                                <button class="flex flex-col ml-2"
+                                    @click="handleSort" data-sort="attendance">
+                                    <svg :class="{'text-gray-400': sort === 'attendance'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                    </svg>
+                                    <svg :class="{'text-gray-400': sort === '-attendance'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            <div class="flex items-center">
+                                状況
+                                <button class="flex flex-col ml-2"
+                                    @click="handleSort" data-sort="status">
+                                    <svg :class="{'text-gray-400': sort === 'status'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                                    </svg>
+                                    <svg :class="{'text-gray-400': sort === '-status'}"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24"
+                                        stroke-width="5" stroke="currentColor"
+                                        class="size-[0.5rem]">
+                                        <path stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="event in computeEvents" :key="event.id">
+                        <tr
+                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th scope="row"
+                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <button type="button"
+                                    @click="showEditModal(event.id)"
+                                    class="px-3 py-2 text-sm font-medium text-center text-white bg-blue-500 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-blue-800">詳細</button>
+                            </th>
+                            <td class="px-6 py-4" x-text="event.id">
+
+                            </td>
+                            <td class="px-6 py-4" x-text="event.name">
+
+                            </td>
+                            <td class="px-6 py-4" x-text="event.date">
+
+                            </td>
+                            <td class="px-6 py-4" x-text="event.attendance">
+
+                            </td>
+                            <td class="px-6 py-4" x-text="event.status">
+
+                            </td>
+                        </tr>
+
+                    </template>
+                    <tr x-show="!totalPage" class="px-6 py-4 bg-gray-100">
+                        <td colspan="100%"
+                            class="text-center py-2 text-[1rem] text-gray-500">
+                            空のデータ
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="flex justify-between items-center mt-3 px-2"
+            x-show="totalPage">
+            <div>
+                <span x-text="showResult" class="text-gray-500 text-sm"></span>
+            </div>
+            <div>
+                <div class="flex">
+                    <!-- Previous Button -->
+                    <button @click="pageNumber--"
+                        x-bind:class="{'pointer-events-none': pageNumber === 0}"
+                        class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        Previous
+                    </button>
+
+                    <!-- Next Button -->
+                    <button @click="pageNumber++"
+                        x-bind:class="{'pointer-events-none': pageNumber >= totalPage - 1}"
+                        class="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block script %}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data("data", () => ({
+            loader: false,
+            errors: [],
+            rule: {
+                name: [Clover.rule.required("名前が必要です。"), Clover.rule.onlyWordCharacter("名前は特殊文字である必要がありません。")],
+                start_time: [Clover.rule.required("始まる時間が必要です。"), Clover.rule.date({ before: 'end_time' }, { before: '開始日は終了日より前にする必要があります。' })],
+                end_time: [Clover.rule.required("終わる時間が必要です")],
+                venue: [Clover.rule.required("会場が必要です。"), Clover.rule.onlyWordCharacter("会場は特殊文字である必要がありません。")],
+                user: [Clover.rule.required("担当者が必要です。")],
+            },
+            action: "create",
+            form: {},
+            errors: {},
+            search: '',
+            events: [],
+            sort: '',
+            limit: 10,
+            pageNumber: Number('{{request.GET.page}}'),
+            total: 0,
+            handleSort() {
+                const el = this.$el
+                const sort = el.dataset.sort
+                if (sort === this.sort) {
+                    this.sort = `-${sort}`
+                } else {
+                    this.sort = sort
+                }
+            },
+            get showResult() {
+                const from = this.pageNumber * this.limit + 1
+                const to = from + this.limit
+                return `showing ${from} to ${to >= this.total ? this.total : to} of ${this.total} result`
+            },
+            init() {
+                const data = this
+                this.crudModal = new Modal(this.$refs.crudModal, {
+                    closable: true,
+                    onHide: () => {
+                        data.form = {}
+                        data.errors = {}
+                        data.action = "create"
+                    }
+                })
+                this.fetchData()
+            },
+            get computeEvents() {
+                const start = this.pageNumber * this.limit
+                const end = start + this.limit
+                const search = this.search?.toLowerCase()
+                let events = this.events
+
+                if (search) {
+                    const regex = /^[0-9]+$/
+                    const isNumber = regex.test(search)
+                    events = events.filter((att) => {
+                        return isNumber ? att.id === Number(search) : att.name?.toLowerCase().includes(search)
+                    })
+                }
+
+                this.total = events.length
+
+                if (this.sort) {
+                    const sortBy = this.sort.includes("-") ? "desc" : "asc"
+                    const key = this.sort.replace("-", "")
+                    events = events.sort((a, b) => {
+                        const valueA = a[key];
+                        const valueB = b[key];
+                        const comparison = `${valueA}`.localeCompare(`${valueB}`)
+                        return sortBy === "asc" ? comparison : -comparison
+                    })
+                }
+
+                return events.slice(start, end)
+            },
+            get totalPage() {
+                return Math.ceil(this.total / this.limit)
+            },
+            async fetchData() {
+                try {
+                    const res = await fetch("", {
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    })
+
+                    if (!res.ok) {
+                        throw Error("Data fetching Fail")
+                    }
+                    const data = await res.json()
+                    this.events = data.events
+                    this.total = this.events.length
+
+                } catch (error) {
+                    Toastify({
+                        text: "データの取得に失敗する.",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "#06d6a0",
+                            fontSize: '25px',
+                            borderRadius: "5px"
+                        },
+                    }).showToast();
+                }
+            },
+
+            showEditModal(id) {
+                const event = this.events.find(att => att.id === id)
+                this.form = event
+                this.action = "edit"
+                this.crudModal.show()
+            },
+            async create(form) {
+                const formData = new FormData(form)
+                this.search = ""
+                this.pageNumber = 0
+                this.loader = true
+                try {
+                    const response = await fetch("", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    })
+
+                    const res = await response.json()
+
+                    if (!response.ok) {
+                        console.log(res)
+                    }
+                    this.events = [res.event, ...this.events]
+                    this.total = this.events.length
+                    this.crudModal.hide()
+                    Toastify({
+                        text: "イベントが正常に作成されました.",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "#06d6a0",
+                            fontSize: '25px',
+                            borderRadius: "5px"
+                        },
+                    }).showToast();
+
+                } catch (error) {
+                    Toastify({
+                        text: "データの取得に失敗する.",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "#06d6a0",
+                            fontSize: '25px',
+                            borderRadius: "5px"
+                        },
+                    }).showToast();
+                } finally {
+                    this.loader = false
+                }
+            },
+            async update(form) {
+                const formData = new FormData(form)
+                try {
+                    const response = await fetch(`/event/${this.form.id}/update/v2`, {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    })
+
+                    const res = await response.json()
+
+                    if (!response.ok) {
+                        console.log(res)
+                    }
+
+                    const index = this.events.findIndex(ev => ev.id === res.event?.id)
+
+                    if (~index) {
+                        this.events[index] = res.event
+                    }
+
+                    Toastify({
+                        text: "イベントが正常に更新されました.",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "#06d6a0",
+                            fontSize: '25px',
+                            borderRadius: "5px"
+                        },
+                    }).showToast();
+                    this.crudModal.hide()
+                } catch (error) {
+                    Toastify({
+                        text: "データの取得に失敗する.",
+                        duration: 2000,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: "#06d6a0",
+                            fontSize: '25px',
+                            borderRadius: "5px"
+                        },
+                    }).showToast();
+                } finally {
+                    this.loader = false
+                }
+            },
+            async handleCloverSubmit() {
+                if (this.loader || Object.keys(this.errors).length) return
+                this.loader = true
+                this.action !== "edit" ? this.create(this.$el) : this.update(this.$el)
+            }
+        }))
+    })
+</script>
+{% endblock script %}
+
+{% endblock content %}

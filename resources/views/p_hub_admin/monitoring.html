@@ -46,7 +46,9 @@
     <!-- Event and Monitoring Controls -->
     <div class="flex items-center justify-between mb-4">
         <div class="flex items-center flex-grow mr-4">
-            <label for="event" class="mr-2 font-medium text-[20px] text-gray-700 w-[100px]">イベント : </label>
+            <label for="event"
+                class="mr-2 font-medium text-[20px] text-gray-700 w-[100px]">イベント
+                : </label>
             <select id="event" name="event"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full custom-select-option">
                 {% for event in events %}
@@ -65,7 +67,8 @@
         <div class="grid grid-cols-3 gap-4 px-4 py-2 bg-white">
             <div class="text-blue-500">
                 <span class="font-extrabold text-md">専門学校</span>
-                <h2 class="font-extrabold text-2xl leading-tight">メトロ IT ビジネスカレッジ</h2>
+                <h2 class="font-extrabold text-2xl leading-tight">メトロ IT
+                    ビジネスカレッジ</h2>
             </div>
 
             <div class="text-center flex items-center justify-center">
@@ -73,16 +76,19 @@
             </div>
 
             <div class="text-right flex items-center justify-end">
-                <span id="currentDateTime" class="font-bold text-gray-700"></span>
+                <span id="currentDateTime"
+                    class="font-bold text-gray-700"></span>
             </div>
         </div>
         <div class="flex justify-between items-center mb-4 py-5">
             <h3 class="text-xl text-gray-700">参加者リスト</h3>
-            <button id="closeParticipantsContainer" class="text-red-600 hover:text-red-800">
+            <button id="closeParticipantsContainer"
+                class="text-red-600 hover:text-red-800">
                 閉じる
             </button>
         </div>
-        <div id="participantsList" class="grid grid-cols-4 gap-[50px] items-center justify-center py-[100px]">
+        <div id="participantsList"
+            class="grid grid-cols-4 gap-[50px] items-center justify-center py-[100px]">
 
         </div>
     </div>

@@ -276,9 +276,9 @@ document.addEventListener('alpine:init', () => {
     Alpine.directive(
         'clover-form',
         (el, { value, modifiers, expression }, { cleanup, evaluate }) => {
-            const errors = evaluate('errors');
             const checkRule = value || 'rule';
             const handler = function (e) {
+                const errors = evaluate('errors');
                 e.preventDefault();
                 const rule = evaluate(checkRule);
                 for (let name in rule) {

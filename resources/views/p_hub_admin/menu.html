@@ -1,12 +1,30 @@
 {% extends "dashboard/master.html" %}
-{% csrf_token %}
+{% block page_en %}
+Menu
+{% endblock page_en %}
+{% block page_jp %}
+メニュー
+{% endblock page_jp %}
 {% block content %}
-<link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
-<div class="mb-4 bg-gray-200  pl-36">
-    <h2 class="text-2xl ">Menu</h2>
-    <span class="">メニュー</span>
-</div>
-<div class="pl-36 pb-5 pt-6">
+{% for message in messages  %}
+    {% if message.tags == 'success' %}
+    <script>
+        Toastify({
+                    text: "ログインに成功しました。",
+                    duration: 3000,
+                     gravity: "center",
+                     position: "center",
+                    style: {
+                            background: "#06d6a0",
+                            fontSize: '20px',
+                            borderRadius: "5px"
+                    },
+                    }).showToast();
+    </script>
+    {% endif %}
+{% endfor %}
+
+<div class=" pb-5 pt-6">
     <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
         <a href="{% url "event" %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
             イベント登録
