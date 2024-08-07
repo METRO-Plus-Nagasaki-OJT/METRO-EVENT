@@ -20,7 +20,7 @@ def capture_face(img):
 def get_encode(img):
     try:
         re_img = cv2.resize(img,(160, 160))
-        return DeepFace.represent(img_path=re_img, model_name="Facenet", normalization="Facenet2018", enforce_detection=False, detector_backend="retinaface")[0]["embedding"]
+        return DeepFace.represent(img_path=re_img, model_name="Facenet512", normalization="Facenet2018", enforce_detection=False, detector_backend="retinaface")[0]["embedding"]
     except Exception as e:
         pass
 
