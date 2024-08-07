@@ -4,7 +4,7 @@ from participant.models import Participant
 
 # Create your models here.
 class Attendance(models.Model):
-    participant = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name="attendances")
     entry_1 = models.TimeField(null=True, blank=True)
     leave_1 = models.TimeField(null=True, blank=True)
     entry_2 = models.TimeField(null=True, blank=True)

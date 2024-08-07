@@ -237,7 +237,7 @@ def participants_view(request):
         participants = participants.filter(
             name__icontains=search_term
         )
-
+    
     if selected_event:
         participants = participants.filter(event_id=selected_event)
 

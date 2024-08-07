@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from event.models import Event
 from .models import Attendance
 from django.db.models import Q
