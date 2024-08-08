@@ -50,6 +50,6 @@ class Event(models.Model):
             return {"label": "継続中", "value": 1}
 
         if self.end_time <= timezone.now():
-            return {"label": "終了した", "value": 2}
+            return {"label": "終了", "value": 2}
 
-        return {"label": "今後の", "value": 3}
+        return {"label": "今後", "value": 3}

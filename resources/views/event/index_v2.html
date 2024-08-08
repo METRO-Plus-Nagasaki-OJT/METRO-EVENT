@@ -383,6 +383,7 @@ Event
                 } else {
                     this.sort = sort
                 }
+        
             },
             get showResult() {
                 const from = this.pageNumber * this.limit + 1
@@ -411,7 +412,9 @@ Event
                     const regex = /^[0-9]+$/
                     const isNumber = regex.test(search)
                     events = events.filter((att) => {
-                        return isNumber ? att.id === Number(search) : att.name?.toLowerCase().includes(search)
+                        const con = isNumber ? att.id === Number(search) : att.name?.toLowerCase().includes(search)
+                        if (con) return true
+                        return att.status.label?.toLowerCase().includes(search)
                     })
                 }
 
@@ -421,8 +424,11 @@ Event
                     const sortBy = this.sort.includes("-") ? "desc" : "asc"
                     const key = this.sort.replace("-", "")
                     events = events.sort((a, b) => {
-                        const valueA = key === 'status' ? a[key].value : a[key];
-                        const valueB = key === 'status' ? b[key].value : b[key];;
+                        if(key === "id") {
+                            return sortBy === "asc" ? a[key] - b[key] : b[key] - a[key]
+                        }
+                        let valueA = key === 'status' ? a[key].value : a[key];
+                        let valueB = key === 'status' ? b[key].value : b[key];
                         const comparison = `${valueA}`.localeCompare(`${valueB}`)
                         return sortBy === "asc" ? comparison : -comparison
                     })
@@ -465,7 +471,7 @@ Event
 
             showEditModal(id) {
                 const event = this.events.find(att => att.id === id)
-                this.form = event
+                this.form = {...event}
                 this.action = "edit"
                 this.crudModal.show()
             },

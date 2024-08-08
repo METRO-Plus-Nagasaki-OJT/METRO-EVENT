@@ -22,15 +22,19 @@ def adding_attendance(next_day):
         for participant_id in participant_ids:
             Attendance.objects.create(participant_id=participant_id, date=next_day)
 
+def get_paticipant_counts():
+    ids = get_event_ids()
+    return Participant.objects.filter(event__id__in=ids).count()
+
 def attendance_scheduling():
-    attendance_for_today = Attendance.objects.filter(date=tomorrow).count()
-    if attendance_for_today == 0:
+    attendance_for_tomorrow = Attendance.objects.filter(date=today).count()
+    if attendance_for_tomorrow == 0:
         if current_weekday != 5 or current_weekday != 6:
             if current_weekday == 4:
                 next_monday = today + timedelta(days=3)
                 adding_attendance(next_monday)
             else:
-                adding_attendance(tomorrow)
+                adding_attendance(today)
             print("finished creating")
     else:
         pass

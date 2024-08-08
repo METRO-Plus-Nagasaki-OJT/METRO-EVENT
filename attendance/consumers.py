@@ -19,6 +19,7 @@ from cryptography.fernet import Fernet
 import os
 from attendance.crypto_key_gen import load_key, generate_key
 from django.utils import timezone
+from message.models import Message
 
 cipher_suite = Fernet(os.getenv("P_HUB_EK"))
 qr_reader = QReader()
@@ -127,10 +128,10 @@ class ImageConsumer(WebsocketConsumer):
         img_np = np.fromstring(byte_data, np.uint8)
         image = cv2.imdecode(img_np, cv2.IMREAD_ANYCOLOR)
         participant_ids, embeddings, participant_id_qr = get_participants()
-
+        name, email = None, None
         if not is_qr:
             encode = get_encode(image)
-            pred, pred_id = verify(encode, 0.8, embeddings, participant_ids)
+            pred, pred_id = verify(encode, 0.7, embeddings, participant_ids)
             if pred:
                 success_message = True
                 add_attendance(in_out_status, pred_id)

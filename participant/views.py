@@ -30,16 +30,15 @@ def participant(request):
         address = request.POST.get('address')
         event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
+        
+        profile = None
         embeddable = False
 
         # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
-            profile = request.FILES["fileInput"]
-            img = base64.b64encode(profile.read())
-            profile = img.decode('utf-8')
+            profile = request.FILES["fileInput"].read()
+            profile = base64.b64encode(profile).decode('utf-8')
             embeddable = True
-        else:
-            profile = None
 
         participant = Participant(
             name=name,
@@ -55,9 +54,9 @@ def participant(request):
             event=event,
             profile=profile
         )
-        
+
         if embeddable:
-            image_np = np.frombuffer(base64.b64decode(img), dtype=np.uint8)
+            image_np = np.frombuffer(base64.b64decode(profile), dtype=np.uint8)
             np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
             face, detection_status = capture_face(np_img)
             if detection_status:
@@ -67,10 +66,9 @@ def participant(request):
         
         participant.save()
         row_check(participant.id)
-        #train_unknown_classifier()
         create_qr(participant.id)
         send_qr(email, "", "", True, 'common/QR.png')
-        cache.delete(f"embeds")
+        cache.delete("embeds")
         
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
@@ -78,7 +76,6 @@ def participant(request):
         search_term = request.GET.get('search', '') 
         event_id = request.GET.get('event')
         
-        # Set default event if not provided
         if not event_id:
             default_event = Event.objects.first()
             event_id = default_event.id if default_event else None
@@ -95,11 +92,9 @@ def participant(request):
 
         events = Event.objects.all()
 
-        # Adding event status to each participant
         for participant in participants:
             participant.event_status = participant.is_event_over()
 
-        # Handling pagination
         per_page = int(request.GET.get('per_page', 10))
         paginator = Paginator(participants, per_page)
         page_number = request.GET.get('page', 1)
@@ -125,11 +120,12 @@ def get_participant_data(request, participant_id):
     if request.method == 'GET':
         participant = get_object_or_404(Participant, id=participant_id)
 
-        try:
-            profile_data = base64.b64decode(participant.profile)
-        except (binascii.Error, TypeError) as e:
-            print(f"Error decoding profile data: {e}")
-            profile_data = None
+        profile_data = None
+        if participant.profile:
+            try:
+                profile_data = base64.b64decode(participant.profile)
+            except (binascii.Error, TypeError) as e:
+                print(f"Error decoding profile data: {e}")
 
         data = {
             'name': participant.name,
@@ -176,16 +172,15 @@ def update_participant(request, participant_id):
         event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
         email_status = request.POST.get('email_status')
-        embeddable = False 
-        # Handle base64-encoded image data if provided
+        embeddable = False
+
         if 'editfileInput' in request.FILES:
-            profile = request.FILES["editfileInput"]
-            img = base64.b64encode(profile.read())
-            profile = img.decode('utf-8')
-            embeddable = True 
+            profile = request.FILES["editfileInput"].read()
+            profile = base64.b64encode(profile).decode('utf-8')
+            embeddable = True
         else:
-            profile = None
-        # Update participant fields
+            profile = participant.profile
+        
         participant.name = name
         participant.email = email
         participant.seat_no = seat_no
@@ -198,8 +193,9 @@ def update_participant(request, participant_id):
         participant.address = address
         participant.event = event
         participant.profile = profile
+
         if embeddable:
-            image_np = np.frombuffer(base64.b64decode(img), dtype=np.uint8)
+            image_np = np.frombuffer(base64.b64decode(profile), dtype=np.uint8)
             np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
             face, detection_status = capture_face(np_img)
             if detection_status:
@@ -209,7 +205,6 @@ def update_participant(request, participant_id):
 
         participant.save()
 
-        # Send email notification if email_status is true
         if email_status == 'true':
             send_update_notification(email)
 
@@ -229,19 +224,14 @@ def participants_view(request):
     per_page = int(request.GET.get('per_page', 10))
     search_term = request.GET.get('search', '')
     selected_event = request.GET.get('event')
-    print(search_term)
 
-    # Filter participants by search term and event
     participants = Participant.objects.all()
     if search_term:
-        participants = participants.filter(
-            name__icontains=search_term
-        )
+        participants = participants.filter(name__icontains=search_term)
     
     if selected_event:
         participants = participants.filter(event_id=selected_event)
 
-    # Paginate participants
     paginator = Paginator(participants, per_page)
     page_number = request.GET.get('page', 1)
     try:
@@ -258,9 +248,8 @@ def participants_view(request):
 
     return render(request, 'participants.html', {
         'page': page_obj,
-        'per_page': per_page,
-        'search_term': search_term,
         'events': events,
+        'search_term': search_term,
         'selected_event': selected_event
     })
 
