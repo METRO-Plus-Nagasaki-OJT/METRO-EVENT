@@ -19,6 +19,7 @@ from cryptography.fernet import Fernet
 import os
 from attendance.crypto_key_gen import load_key, generate_key
 from django.utils import timezone
+from message.models import Message
 
 cipher_suite = Fernet(os.getenv("P_HUB_EK"))
 qr_reader = QReader()

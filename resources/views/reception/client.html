@@ -453,10 +453,10 @@
                             facebox.style.display = "none"
                             this.faceRecognizationFailAlert = true
                             this.failCount = 0
+                            this.qrLoader = false
                             setTimeout(() => {
                                 this.faceRecognizationFailAlert = false
                                 this.currentState = this.state().QR_DECETION
-                                this.loader = false
                             }, 2000);
                             return
                         }
@@ -518,9 +518,6 @@
                                                     this.checkQR(canvas.toDataURL())
                                                 }
 
-                                                if (!qr) {
-                                                    this.qrLoader = false
-                                                }
                                             }
                                         }
 
