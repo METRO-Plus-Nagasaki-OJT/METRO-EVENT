@@ -344,7 +344,7 @@
                         document.getElementById('detailstartDate').value = detail.startDate ? new Date(detail.startDate).toISOString().slice(0, 16) : '';
                         document.getElementById('detailendDate').value = detail.endDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
                         document.getElementById('detailtype').value = detail.type || '';
-                        document.getElementById('detailcreatedDate').value = detail.createdDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
+                        document.getElementById('detailcreatedDate').value = detail.createdDate ? new Date(detail.createdDate).toISOString().slice(0, 16) : '';
                         document.getElementById('detailfinishedDate').value = detail.endDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
                     
                         detailBox.classList.remove('hidden');
