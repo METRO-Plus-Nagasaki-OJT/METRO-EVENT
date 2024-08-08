@@ -76,7 +76,8 @@
                         </div>
                         <div>
                             <label for = "content" class = "block text-sm font-medium text-gray-700"> 内容 </label>
-                            <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                            <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none" x-clover-verify></textarea>
+                            <div x-text="errors.content" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
                             <label for = "period" class ="block text-sm font-medium text-gray-700"> 期間 </label>
@@ -98,8 +99,8 @@
                             <label for = "type" class = "block text-sm font-medium text-gray-700"> タイプ </label>
                             <select id="type" name = "type" 
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
-                                <option value = "1"> One Time </option>
-                                <option value = "2"> Many Times </option>
+                                <option value = "1"> 一度 </option>
+                                <option value = "2"> 何度も </option>
                             </select>                        
                         </div>
                         <input type="hidden" name="createdDate" :value="createdDate">
@@ -149,7 +150,8 @@
                         </div>
                         <div>
                             <label for = "detailcontent" class = "block text-sm font-medium text-gray-700"> 内容 </label>
-                            <textarea type = "text" id = "detailcontent" name = "detailcontent" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                            <textarea type = "text" id = "detailcontent" name = "detailcontent" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none" x-clover-verify></textarea>
+                            <div x-text="errors.detailcontent" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
                             <label for = "detailperiod" class ="block text-sm font-medium text-gray-700"> 期間 </label>
@@ -439,6 +441,7 @@
                 "subject" : [Clover.rule.required("件名を入力してください。")],
                 "sender" : [Clover.rule.required("差出人を入力してください。")],
                 "startDate" : [Clover.rule.required("開始日を選択してください。")],
+                "content" : [Clover.rule.required("内容を入力してください。")],
                 "endDate" : [Clover.rule.required("終了日を選択してください。")],
             },
             errors: {},
@@ -484,6 +487,7 @@
             rule: {
                 "detailsubject" : [Clover.rule.required("件名を入力してください。")],
                 "detailstartDate" : [Clover.rule.required("開始日を選択してください。")],
+                "detailcontent" : [Clover.rule.required("内容を入力してください。")],
                 "detailendDate" : [Clover.rule.required("終了日を選択してください。")],
             },
             errors: {},
