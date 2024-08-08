@@ -9,7 +9,7 @@ class Message(models.Model):
     ]
     subject = models.CharField(max_length = 255)
     sender = models.CharField(max_length = 255)
-    content = models.CharField(max_length = 255)
+    content = models.TextField()
     startDate = models.DateTimeField(blank=True, null=True)
     endDate = models.DateTimeField(blank=True, null=True)
     createdDate = models.DateTimeField(blank=True, null=True)
