@@ -9,7 +9,9 @@ from django.utils import timezone
 from django.db.models import Case, When, IntegerField
 from django.http import JsonResponse
 import json
+
 # Create your views here.
+
 
 def index(request):
     if request.method == "GET":
@@ -96,9 +98,29 @@ def update(request, id):
         if len(obj.keys()):
             Attendance.objects.filter(id=id).update(**obj)
         if request.headers["Accept"] == "application/json":
-            return JsonResponse(
-                {"attendance": Attendance.objects.filter(id=id).values()[0] or None}
+            data = None
+            attendance = (
+                Attendance.objects.annotate()
+                .filter(id=id)
+                .prefetch_related("participant")[0]
             )
+
+            if attendance:
+                data = {
+                    "id": attendance.id,
+                    "status": attendance.status,
+                    "participant": {
+                        "id": attendance.participant.id,
+                        "name": attendance.participant.name,
+                    },
+                    "entry_1": attendance.entry_1,
+                    "leave_1": attendance.leave_1,
+                    "entry_2": attendance.entry_2,
+                    "leave_2": attendance.leave_2,
+                    "date": attendance.date,
+                }
+
+            return JsonResponse({"attendance": data})
         messages.success(request, "Attendance updated.")
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
@@ -151,13 +173,7 @@ def index_v2(request):
             filters &= Q(created_at__gte=first_day_of_the_current_month)
 
         attendances = (
-            Attendance.objects.annotate(
-                status=Case(
-                    When(entry_1__isnull=False, leave_1__isnull=False, then=1),
-                    default=0,
-                    output_field=IntegerField(),
-                )
-            )
+            Attendance.objects.annotate()
             .filter(filters)
             .prefetch_related("participant")
         )
