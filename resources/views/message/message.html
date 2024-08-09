@@ -34,26 +34,6 @@
                             {% endfor %}
                             </select>                        
                         </div>
-                        <div x-data = "autocompleteComponent2" x-init = "init()">
-                            <label for="subject" class="block text-sm font-medium text-gray-700"> 件名 </label>
-                            <div class = "relative">
-                                <input type = "text" id="subject" name="subject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
-                                    x-model="senderInput" 
-                                    x-on:input="fetchSuggestions" 
-                                    autocomplete="off"
-                                    x-clover-verify>
-                                <!-- Suggestions container -->     
-                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
-                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
-                                        <div x-text="suggestion.name" 
-                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                            x-on:click="selectSuggestion(suggestion)">
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
-                        </div>
                         <div x-data = "autocompleteComponent1" x-init = "init()">
                             <label for="sender" class="block text-sm font-medium text-gray-700"> 送信者 </label>
                             <div class = "relative">
@@ -73,6 +53,26 @@
                                 </div>
                             </div>
                             <div x-text="errors.sender" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        <div x-data = "autocompleteComponent2" x-init = "init()">
+                            <label for="subject" class="block text-sm font-medium text-gray-700"> 件名 </label>
+                            <div class = "relative">
+                                <input type = "text" id="subject" name="subject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="senderInput" 
+                                    x-on:input="fetchSuggestions" 
+                                    autocomplete="off"
+                                    x-clover-verify>
+                                <!-- Suggestions container -->     
+                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
+                                        <div x-text="suggestion.name" 
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
                         </div>
                         <div>
                             <label for = "content" class = "block text-sm font-medium text-gray-700"> 内容 </label>
