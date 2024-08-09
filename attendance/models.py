@@ -20,7 +20,7 @@ class Attendance(models.Model):
     def status(self):
         return {
             "label": "完了" if self.entry_1 and self.leave_1 else "未完了",
-            "value": 1 if self.entry_2 and self.leave_2a else 2,
+            "value": 1 if self.entry_2 and self.leave_2 else 2,
         }
 
     def __str__(self) -> str:
