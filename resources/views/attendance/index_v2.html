@@ -55,7 +55,8 @@ Attendance
                     </div>
                     <div class="border mt-3 rounded-lg">
                         <ul class="h-[200px] overflow-y-scroll">
-                            <li x-show="!event" @click="handleEventSelect" data-id=""
+                            <li x-show="!event" @click="handleEventSelect"
+                                data-id=""
                                 class="hover:text-gray-500 cursor-pointer hover:bg-gray-100 p-2 w-full">
                                 全て</li>
                             <template x-for="event in computeEvent"
@@ -465,9 +466,11 @@ Attendance
 
                             </td>
                             <td class="px-6 py-4">
-                                <span x-show="attendance.status === 1"
-                                    class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">完了</span>
-                                <span x-show="!attendance.status"
+                                <span x-text="attendance.status.label"
+                                    x-show="attendance.status.value === 1"
+                                    class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"></span>
+                                <span x-text="attendance.status.label"
+                                    x-show="attendance.status.value === 2"
                                     class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">未完了</span>
                             </td>
                         </tr>
@@ -493,14 +496,14 @@ Attendance
                     <button @click="pageNumber--"
                         x-bind:class="{'pointer-events-none': pageNumber === 0}"
                         class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                        Previous
+                        前
                     </button>
 
                     <!-- Next Button -->
                     <button @click="pageNumber++"
                         x-bind:class="{'pointer-events-none': pageNumber >= totalPage - 1}"
                         class="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                        Next
+                        次
                     </button>
                 </div>
             </div>
@@ -536,7 +539,7 @@ Attendance
             get showResult() {
                 const from = this.pageNumber * this.limit + 1
                 const to = this.pageNumber * this.limit + this.limit
-                return `showing ${from} to ${to >= this.total ? this.total : to} of ${this.total} result`
+                return ` ${this.total} 件中  ${from} ~ ${to >= this.total ? this.total : to} まで表示`
             },
             parseJapaneseDate(japaneseDate) {
                 const [year, month, day] = japaneseDate.replace(/[年月日]/g, '/').split('/');
@@ -563,6 +566,7 @@ Attendance
                     closable: true,
                     onHide: () => {
                         alpineData.event = ''
+                        alpineData.loader = false
                     }
                 })
 
@@ -628,12 +632,9 @@ Attendance
 
                 if (search) {
                     attendances = attendances.filter((att) => {
-                        return att.participant.name?.toLowerCase().includes(search) ||
-                            att.date?.toLowerCase().includes(search) ||
-                            att.entry_1?.toLowerCase().includes(search) ||
-                            att.leave_1?.toLowerCase().includes(search) ||
-                            att.entry_2?.toLowerCase().includes(search) ||
-                            att.leave_2?.toLowerCase().includes(search)
+                        return att.participant.name?.toLowerCase().startsWith(search) ||
+                            att.date?.toLowerCase().startsWith(search) ||
+                            att.status.label.toLowerCase().startsWith(search)
                     })
                 }
 
@@ -643,8 +644,18 @@ Attendance
                     const sortBy = this.sort.includes("-") ? "desc" : "asc"
                     const key = this.sort.replace("-", "")
                     attendances = attendances.sort((a, b) => {
-                        const valueA = key === "name" ? a["participant"]["name"] : a[key];
-                        const valueB = key === "name" ? b["participant"]["name"] : b[key];
+                        let valueA, valueB
+                        if (key === "name") {
+                            valueA = a["participant"]["name"]
+                            valueB = b["participant"]["name"]
+                        } else if (key === "status") {
+                            valueA = a["status"]["value"]
+                            valueB = b["status"]["value"]
+                        } else {
+                            valueA = a[key]
+                            valueA = b[key]
+                        }
+
                         const comparison = `${valueA}`.localeCompare(`${valueB}`)
                         return sortBy === "asc" ? comparison : -comparison
                     })
@@ -781,8 +792,8 @@ Attendance
 
                             const data = await res.json()
                             if (data.attendance) {
-                                const index = ~this.attendances.findIndex(att => att.id === data.attendance.id)
-                                if (index) {
+                                const index = this.attendances.findIndex(att => att.id === data.attendance.id)
+                                if (~index) {
                                     this.attendances[index] = data.attendance
                                     Toastify({
                                         text: "出席状況を更新しました.",
