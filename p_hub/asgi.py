@@ -22,7 +22,7 @@ import attendance.routing
 
 application = ProtocolTypeRouter(
     {
-        "https": get_asgi_application(),
+        "http": get_asgi_application(),
         "websocket":
                 URLRouter(
                 participant.routing.websocket_urlpatterns+attendance.routing.websocket_urlpatterns
