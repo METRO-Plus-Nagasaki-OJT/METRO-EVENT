@@ -559,6 +559,7 @@ Attendance
                     onHide: () => {
                         alpineData.$refs.attendanceUpdateForm.reset()
                         alpineData.errors = {}
+                        alpineData.loader = false
                     }
                 })
 
@@ -566,7 +567,6 @@ Attendance
                     closable: true,
                     onHide: () => {
                         alpineData.event = ''
-                        alpineData.loader = false
                     }
                 })
 
@@ -738,7 +738,6 @@ Attendance
                 return `${year}/${month}/${day}`
             },
             async handleUpdate() {
-
                 if (!this.loader) {
                     this.loader = true
                     const formData = new FormData(this.$el)
@@ -754,27 +753,34 @@ Attendance
                     time.forEach(function (el) {
                         if (el.value && !timePattern.test(el.value)) {
                             this.errors[el.getAttribute("name")] = "無効な時刻形式"
+                        } else {
+                            delete this.errors[el.getAttribute("name")]
+
                         }
                     }.bind(this))
 
-                    if (time[0].value && time[1].value) {
-                        const e1 = time[0].value.split(":").map(Number)
-                        const l1 = time[1].value.split(":").map(Number)
+                    // if (time[0].value && time[1].value) {
+                    //     const e1 = time[0].value.split(":").map(Number)
+                    //     const l1 = time[1].value.split(":").map(Number)
 
-                        if (new Date().setHours(...e1, 0) >= new Date().setHours(...l1, 0)) {
-                            this.errors[time[0].getAttribute("name")] = "無効な時刻形式"
-                        }
-                    }
+                    //     if (new Date().setHours(...e1, 0) >= new Date().setHours(...l1, 0)) {
+                    //         this.errors[time[0].getAttribute("name")] = "無効な時刻形式"
+                    //     } else {
+                    //         delete this.errors[time[0].getAttribute("name")]
+                    //     }
+                    // }
 
 
-                    if (time[2].value && time[3].value) {
-                        const e2 = time[2].value.split(":").map(Number)
-                        const l2 = time[3].value.split(":").map(Number)
+                    // if (time[2].value && time[3].value) {
+                    //     const e2 = time[2].value.split(":").map(Number)
+                    //     const l2 = time[3].value.split(":").map(Number)
 
-                        if (new Date().setHours(...e2, 0) >= new Date().setHours(...l2, 0)) {
-                            this.errors[time[2].getAttribute("name")] = "無効な時刻形式"
-                        }
-                    }
+                    //     if (new Date().setHours(...e2, 0) >= new Date().setHours(...l2, 0)) {
+                    //         this.errors[time[2].getAttribute("name")] = "無効な時刻形式"
+                    //     } else {
+                    //         delete this.errors[time[2].getAttribute("name")]
+                    //     }
+                    // }
 
                     if (!Object.keys(this.errors).length) {
                         try {
@@ -822,10 +828,9 @@ Attendance
                                     borderRadius: "5px"
                                 },
                             }).showToast();
-                        } finally {
-                            this.loader = false
                         }
                     }
+                    this.loader = false
                 }
             }
         }))
