@@ -141,14 +141,18 @@ class ImageConsumer(WebsocketConsumer):
             qr_code = read_qr(image)
             if qr_code is None:
                 success_message = False
+                self.send(text_data=json.dumps({"success": False, "qr_code": is_qr, "name":name, "email":email}))
+                print("Qr read")
             else:
-                encrypted_id = cipher_suite.decrypt(qr_code[0].encode()).decode()       
-                if encrypted_id in participant_id_qr:
-                    success_message = True
-                    add_attendance(in_out_status, int(encrypted_id))
-                    name, email = get_participant_data(encrypted_id)
-                    self.broadcast_attendance_update(encrypted_id, in_out_status, event_id)
-
+                try:
+                    encrypted_id = cipher_suite.decrypt(qr_code[0].encode()).decode()       
+                    if encrypted_id in participant_id_qr:
+                        success_message = True
+                        add_attendance(in_out_status, int(encrypted_id))
+                        name, email = get_participant_data(encrypted_id)
+                        self.broadcast_attendance_update(encrypted_id, in_out_status, event_id)
+                except Exception:
+                    pass
         self.send(text_data=json.dumps({"success": success_message, "qr_code": is_qr, "name":name, "email":email}))
 
     def broadcast_attendance_update(self, participant_id, status, event_id):

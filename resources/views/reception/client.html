@@ -260,9 +260,9 @@
                 message: "メッセージのロード",
                 socketReady: false,
                 messages: [
-                    { content: "WOW! けっこいいですね。" },
-                    { content: "俳優のように見えます。" },
-                    { content: "うけつけにサインを残してください。" },
+                    { content: "Message Test 1" },
+                    { content: "Message Test 2" },
+                    { content: "Message Test 3" },
                     { content: "" }
                 ],
                 state() {
@@ -435,6 +435,7 @@
                         }
 
                         if (data.qr_code) {
+                            this.qrLoader = false
                             Toastify({
                                 text: settings.qrErrorMessage,
                                 duration: settings.qrErrorAlertDuration * 1000,
