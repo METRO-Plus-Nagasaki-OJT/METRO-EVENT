@@ -47,9 +47,9 @@ class Event(models.Model):
     @property
     def status(self):
         if self.start_time <= timezone.now() < self.end_time:
-            return {"label": "継続中", "value": 1}
+            return {"label": "開催中", "value": 1}
 
         if self.end_time <= timezone.now():
             return {"label": "終了", "value": 2}
 
-        return {"label": "今後", "value": 3}
+        return {"label": "開催前", "value": 3}

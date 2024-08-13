@@ -76,7 +76,7 @@ const Clover = {
         },
         onlyWordCharacter: function (message) {
             return function (field, val) {
-                var regex = /^[\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF66-\uFF9F\uFF65\uFF01-\uFF03\uFF05\uFF07-\uFF5E\u0020-\u0023\u0025\u0027-\u007E\u1000-\u109F]+$/;
+                var regex = /^[\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]+$/;
                 if (!val.match(regex)) {
                     return {
                         rule: 'onlyWordCharacter',
