@@ -260,9 +260,9 @@
                 message: "メッセージのロード",
                 socketReady: false,
                 messages: [
-                    { content: "WOW! けっこいいですね。" },
-                    { content: "俳優のように見えます。" },
-                    { content: "うけつけにサインを残してください。" },
+                    { content: "Message Test 1" },
+                    { content: "Message Test 2" },
+                    { content: "Message Test 3" },
                     { content: "" }
                 ],
                 state() {
@@ -435,6 +435,7 @@
                         }
 
                         if (data.qr_code) {
+                            this.qrLoader = false
                             Toastify({
                                 text: settings.qrErrorMessage,
                                 duration: settings.qrErrorAlertDuration * 1000,
@@ -453,10 +454,10 @@
                             facebox.style.display = "none"
                             this.faceRecognizationFailAlert = true
                             this.failCount = 0
+                            this.qrLoader = false
                             setTimeout(() => {
                                 this.faceRecognizationFailAlert = false
                                 this.currentState = this.state().QR_DECETION
-                                this.loader = false
                             }, 2000);
                             return
                         }
@@ -518,9 +519,6 @@
                                                     this.checkQR(canvas.toDataURL())
                                                 }
 
-                                                if (!qr) {
-                                                    this.qrLoader = false
-                                                }
                                             }
                                         }
 
