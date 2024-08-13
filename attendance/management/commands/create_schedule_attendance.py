@@ -32,7 +32,7 @@ def attendance_scheduling():
         if current_weekday != 5 or current_weekday != 6:
             if current_weekday == 4:
                 next_monday = today + timedelta(days=3)
-                adding_attendance(next_monday)
+                adding_attendance(today)
             else:
                 adding_attendance(today)
             print("finished creating")

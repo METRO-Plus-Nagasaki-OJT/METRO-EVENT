@@ -260,9 +260,9 @@
                 message: "メッセージのロード",
                 socketReady: false,
                 messages: [
-                    { content: "WOW! けっこいいですね。" },
-                    { content: "俳優のように見えます。" },
-                    { content: "うけつけにサインを残してください。" },
+                    { content: "Message Test 1" },
+                    { content: "Message Test 2" },
+                    { content: "Message Test 3" },
                     { content: "" }
                 ],
                 state() {
@@ -392,7 +392,7 @@
                 },
                 connectSocket() {
                     this.socket = new WebSocket(
-                        'wss://' + window.location.hostname + ":8833" + '/ws/attendance/' + Math.floor(Math.random() * 6) + 1 + '/'
+                        'ws://' + window.location.host + '/ws/attendance/' + Math.floor(Math.random() * 6) + 1 + '/'
                     );
 
                     this.socket.onopen = () => {
@@ -435,6 +435,7 @@
                         }
 
                         if (data.qr_code) {
+                            this.qrLoader = false
                             Toastify({
                                 text: settings.qrErrorMessage,
                                 duration: settings.qrErrorAlertDuration * 1000,
