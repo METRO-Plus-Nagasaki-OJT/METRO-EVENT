@@ -141,7 +141,7 @@ def get_participant_data(request, participant_id):
             'created_at': participant.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'updated_at': participant.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'image_data': base64.b64encode(profile_data).decode('utf-8') if profile_data else None,
-            'editPf': bool(participant.profile),
+            'editpf': bool(participant.profile), 
         }
         return JsonResponse(data)
 
@@ -158,12 +158,13 @@ def delete_participant(request, participant_id):
 def update_participant(request, participant_id):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, id=participant_id)
-        
+
         name = request.POST.get('editname')
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
         dob = request.POST.get('editdob')
         gender = request.POST.get('editgender')
+        face = request.POST.get('editpf')
         role = request.POST.get('editrole')
         phone_1 = request.POST.get('editphone_1')
         phone_2 = request.POST.get('editphone_2')
@@ -172,12 +173,29 @@ def update_participant(request, participant_id):
         event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
         email_status = request.POST.get('email_status')
+        delete_image = request.POST.get('delete_image') == 'true'
         embeddable = False
 
-        if 'editfileInput' in request.FILES:
+        if delete_image:
+            # Clear the profile picture
+            participant.profile = None
+            participant.facial_feature = None
+            participant.face = False
+        elif 'editfileInput' in request.FILES:
+            # Update with the new profile picture
             profile = request.FILES["editfileInput"].read()
             profile = base64.b64encode(profile).decode('utf-8')
             embeddable = True
+            participant.profile = profile
+
+            if embeddable:
+                image_np = np.frombuffer(base64.b64decode(profile), dtype=np.uint8)
+                np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
+                face, detection_status = capture_face(np_img)
+                if detection_status:
+                    encoding = get_encode(face)
+                    participant.facial_feature = json.dumps(encoding)
+                    participant.face = True
         else:
             profile = participant.profile
         
@@ -192,16 +210,6 @@ def update_participant(request, participant_id):
         participant.memo = memo
         participant.address = address
         participant.event = event
-        participant.profile = profile
-
-        if embeddable:
-            image_np = np.frombuffer(base64.b64decode(profile), dtype=np.uint8)
-            np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
-            face, detection_status = capture_face(np_img)
-            if detection_status:
-                encoding = get_encode(face)
-                participant.facial_feature = json.dumps(encoding)
-                participant.face = True
 
         participant.save()
 
@@ -211,6 +219,7 @@ def update_participant(request, participant_id):
         return JsonResponse({'status': 'success', 'message': 'Participant updated successfully!'})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
 
 def send_update_notification(email):
     send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
