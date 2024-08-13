@@ -19,8 +19,8 @@ class Attendance(models.Model):
     @property
     def status(self):
         return {
-            "label": "完了" if self.entry_1 and self.le else "未完了",
-            "value": 1 if self.entry_1 and self.entry_2 else 2,
+            "label": "完了" if self.entry_1 and self.leave_1 else "未完了",
+            "value": 1 if self.entry_2 and self.leave_2 else 2,
         }
 
     def __str__(self) -> str:

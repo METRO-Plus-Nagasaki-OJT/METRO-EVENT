@@ -83,7 +83,7 @@
                     <div id="imageContainer" name="imageContainer"
                         class="border border-gray-300 h-[400px] flex items-center justify-center">
                         <img id="capturedImage" name="capturedImage" class="h-full w-full object-cover"
-                            src="{% static 'common/default.jpg' %}">
+                            src="{% static 'common/default.png' %}">
                     </div>
                     <div class="mt-2 flex flex-col items-center space-y-2 py-7">
                         <button id="cameraButton" type="button"
@@ -398,10 +398,10 @@
             <option value="50" {% if per_page is "50" %}selected{% endif %}>50</option>
         </select>
     </div>
-    <div class="relative flex items-center mx-auto">
+    <div class="relative flex items-center mx-auto w-[25%]">
         <input type="text" id="search"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pl-10"
-            placeholder="Search by name or SeatNo">
+            placeholder="名前または座席番号で検索してください。">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg aria-hidden="true" class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd"
@@ -446,7 +446,7 @@
 </div>
 
 <!-- Participants Table -->
-<div class="overflow-x-auto relative shadow-md sm:rounded-lg px-5">
+<div class="overflow-x-auto relative sm:rounded-lg px-5">
     <table class="w-full text-sm text-left text-gray-500" id="participantTable">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
@@ -492,7 +492,7 @@
 </div>
 
 <!-- Pagination Controls -->
-<div class="flex justify-between items-center mt-4 px-5">
+<div class="flex justify-between items-center mt-4 px-5 py-2">
     <div class="text-sm text-gray-700">
         <span class="font-medium">{{ page.paginator.count }}</span> 件中
         <span class="font-medium">{{ page.start_index }}</span> から
@@ -501,19 +501,18 @@
     </div>
     <div class="flex items-center space-x-2">
         {% if page.has_previous %}
-        <button class="prev-page bg-blue-500 text-white py-2 px-4 rounded"
+
+        <button class="prev-page flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             data-page="{{ page.previous_page_number }}">前</button>
         {% else %}
-        <button class="prev-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>前</button>
+        <button class="prev-page flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-not-allowed" disabled>前</button>
         {% endif %}
 
-        <span class="current-page">{{ page.number }}</span>
-
         {% if page.has_next %}
-        <button class="next-page bg-blue-500 text-white py-2 px-4 rounded"
+        <button class="next-page flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             data-page="{{ page.next_page_number }}">次</button>
         {% else %}
-        <button class="next-page bg-gray-300 text-gray-600 py-2 px-4 rounded cursor-not-allowed" disabled>次</button>
+        <button class="next-page flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white cursor-not-allowed" disabled>次</button>
         {% endif %}
     </div>
 </div>
@@ -799,7 +798,7 @@
             } else {
                 // If no image_data, show default image
                 const defaultImg = new Image();
-                defaultImg.src = "/public/common/default.jpg";
+                defaultImg.src = "/public/common/default.png";
                 defaultImg.classList.add('h-full', 'w-full', 'object-cover');
                 editImgContainer.appendChild(defaultImg);
             }
@@ -987,7 +986,7 @@
                 const imgContainer = document.getElementById('imageContainer');
                 imgContainer.innerHTML = '';
                 const image = new Image();
-                image.src = "/public/common/default.jpg";
+                image.src = "/public/common/default.png";
                 imgContainer.appendChild(image);
             },
 
