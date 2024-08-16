@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Message
+from .models import Message, MessageRecord
 from django.http import JsonResponse
 from event.models import Event
 from participant.models import Participant
@@ -11,41 +11,46 @@ from django.contrib.auth.models import User
 def message_view(request):
     if request.method == "POST":
         subject = request.POST.get('subject')
-        sender = request.POST.get('sender')
+        sender_id = request.POST.get('sender')
         content = request.POST.get('content')
         startDate = request.POST.get('startDate')
         endDate = request.POST.get('endDate')
         createdDate = request.POST.get('createdDate')
         event_id = request.POST.get('event')
         type_value = request.POST.get('type')
+        receiver_ids = request.POST.getlist('receivers')  # Fix typo here
 
-        print(f"Received data: subject={subject}, sender={sender}, content={content}, startDate={startDate}, endDate={endDate}, createdDate={createdDate}, event_id={event_id}, type_value-{type_value}")
-        
+        print(f"Received data: subject={subject}, sender={sender_id}, content={content}, startDate={startDate}, endDate={endDate}, createdDate={createdDate}, event_id={event_id}, type_value={type_value}")
+
         if type_value == '1':
             message_type = 'one'
         elif type_value == "2":
             message_type = 'many'
         else:
-            return JsonResponse({'status': 'error', 'message': 'Invalid type selected.'}, status = 400)
+            return JsonResponse({'status': 'error', 'message': 'Invalid type selected.'}, status=400)
         try:
             event = get_object_or_404(Event, id=event_id)
+            sender = get_object_or_404(User, id=sender_id)
             message = Message(
-                subject = subject,
-                sender = sender,
-                content = content,
-                startDate = startDate,
-                endDate = endDate,
-                createdDate = createdDate,
-                event = event,
-                type = message_type
-
+                subject=subject,
+                sender=sender,
+                content=content,
+                startDate=startDate,
+                endDate=endDate,
+                createdDate=createdDate,
+                event=event,
+                type=message_type
             )
             message.save()
-        
-            return JsonResponse({'status': 'success', 'message': "Message have been created successfully!"})
+
+            for receiver_id in receiver_ids:
+                receiver = get_object_or_404(Participant, id=receiver_id)
+                MessageRecord.objects.create(message=message, receiver=receiver)
+
+            return JsonResponse({'status': 'success', 'message': "Message has been created successfully!"})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-    
+
     elif request.method == "GET":
         messages = Message.objects.all().order_by('-id')
         events = Event.objects.all()
@@ -59,7 +64,28 @@ def message_view(request):
                 else:
                     message.status_display = 'End'
 
-    return render(request, 'message/message.html', context = {'messages': messages, 'events': events})
+    return render(request, 'message/message.html', context={'messages': messages, 'events': events})
+
+def autocomplete_suggestions(request):
+    query = request.GET.get('q', '')
+    event_id = request.GET.get('event_id', '')
+
+    if not query or not event_id:
+        return JsonResponse([], safe=False)
+
+    try:
+        participants = Participant.objects.filter(
+            event_id=event_id,
+            name__icontains=query
+        ).values('id', 'name')[:10]  # Ensure 'name' field is included
+
+        return JsonResponse(list(participants), safe=False)
+
+    except Exception as e:
+        print(e)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
 
 def get_message_details(request, message_id):
     if request.method == "POST":
@@ -114,40 +140,3 @@ def get_message_details(request, message_id):
             "type": message.type,
         }
         return JsonResponse(detail)
-
-def autocomplete_subject_suggestions(request):
-    query = request.GET.get('q', '')
-    event_id = request.GET.get('event_id', '')
-
-    if not query or not event_id:
-        return JsonResponse([], safe = False)
-
-    try:
-        participants = Participant.objects.filter(
-            event_id = event_id,
-            name__icontains = query
-        ).values('id', 'name') [:10]
-
-        return JsonResponse(list(participants), safe = False)
-
-    except Exception as e:
-        print(e)
-        return JsonResponse({'status': 'error', 'message': str(e)}, status = 500)
-
-def autocomplete_sender_suggestions(request):
-    query = request.GET.get('q', '')
-
-    if not query:
-        return JsonResponse([], safe=False)
-
-    try:
-        # Query the User model for user names that contain the search query
-        users = User.objects.filter(
-            username__icontains=query
-        ).values('id', 'username')[:10]
-        
-        return JsonResponse(list(users), safe=False)
-
-    except Exception as e:
-        print(e)
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

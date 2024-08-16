@@ -28,13 +28,54 @@
                         <div>
                             <label for = "event" class = "block text-sm font-medium text-gray-700"> イベント </label>
                             <select id="event" name = "event"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500" x-model="selectedEvent">
                             {% for event in events %}
                             <option value="{{ event.id }}">{{ event.name }}</option>
                             {% endfor %}
                             </select>                        
                         </div>
-                        <div x-data = "autocompleteComponent1" x-init = "init()">
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700"> subject </label>
+                            <input type = "text" id="subject" name="subject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>        
+                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        <input type="hidden" name="sender" :value="sender">
+                        <div x-data="autocompleteComponent" x-init="init()">
+                            <label for="receivers" class="block text-sm font-medium text-gray-700">Receivers</label>
+                            <div class="relative">
+                                <!-- Input for typing -->
+                                <input id="receivers" name="receivers" type="text"
+                                    class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="receiverInput"
+                                    x-on:input.debounce.300ms="fetchSuggestions"
+                                    x-on:keydown.enter.prevent="addReceiverFromInput"
+                                    autocomplete="off"
+                                    x-clover-verify>
+
+                                
+                                <!-- Suggestions container -->
+                                <div x-show="suggestions.length > 0 && receiverInput.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions" :key="suggestion.id">
+                                        <div x-text="suggestion.name"
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <!-- Selected receivers tags -->
+                                <div class="flex flex-wrap mt-2">
+                                    <template x-for="receiver in selectedReceivers" :key="receiver.id">
+                                        <div class="bg-blue-500 text-white rounded-full px-3 py-1 mr-2 mb-2 flex items-center">
+                                            <span x-text="receiver.name"></span>
+                                            <button type="button" x-on:click="removeReceiver(receiver.id)" class="ml-2 text-xs font-semibold bg-blue-700 rounded-full px-2 py-1">x</button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div x-text="errors.receivers" class="text-red-500 text-sm mt-1"></div>
+                        </div>                        
+                        {% comment %} <div x-data = "autocompleteComponent1" x-init = "init()">
                             <label for="sender" class="block text-sm font-medium text-gray-700"> 送信者 </label>
                             <div class = "relative">
                                 <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
@@ -53,27 +94,7 @@
                                 </div>
                             </div>
                             <div x-text="errors.sender" class="text-red-500 text-sm mt-1"></div>
-                        </div>
-                        <div x-data = "autocompleteComponent2" x-init = "init()">
-                            <label for="subject" class="block text-sm font-medium text-gray-700"> 件名 </label>
-                            <div class = "relative">
-                                <input type = "text" id="subject" name="subject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
-                                    x-model="senderInput" 
-                                    x-on:input="fetchSuggestions" 
-                                    autocomplete="off"
-                                    x-clover-verify>
-                                <!-- Suggestions container -->     
-                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
-                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
-                                        <div x-text="suggestion.name" 
-                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                                            x-on:click="selectSuggestion(suggestion)">
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
-                        </div>
+                        </div> {% endcomment %}
                         <div>
                             <label for = "content" class = "block text-sm font-medium text-gray-700"> 内容 </label>
                             <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none" x-clover-verify></textarea>
@@ -118,7 +139,7 @@
     </div>
 
     <!-- Detail Box -->
-    <div id = "DetailBox" x-data = "DetailBox" class = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    {% comment %} <div id = "DetailBox" x-data = "DetailBox" class = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
         <form class="bg-white p-5 rounded-lg w-full sm:max-w-lg mx-auto" x-clover-form="submit" method="post">
             <input type="hidden"  name="messageId"/>
             {% csrf_token %}
@@ -128,7 +149,7 @@
             <div class ="flex flex-wrap -mx-2">
                 <div class = "w-full px-4 py-3">
                     <div class = "space-y-4">
-                        <div x-data = "autocompleteComponent2" x-init = "init()">
+                        <div x-data = "autocompleteComponent" x-init = "init()">
                             <label for="detailsubject" class="block text-sm font-medium text-gray-700"> 件名 </label>
                             <div class = "relative">
                                 <input type = "text" id="detailsubject" name="detailsubject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
@@ -196,7 +217,7 @@
                 </div>
             </div>
         </form>
-    </div>
+    </div> {% endcomment %}
 </div>
 
 <!-- messagePages and Search Bar -->
@@ -226,11 +247,11 @@
         <thead class = "text-xs text-gray-700 uppercase bg-gray-50">
             <tr>
                 <th scope ="col" class = "px-6 py-3 w-4"></th>
-                <th scope ="col" class = "px-6 py-3 w-4"> メッセージID </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> 送信者 </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> 件名 </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> 期間 </th>
-                <th scope ="col" class = "px-6 py-3 w-4"> 状況 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> Message ID </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> Sender </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> Subject </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> Period </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> Situation </th>
             </tr>
         </thead>
         <tbody>
@@ -366,74 +387,104 @@
     // Create and Edit and Suggestions
     document.addEventListener('alpine:init', () => {
         // Suggestions (User)
-        Alpine.data('autocompleteComponent1', () => ({
-            senderInput: '',
-            suggestions: [],
+        //Alpine.data('autocompleteComponent1', () => ({
+        //    senderInput: '',
+        //    suggestions: [],
             
-            async fetchSuggestions() {
-                if (this.senderInput.length < 2) {
-                    this.suggestions = [];
-                    return;
-                }
+        //    async fetchSuggestions() {
+        //        if (this.senderInput.length < 2) {
+        //            this.suggestions = [];
+        //            return;
+        //        }
                 
-                try {
-                    const response = await fetch(`autocomplete-suggestions-sender/?q=${encodeURIComponent(this.senderInput)}`);
+        //        try {
+        //            const response = await fetch(`autocomplete-suggestions-sender/?q=${encodeURIComponent(this.senderInput)}`);
                     
-                    if (!response.ok) throw new Error('Network response was not ok.');
+        //            if (!response.ok) throw new Error('Network response was not ok.');
                     
-                    const data = await response.json();
-                    console.log("Sender Input:", this.senderInput);
-                    this.suggestions = data;
+        //            const data = await response.json();
+        //            console.log("Sender Input:", this.senderInput);
+        //            this.suggestions = data;
 
-                } catch (error) {
-                    console.error('Error fetching suggestions:', error);
-                }    
-            },
+        //        } catch (error) {
+        //            console.error('Error fetching suggestions:', error);
+        //        }    
+        //    },
         
-            selectSuggestion(suggestion) {
-                this.senderInput = suggestion.username; 
-                this.suggestions = [];
-            }
-        }));
+        //    selectSuggestion(suggestion) {
+        //        this.senderInput = suggestion.username; 
+        //        this.suggestions = [];
+        //    }
+        //}));
         
 
-        // Suggestions (Participant)
-        Alpine.data('autocompleteComponent2', () => ({
-            senderInput: '',
-            suggestions: [],
+        // Suggestions (Receiver)
+        Alpine.data('autocompleteComponent', () => ({
+            receiverInput: '',
+            selectedReceivers: [],
+            suggestions: [], // Initialized as an empty array
+            errors: { receivers: '' },
             selectedEvent: '',
-
+        
             init() {
-                this.selectedEvent = document.getElementById('event').value;
-                document.getElementById('event').addEventListener('change', (event) => {
-                this.selectedEvent = event.target.value;
+                this.selectedEvent = document.getElementById('event')?.value || '';
+                document.getElementById('event')?.addEventListener('change', (event) => {
+                    this.selectedEvent = event.target.value;
                 });
+                this.fetchSuggestions = this.fetchSuggestions.bind(this);
+                this.addReceiverFromInput = this.addReceiverFromInput.bind(this);
+                this.removeReceiver = this.removeReceiver.bind(this);
+                this.selectSuggestion = this.selectSuggestion.bind(this);
             },
-
+        
             async fetchSuggestions() {
-                if (this.senderInput.length < 2) {
+                if (this.receiverInput.length < 2) {
                     this.suggestions = [];
                     return;
                 }
-                
+        
                 try {
-                    const response = await fetch(`autocomplete-suggestions-subject/?q=${encodeURIComponent(this.senderInput)}&event_id=${encodeURIComponent(this.selectedEvent)}`);
-                    console.log("Sender Input:", this.senderInput);
-                    console.log("Selected Event:", this.selectedEvent);
+                    const response = await fetch(`autocomplete-suggestions/?q=${encodeURIComponent(this.receiverInput)}&event_id=${encodeURIComponent(this.selectedEvent)}`);
                     if (!response.ok) throw new Error('Network response was not ok.');
                     const data = await response.json();
-                    this.suggestions = data;
+
+                    console.log(data);
+
+                    // Ensure data is an array before assigning it to suggestions
+                    if (Array.isArray(data)) {
+                        this.suggestions = data;
+                    } else {
+                        console.error('Expected an array but received:', data);
+                        this.suggestions = [];
+                    }
                 } catch (error) {
                     console.error('Error fetching suggestions:', error);
-                }    
+                }
             },
-            
-
+        
+            addReceiverFromInput() {
+                const receiver = this.suggestions.find(s => s.name.toLowerCase() === this.receiverInput.toLowerCase());
+                if (receiver && !this.selectedReceivers.some(r => r.id === receiver.id)) {
+                    this.selectedReceivers.push(receiver);
+                    this.receiverInput = ''; // Clear the input field
+                    this.suggestions = []; // Clear the suggestions
+                }
+            },
+        
             selectSuggestion(suggestion) {
-                this.senderInput = suggestion.name;
-                this.suggestions = [];
+                if (!this.selectedReceivers.some(r => r.id === suggestion.id)) {
+                    this.selectedReceivers.push(suggestion);
+                }
+                this.receiverInput = ''; // Clear the input field
+                this.suggestions = []; // Clear the suggestions
+            },
+        
+            removeReceiver(id) {
+                this.selectedReceivers = this.selectedReceivers.filter(receiver => receiver.id !== id);
             }
         }));
+        
+        
 
         // Create
         Alpine.data('newMessageBox', () => ({
