@@ -1,3 +1,27 @@
-<div class="p-3 bg-white">
-    
+<div class="px-2 py-1 bg-white flex justify-between items-center">
+    <a href="/p-hub-admin/menu/" class="text-blue-500 ">
+        <span class="font-extrabold text-md">専門学校</span>
+        <h2 class="font-extrabold text-2xl dela-gothic-one-regular leading-[1]">メトロ IT ビジネスカレッジ</h2>
+    </a>
+    <div class="relative" x-data="{open:false}">
+        <div @click.away="open = false" @click="open = true" class="relative cursor-pointer w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+            <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd">
+                </path>
+            </svg>
+        </div>
+        <div x-show="open" x-cloak  x-transition.duration.300ms
+            class="z-10 right-2 mt-1 absolute bg-white divide-y divide-gray-100 rounded-lg shadow w-[9rem] dark:bg-gray-700">
+            <ul class="text-sm border rounded-lg text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                <li class="p-1">
+                    <form method="post"  action="/p-hub-admin/logout/">
+                        {% csrf_token %}
+                        <button type="submit"
+                        class="block text-[1rem] rounded-lg text-white bg-red-500 px-4 py-2 w-full hover:bg-red-400 dark:hover:bg-gray-600 dark:hover:text-white">logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>

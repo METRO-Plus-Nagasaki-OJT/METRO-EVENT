@@ -18,6 +18,6 @@ class ParticipantConsumer(WebsocketConsumer):
 
         # Decode base64 to bytes
         byte_data = base64.b64decode(base64_data)
-
+        
         # Send back the received image
         self.send(text_data=json.dumps({"image_url": image_base64}))

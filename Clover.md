@@ -160,18 +160,19 @@ Here's a complete example integrating Clover with a simple HTML form:
     </form>
     <script>
         document.addEventListener('alpine:init', function () {
-            window.Alpine.data('form', () => ({
+            Alpine.data('form', () => ({
                 rule: {
-                    name: [Clover.rule.required('Name is required')],
+                    name: [
+                        Clover.rule.required('Name is required'),
+                        Clover.rule.onlyWordCharacter(),
+                    ],
                     email: [
                         Clover.rule.required('Email is required'),
                         Clover.rule.mail('Invalid email format'),
                     ],
                     password: [
                         Clover.rule.required('Password is required'),
-                        Clover.rule.password(
-                            'Password must contain at least one letter and one number'
-                        ),
+                        Clover.rule.password(),
                     ],
                 },
                 errors: {},

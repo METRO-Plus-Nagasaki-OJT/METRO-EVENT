@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
+from django.shortcuts import redirect
 
 
 def test(request):
@@ -25,10 +26,13 @@ def test(request):
 
 
 urlpatterns = [
+    path("", lambda x: redirect("menu")),
     path("admin/", admin.site.urls),
     path("test/", test),
     path("event/", include("event.urls")),
     path("participant/", include("participant.urls")),
     path("reception/", include("reception.urls")),
-    path("p-hub-admin/", include("p_hub_admin.urls"))
+    path("p-hub-admin/", include("p_hub_admin.urls")),
+    path("attendance/", include("attendance.urls")),
+    path("message/", include("message.urls")),
 ]
