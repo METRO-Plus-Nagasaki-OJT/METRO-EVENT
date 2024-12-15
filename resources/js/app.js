@@ -1,4 +1,7 @@
 import Alpine from 'alpinejs';
+import persist from '@alpinejs/persist'
+
+Alpine.plugin(persist)
 
 const Clover = {
     rule: {
@@ -19,7 +22,7 @@ const Clover = {
                     value: val.match(regex)
                         ? false
                         : message ||
-                          `The  ${field}  does not match with mail format`,
+                        `The  ${field}  does not match with mail format`,
                 };
             };
         },
@@ -31,7 +34,7 @@ const Clover = {
                     value: val.match(regex)
                         ? false
                         : message ||
-                          `The ${field} must have a minimum of eight characters with at least one alphabet and one number`,
+                        `The ${field} must have a minimum of eight characters with at least one alphabet and one number`,
                 };
             };
         },
@@ -55,7 +58,7 @@ const Clover = {
                     value: list.includes(val)
                         ? false
                         : message ||
-                          `The ${field} must be include in ${list.join(',')}`,
+                        `The ${field} must be include in ${list.join(',')}`,
                 };
             };
         },
@@ -66,6 +69,18 @@ const Clover = {
                     return {
                         rule: 'number',
                         value: message || `The ${field} must be number`,
+                    };
+                }
+                return { value: false };
+            };
+        },
+        onlyWordCharacter: function (message) {
+            return function (field, val) {
+                var regex = /^[\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF66-\uFF9F\uFF65\uFF01-\uFF03\uFF05\uFF07-\uFF5E\u0020-\u0023\u0025\u0027-\u007E\u1000-\u109F]+$/;
+                if (!val.match(regex)) {
+                    return {
+                        rule: 'onlyWordCharacter',
+                        value: message || `The ${field} must be special charactes !#=`,
                     };
                 }
                 return { value: false };
@@ -156,6 +171,36 @@ const Clover = {
                 return { value: false };
             };
         },
+        date: function ({ before, after }, message = {}) {
+            return function (field, value, el) {
+                if (el) {
+                    const form = el.closest("form")
+
+                    if (before) {
+                        const targetDate = new Date(value).getTime()
+                        const otherDate = new Date(form.elements[before].value).getTime()
+                        if (targetDate > otherDate) {
+                            return {
+                                rule: "date.before",
+                                value: message?.before || `The ${field} must be before  ${before}`
+                            }
+                        }
+                    }
+
+                    if (after) {
+                        const targetDate = new Date(value).getTime()
+                        const otherDate = new Date((form.elements[after].value)).getTime()
+                        if (otherDate > targetDate) {
+                            return {
+                                rule: "date.after",
+                                value: message?.before || `The ${field} must be after  ${after}`
+                            }
+                        }
+                    }
+                }
+                return { value: false }
+            }
+        }
     },
     validate: function ({ rule, data }) {
         const errors = {};
@@ -230,10 +275,10 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.directive(
         'clover-form',
-        (el, { value, modifiers, expression }, { cleanup, evaluate }) => { 
-            const errors = evaluate('errors');
+        (el, { value, modifiers, expression }, { cleanup, evaluate }) => {
             const checkRule = value || 'rule';
             const handler = function (e) {
+                const errors = evaluate('errors');
                 e.preventDefault();
                 const rule = evaluate(checkRule);
                 for (let name in rule) {
@@ -241,7 +286,7 @@ document.addEventListener('alpine:init', () => {
                         if (el.elements[name]) {
                             const e = r(
                                 name,
-                                el.getAttribute('type') === 'file'
+                                el.elements[name].getAttribute('type') === 'file'
                                     ? el.elements[name].files
                                     : el.elements[name].value,
                                 el.elements[name]

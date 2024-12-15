@@ -1,0 +1,596 @@
+{% extends 'dashboard/master.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class = "mb-4 bg-gray-200 px-1 py-5">
+    <h2 class = "text-2x1"> Message </h2>
+    <h2 class = "text-2x1"> メッセージ </h2>
+</div>
+
+<div class = "px-5 py-5"> 
+    <div class = "mb-4">
+        <button id = "newMessage" class ="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring font-medium rounded-lg px-5 py-3 text-center"> 
+            + メッセージの作成
+        </button>
+    </div>
+
+    <!-- Message Box -->
+    <div id = "newMessageBox" x-data="newMessageBox" class = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <form class="bg-white p-5 rounded-lg w-full sm:max-w-lg mx-auto" x-clover-form="submitForm" action="{% url 'message' %}" method="post">
+            {% csrf_token %}
+            <div class ="bg-blue-500 px-4 py-3">
+                <h3 class ="text-xl mb-4 text-white pt-3"> メッセージの作成 </h3>
+            </div>
+            <div class ="flex flex-wrap -mx-2">
+                <div class = "w-full px-4 py-3">
+                    <div class = "space-y-4">
+                        <div>
+                            <label for = "event" class = "block text-sm font-medium text-gray-700"> イベント </label>
+                            <select id="event" name = "event"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                            {% for event in events %}
+                            <option value="{{ event.id }}">{{ event.name }}</option>
+                            {% endfor %}
+                            </select>                        
+                        </div>
+                        <div x-data = "autocompleteComponent2" x-init = "init()">
+                            <label for="subject" class="block text-sm font-medium text-gray-700"> 件名 </label>
+                            <div class = "relative">
+                                <input type = "text" id="subject" name="subject" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="senderInput" 
+                                    x-on:input="fetchSuggestions" 
+                                    autocomplete="off"
+                                    x-clover-verify>
+                                <!-- Suggestions container -->     
+                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
+                                        <div x-text="suggestion.name" 
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div x-text="errors.subject" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        <div x-data = "autocompleteComponent1" x-init = "init()">
+                            <label for="sender" class="block text-sm font-medium text-gray-700"> 送信者 </label>
+                            <div class = "relative">
+                                <input type = "text" id="sender" name="sender" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm"
+                                    x-model="senderInput" 
+                                    x-on:input="fetchSuggestions" 
+                                    autocomplete="off"
+                                    x-clover-verify>
+                                <!-- Suggestions container -->     
+                                <div x-show="suggestions.length > 0" class="absolute bg-white border border-gray-300 rounded-md mt-1 w-full z-10">
+                                    <template x-for="suggestion in suggestions" :key = "suggestion.id">
+                                        <div x-text="suggestion.username" 
+                                            class="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                                            x-on:click="selectSuggestion(suggestion)">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div x-text="errors.sender" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        <div>
+                            <label for = "content" class = "block text-sm font-medium text-gray-700"> 内容 </label>
+                            <textarea type = "text" id = "content" name = "content" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label for = "period" class ="block text-sm font-medium text-gray-700"> 期間 </label>
+                            <div class="flex flex-col space-y-2">
+                                <div class="flex space-x-4">
+                                    <div class="flex-1">
+                                        <input type="datetime-local" id="startDate" name="startDate" x-model="startDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                                        <span x-show="errors.startDate" x-text="errors.startDate" class="text-red-500 text-sm mt-1"></span>
+                                    </div>
+                                    <span class="text-gray-700 mt-2">to</span>
+                                    <div class="flex-1">
+                                        <input type="datetime-local" id="endDate" name="endDate" x-model="endDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                                        <span x-show="errors.endDate" x-text="errors.endDate" class="text-red-500 text-sm mt-1"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                       
+                        <div>
+                            <label for = "type" class = "block text-sm font-medium text-gray-700"> タイプ </label>
+                            <select id="type" name = "type" 
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                                <option value = "1"> One Time </option>
+                                <option value = "2"> Many Times </option>
+                            </select>                        
+                        </div>
+                        <input type="hidden" name="createdDate" :value="createdDate">
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end w-full">
+                    <button id="createMessage" type="submit"
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2">登録</button>
+                    <button id="cancelCreation" type="button"
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5">キャンセル</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Detail Box -->
+    <div id = "DetailBox" x-data = "DetailBox" class = "fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <form class="bg-white p-5 rounded-lg w-full sm:max-w-lg mx-auto" x-clover-form="submit" method="post">
+            <input type="hidden"  name="messageId"/>
+            {% csrf_token %}
+            <div class ="bg-blue-500 px-4 py-3">
+                <h3 class ="text-xl mb-4 text-white pt-3"> 詳細 </h3>
+            </div>
+            <div class ="flex flex-wrap -mx-2">
+                <div class = "w-full px-4 py-3">
+                    <div class = "space-y-4">
+                        <div>
+                            <label for = "detailsubject" class = "block text-sm font-medium text-gray-700"> 件名 </label>
+                            <input type = "text" id = "detailsubject" name ="detailsubject" class ="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                            <div x-text="errors.detailsubject" class="text-red-500 text-sm mt-1"></div>
+                        </div>
+                        <div>
+                            <label for = "detailcontent" class = "block text-sm font-medium text-gray-700"> 内容 </label>
+                            <textarea type = "text" id = "detailcontent" name = "detailcontent" rows = "3" class ="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label for = "detailperiod" class ="block text-sm font-medium text-gray-700"> 期間 </label>
+                            <div class="flex flex-col space-y-2">
+                                <div class="flex space-x-4">
+                                    <div class="flex-1">
+                                        <input type="datetime-local" id="detailstartDate" name="detailstartDate" x-model="detailstartDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                                        <span x-show="errors.detailstartDate" x-text="errors.detailstartDate" class="text-red-500 text-sm mt-1"></span>
+                                    </div>
+                                    <span class="text-gray-700 mt-2">to</span>
+                                    <div class="flex-1">
+                                        <input type="datetime-local" id="detailendDate" name="detailendDate" x-model="detailendDate" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" x-clover-verify>
+                                        <span x-show="errors.detailendDate" x-text="errors.detailendDate" class="text-red-500 text-sm mt-1"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                       
+                        <div>
+                            <label for = "detailtype" class = "block text-sm font-medium text-gray-700"> タイプ </label>
+                            <select id="detailtype" name = "detailtype"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500">
+                                <option value = "1"> 一度 </option>
+                                <option value = "2"> 何度も </option>
+                            </select>                        
+                        </div>
+                        <div>
+                            <label for = "detailcreatedDate" class ="block text-sm font-medium text-gray-700"> 作成日 </label>
+                            <input type = "datetime-local" id = "detailcreatedDate" name = "detailcreatedDate" class = "mt-1 block w-full border-gray-300 bg-gray-500 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" readonly>
+                        </div>
+                        <div>
+                            <label for = "detailfinishedDate" class ="block text-sm font-medium text-gray-700"> 終了日 </label>      
+                            <input type = "datetime-local" id = "detailfinishedDate" name = "detailfinishedDate" class = "mt-1 block w-full border-gray-300 bg-gray-500 rounded-md shadow-sm focus:ring-blue-500 sm:text-sm" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end w-full">
+                    <button id="editMessage" type="submit"
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2"> 編集 </button>
+                    <button id="cancelEdition" type="button"
+                        class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"> キャンセル </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- messagePages and Search Bar -->
+<div class="flex justify-between items-center mb-4 px-5">
+    <div class="flex justify-start pb-4 mr-3">
+        <select id="pagination"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+            style="width: 200px;">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+        <p class="pt-2 ml-2">件表示</p>
+    </div>      
+    <div class="flex justify-end pb-4 mr-3">
+        <div class="ml-4">
+
+            <input id="searchInput" type="text" placeholder="検索..."
+                class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+        </div>
+    </div>
+</div>
+
+<!-- Messages Table -->
+<div class = "overflow-x-auto relative sm:rounded-lg px-5">
+    <table class = "w-full text-sm text-left text-gray-500">
+        <thead class = "text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+                <th scope ="col" class = "px-6 py-3 w-4"></th>
+                <th scope ="col" class = "px-6 py-3 w-4"> メッセージID </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 送信者 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 件名 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 期間 </th>
+                <th scope ="col" class = "px-6 py-3 w-4"> 状況 </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for message in messages %}
+            <tr class="bg-white border-b" data-sender="{{ message.sender }}" data-subject="{{ message.subject }}">
+                <td class="py-4 px-6">
+                    <button
+                        class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 open-edit-modal"
+                        data-message-id="{{ message.id }}"> 詳細 </button>
+                </td>
+                <td class="py-4 px-6">{{ message.id }}</td>
+                <td class="py-4 px-6">{{ message.sender }}</td>
+                <td class="py-4 px-6">{{ message.subject }}</td>
+                <td class="py-4 px-6">{{ message.startDate }} to {{ message.endDate }} </td>
+                <td class="py-4 px-6">
+                    {% if message.status_display == 'Upcoming' %}
+                    <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">
+                        今後の予定
+                    </span>
+                    {% elif message.status_display == 'Current' %}
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">
+                            現在の予定
+                        </span>
+                    {% elif message.status_display == 'End' %}
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full">
+                            終了の予定
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-gray-500 bg-gray-100 rounded-full">
+                            日付なし
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="pagination" class="mt-4 flex justify-end py-3 px-3">
+    <span id="showingResults"> 1ページ目の結果を表示中 </span>
+    <span class="ml-2 inline-flex" id="paginationControls">
+        <button id="prevBtn"
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-l-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">前</button>
+        <button id="pageBtn"
+            class="px-3 py-1 border-t border-b border-gray-300 bg-blue-500 hover:bg-blue-700 text-sm font-medium text-white">1</button>
+        <button id="nextBtn"
+            class="page-Btn px-3 py-1 border border-gray-300 rounded-r-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">次</button>
+    </span>
+</div>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+    const newMessageButton = document.getElementById("newMessage");
+    const closeMessageButton = document.getElementById("cancelCreation");
+    const messageBox = document.getElementById("newMessageBox");
+    const detailBox = document.getElementById("DetailBox");
+
+    newMessageButton.addEventListener('click', () => {
+        messageBox.classList.remove('hidden');
+    })
+
+    closeMessageButton.addEventListener('click', () => {
+        messageBox.classList.add('hidden'); 
+    })
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const paginationSelect = document.getElementById('pagination');
+        paginationSelect.value = "{{ per_page }}"; 
+
+        paginationSelect.addEventListener('change', function () {
+            const perPage = paginationSelect.value;
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('per_page', perPage);
+            window.location.search = urlParams.toString();
+        });
+    });
+
+    // Show data from database
+    document.addEventListener('DOMContentLoaded', function () {
+        const openEditButton = document.querySelectorAll('.open-edit-modal');
+
+        openEditButton.forEach(button => {
+            button.addEventListener('click', function () {
+                const messageId = button.getAttribute('data-message-id');
+                if (!messageId) {
+                    console.error('Message ID attribute is missing or invalid.');
+                    return;
+                }
+                console.log("Message ID: ", messageId);
+
+                const url = `/message/get_message_data/${messageId}/`;
+
+                fetch(url)
+                    .then(async response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok.');
+                        }
+                        return response.json();
+                    })
+                    .then(detail => {
+                        console.log('Fetched data:', detail);
+
+                        document.querySelector("[name='messageId']").value = messageId
+                        document.getElementById('detailsubject').value = detail.subject || '';
+                        document.getElementById('detailcontent').value = detail.content || '';
+                        document.getElementById('detailstartDate').value = detail.startDate ? new Date(detail.startDate).toISOString().slice(0, 16) : '';
+                        document.getElementById('detailendDate').value = detail.endDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
+                        document.getElementById('detailtype').value = detail.type || '';
+                        document.getElementById('detailcreatedDate').value = detail.createdDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
+                        document.getElementById('detailfinishedDate').value = detail.endDate ? new Date(detail.endDate).toISOString().slice(0, 16) : '';
+                    
+                        detailBox.classList.remove('hidden');
+                    })
+                    .catch(error => console.error('Error fetching message data:', error));
+                   
+            });
+        });
+
+        const cancelEditionButton = document.getElementById('cancelEdition');
+        if (cancelEditionButton) {
+            cancelEditionButton.addEventListener('click', function () {
+                detailBox.classList.add('hidden');
+            });
+        }
+    });
+
+    // Create and Edit and Suggestions
+    document.addEventListener('alpine:init', () => {
+        // Suggestions (User)
+        Alpine.data('autocompleteComponent1', () => ({
+            senderInput: '',
+            suggestions: [],
+            
+            async fetchSuggestions() {
+                if (this.senderInput.length < 2) {
+                    this.suggestions = [];
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`autocomplete-suggestions-sender/?q=${encodeURIComponent(this.senderInput)}`);
+                    
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    
+                    const data = await response.json();
+                    console.log("Sender Input:", this.senderInput);
+                    this.suggestions = data;
+
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }    
+            },
+        
+            selectSuggestion(suggestion) {
+                this.senderInput = suggestion.username; 
+                this.suggestions = [];
+            }
+        }));
+        
+
+        // Suggestions (Participant)
+        Alpine.data('autocompleteComponent2', () => ({
+            senderInput: '',
+            suggestions: [],
+            selectedEvent: '',
+
+            init() {
+                this.selectedEvent = document.getElementById('event').value;
+                document.getElementById('event').addEventListener('change', (event) => {
+                this.selectedEvent = event.target.value;
+                });
+            },
+
+            async fetchSuggestions() {
+                if (this.senderInput.length < 2) {
+                    this.suggestions = [];
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`autocomplete-suggestions-subject/?q=${encodeURIComponent(this.senderInput)}&event_id=${encodeURIComponent(this.selectedEvent)}`);
+                    console.log("Sender Input:", this.senderInput);
+                    console.log("Selected Event:", this.selectedEvent);
+                    if (!response.ok) throw new Error('Network response was not ok.');
+                    const data = await response.json();
+                    this.suggestions = data;
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                }    
+            },
+            
+
+            selectSuggestion(suggestion) {
+                this.senderInput = suggestion.name;
+                this.suggestions = [];
+            }
+        }));
+
+        // Create
+        Alpine.data('newMessageBox', () => ({
+            rule: {
+                "subject" : [Clover.rule.required("件名を入力してください。")],
+                "sender" : [Clover.rule.required("差出人を入力してください。")],
+                "startDate" : [Clover.rule.required("開始日を選択してください。")],
+                "endDate" : [Clover.rule.required("終了日を選択してください。")],
+            },
+            errors: {},
+            error: false,
+            errorMessage: '',
+            createdDate: '',
+            init() {
+                this.createdDate = new Date().toISOString().slice(0, 16); 
+            },
+            async submitForm(){
+                const form = this.$el
+                const data = new FormData(form)
+
+                console.log(data)
+
+                try {
+                    const response = await fetch("", {
+                        method: "POST",
+                        body: data
+                    })
+                
+                const res = await response.text()    
+
+                if (!response.ok){
+                    throw new Error(res.error || 'Failed to create.');
+                }
+
+                console.log(res)
+
+                if (messageBox) {
+                    messageBox.classList.add('hidden');
+                }        
+                
+                }catch(error) {
+                    console.log(error);
+                }
+            }
+        }));
+
+        // Edit
+        Alpine.data('DetailBox', () => ({
+            rule: {
+                "detailsubject" : [Clover.rule.required("件名を入力してください。")],
+                "detailstartDate" : [Clover.rule.required("開始日を選択してください。")],
+                "detailendDate" : [Clover.rule.required("終了日を選択してください。")],
+            },
+            errors: {},
+            async submit(){
+                const form = this.$el;
+                const data = new FormData(form);
+                const messageId = form.elements["messageId"].value;
+                if (!messageId) {
+                    console.error('Message ID attribute is missing or invalid.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/message/get_message_data/${messageId}/`, {
+                        method: "POST",
+                        body: data
+                    })
+                
+                const res = await response.json()    
+
+                if (!response.ok){
+                    throw new Error(res.error || 'Failed to edit.');
+                }
+
+                console.log(res)
+
+                if (Object.keys(this.errors).length === 0) {
+                    // Hide the detailBox only if there are no validation errors
+                    if (detailBox) {
+                        detailBox.classList.add('hidden');
+                    }
+                } else {
+                    // Optionally: Log or handle the situation where there are validation errors
+                    console.log('Validation errors present. DetailBox remains visible.');
+                }
+
+                }catch(error) {
+                    console.log(error);
+                }
+            }
+        }));
+    })
+    
+    document.addEventListener('DOMContentLoaded', () => {
+    const rowsPerPageSelect = document.getElementById('pagination');
+    const rows = Array.from(document.querySelectorAll('tbody tr'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageBtn = document.getElementById('pageBtn');
+    const showingResults = document.getElementById('showingResults');
+    const searchInput = document.getElementById('searchInput');
+
+    let currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
+    let rowsPerPage = parseInt(sessionStorage.getItem('rowsPerPage')) || 10;
+    let searchTerm = sessionStorage.getItem('searchTerm') || '';
+
+    rowsPerPageSelect.value = rowsPerPage;
+    searchInput.value = searchTerm;
+
+    function filterRows() {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return rows.filter(row => {
+            const sender = (row.dataset.sender || '').toLowerCase();
+            const subject = (row.dataset.subject || '').toLowerCase();
+            return sender.includes(lowerCaseSearchTerm) || subject.includes(lowerCaseSearchTerm);
+        });
+    }
+
+    function renderPagination(filteredRows) {
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        pageBtn.textContent = currentPage;
+        showingResults.textContent = `${currentPage}ページ目の結果を表示中`;
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+
+    function updateTable(filteredRows) {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        rows.forEach(row => row.style.display = 'none');
+        filteredRows.slice(start, end).forEach(row => row.style.display = '');
+    }
+
+    function handlePageChange() {
+        const filteredRows = filterRows();
+        renderPagination(filteredRows);
+        updateTable(filteredRows);
+        sessionStorage.setItem('currentPage', currentPage);
+    }
+
+    rowsPerPageSelect.addEventListener('change', (event) => {
+        rowsPerPage = parseInt(event.target.value, 10);
+        sessionStorage.setItem('rowsPerPage', rowsPerPage);
+        currentPage = 1;
+        handlePageChange();
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            handlePageChange();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        const filteredRows = filterRows();
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            handlePageChange();
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        searchTerm = searchInput.value.toLowerCase();
+        sessionStorage.setItem('searchTerm', searchTerm);
+        currentPage = 1;
+        handlePageChange();
+    });
+
+    handlePageChange();
+});
+
+    
+    
+</script>
+{% endblock script %}

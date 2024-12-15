@@ -18,14 +18,18 @@
     "tailwindcss": "^3.4.4"
   },
   "dependencies": {
+    "@alpinejs/persist": "^3.14.1",
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/face_detection": "^0.4.1646425229",
     "@mediapipe/hands": "^0.4.1675469240",
     "@mediapipe/tasks-vision": "^0.10.14",
+    "air-datepicker": "^3.5.3",
     "alpinejs": "^3.14.1",
     "flowbite": "^2.4.1",
     "install": "^0.13.0",
     "jsqr": "^1.4.0",
-    "npm": "^10.8.2"
+    "npm": "^10.8.2",
+    "pptxgenjs": "^3.12.0",
+    "toastify-js": "^1.12.0"
   }
 }

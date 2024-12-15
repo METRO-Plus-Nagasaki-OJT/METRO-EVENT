@@ -1,0 +1,67 @@
+{% extends "dashboard/master.html" %}
+{% block page_en %}
+Menu
+{% endblock page_en %}
+{% block page_jp %}
+メニュー
+{% endblock page_jp %}
+{% block content %}
+{% for message in messages  %}
+    {% if message.tags == 'success' %}
+    <script>
+        Toastify({
+                    text: "ログインに成功しました。",
+                    duration: 3000,
+                     gravity: "center",
+                     position: "center",
+                    style: {
+                            background: "#06d6a0",
+                            fontSize: '20px',
+                            borderRadius: "5px"
+                    },
+                    }).showToast();
+    </script>
+    {% endif %}
+{% endfor %}
+
+<div class=" pb-5 pt-6">
+    <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
+        <a href="{% url "event2" %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
+            イベント登録
+        </a>
+        <p class="text-center">イベントの登録、修正、削除をおこないます。</p>
+    </div>
+    <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
+        <a href="{% url "participant" %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
+            参加者登録
+        </a>
+        <p class="text-center">指定したイベントの参加者を登録します。認証用の画像もここで登録可能です。</p>
+    </div>
+    <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
+        <a href="{% url "reception:client" %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
+            受付処理
+        </a>    
+        <p class="text-center">開催中のイベントで受付情報処理を行います。顔認証、QRコードでの処理が可能です。</p>
+    </div>
+    <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
+        <a href="{% url "attendance2" %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
+            入館退館履歴書
+        </a>
+        <p class="text-center">参加者毎の入館、たいかん時間を確認できます。また、各時間の修正も可能です。</p>
+    </div>
+    <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
+        <a href="{% url 'message' %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
+            メッセージ登録
+        </a>
+        <p class="text-center">受付時に表示するメッセージを登録します。</p>
+    </div>
+    <div class="grid grid-cols-2 gap-2 items-center justify-center mb-10">
+        <a href="{% url "monitoring" %}" class="text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm w-49 h-12 flex items-center justify-center dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-24">
+            受付状況一覧（モニタリング用）
+        </a>
+        <p class="text-center">受付状態をリアルタイムで表示します。</p>
+    </div>
+</div>
+
+</div>
+{% endblock content %}

@@ -1,0 +1,52 @@
+from attendance.models import Attendance
+from participant.models import Participant
+from event.models import Event
+from datetime import datetime, timedelta
+from django.utils import timezone
+from django.core.management.base import BaseCommand
+
+today = datetime.now().date()
+tomorrow = today + timedelta(days=1)
+current_weekday = datetime.weekday(today)
+
+def get_event_ids():
+    now = timezone.localtime(timezone.now())
+    ongoing_events = Event.objects.filter(end_time__gt=now)
+    event_ids = list(ongoing_events.values_list('id', flat=True))
+    return event_ids
+
+def adding_attendance(next_day):
+    for event_id in get_event_ids():
+        participant_ids = list(Participant.objects.filter(event__id=event_id).values_list("id", flat=True))
+        print(participant_ids)
+        for participant_id in participant_ids:
+            Attendance.objects.create(participant_id=participant_id, date=next_day)
+
+def get_paticipant_counts():
+    ids = get_event_ids()
+    return Participant.objects.filter(event__id__in=ids).count()
+
+def attendance_scheduling():
+    attendance_for_tomorrow = Attendance.objects.filter(date=today).count()
+    if attendance_for_tomorrow == 0:
+        if current_weekday != 5 or current_weekday != 6:
+            if current_weekday == 4:
+                next_monday = today + timedelta(days=3)
+                adding_attendance(today)
+            else:
+                adding_attendance(today)
+            print("finished creating")
+    else:
+        pass
+
+def row_check(participant_id):
+    try:
+        if current_weekday != 5 or current_weekday != 6:
+            Attendance.objects.create(participant_id=participant_id, date=today)
+    except Exception as e:
+        pass
+
+class Command(BaseCommand):
+    help = 'Run Attendance Schedule Automation Code'
+    def handle(self, *args, **kwargs):
+        attendance_scheduling()

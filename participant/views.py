@@ -1,16 +1,23 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Participant
-from event.models import Event
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .models import Participant
+from event.models import Event
 import base64
+import json
 import binascii
-from django.core.paginator import Paginator
+import numpy as np
+import cv2
+from .qr_creator import create_qr, send_qr
+from attendance.face_capture import capture_face, get_encode
+from attendance.unknown_training import train_unknown_classifier
+from django.core.cache import cache
+from attendance.management.commands.create_schedule_attendance import row_check
 
 @csrf_exempt
 def participant(request):
     if request.method == 'POST':
-        # Retrieve data from POST request
         name = request.POST.get('name')
         email = request.POST.get('email')
         seat_no = request.POST.get('seat_no')
@@ -21,16 +28,17 @@ def participant(request):
         phone_2 = request.POST.get('phone_2')
         memo = request.POST.get('memo')
         address = request.POST.get('address')
-        event_id = request.POST.get('event') 
+        event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
+        
+        profile = None
+        embeddable = False
 
         # Handle base64-encoded image data
         if 'fileInput' in request.FILES:
-            profile = request.FILES["fileInput"]
-            img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')
-        else:
-            profile = None
+            profile = request.FILES["fileInput"].read()
+            profile = base64.b64encode(profile).decode('utf-8')
+            embeddable = True
 
         participant = Participant(
             name=name,
@@ -44,38 +52,80 @@ def participant(request):
             memo=memo,
             address=address,
             event=event,
-            profile=profile 
+            profile=profile
         )
-        participant.save()
 
+        if embeddable:
+            image_np = np.frombuffer(base64.b64decode(profile), dtype=np.uint8)
+            np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
+            face, detection_status = capture_face(np_img)
+            if detection_status:
+                encoding = get_encode(face)
+                participant.facial_feature = json.dumps(encoding)
+                participant.face = True
+        
+        participant.save()
+        row_check(participant.id)
+        create_qr(participant.id)
+        send_qr(email, "", "", True, 'common/QR.png')
+        cache.delete("embeds")
+        
         return JsonResponse({'status': 'success', 'message': 'Participant registered successfully!'})
 
     elif request.method == 'GET':
-        participants = Participant.objects.all().order_by('-created_at')
+        search_term = request.GET.get('search', '') 
+        event_id = request.GET.get('event')
+        
+        if not event_id:
+            default_event = Event.objects.first()
+            event_id = default_event.id if default_event else None
+        
+        participants = Participant.objects.filter(event_id=event_id).order_by('-created_at')
+        if search_term:
+            participants = participants.filter(
+                name__icontains=search_term
+            ) | participants.filter(
+                seat_no__icontains=search_term
+            ) | participants.filter(
+                email__icontains=search_term
+            )
+
         events = Event.objects.all()
 
-        # Handling pagination
-        per_page = request.GET.get('per_page', 10)
+        for participant in participants:
+            participant.event_status = participant.is_event_over()
+
+        per_page = int(request.GET.get('per_page', 10))
         paginator = Paginator(participants, per_page)
-        page_number = request.GET.get('page')
-        page = paginator.get_page(page_number)
+        page_number = request.GET.get('page', 1)
+
+        try:
+            page = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page = paginator.get_page(1)
+        except EmptyPage:
+            page = paginator.get_page(paginator.num_pages)
 
         return render(request, 'participant/participant.html', context={
             'page': page,
             'events': events,
             'per_page': per_page,
+            'search_term': search_term,
+            'selected_event': event_id
         })
+
 
 @csrf_exempt
 def get_participant_data(request, participant_id):
     if request.method == 'GET':
         participant = get_object_or_404(Participant, id=participant_id)
 
-        try:
-            profile_data = base64.b64decode(participant.profile)
-        except (binascii.Error, TypeError) as e:
-            print(f"Error decoding profile data: {e}")
-            profile_data = None
+        profile_data = None
+        if participant.profile:
+            try:
+                profile_data = base64.b64decode(participant.profile)
+            except (binascii.Error, TypeError) as e:
+                print(f"Error decoding profile data: {e}")
 
         data = {
             'name': participant.name,
@@ -91,12 +141,12 @@ def get_participant_data(request, participant_id):
             'created_at': participant.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'updated_at': participant.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'image_data': base64.b64encode(profile_data).decode('utf-8') if profile_data else None,
-            'editPf': bool(participant.profile),
+            'editpf': bool(participant.profile), 
         }
         return JsonResponse(data)
 
+@csrf_exempt
 def delete_participant(request, participant_id):
-    print(request.method)
     if request.method == 'DELETE':
         participant = get_object_or_404(Participant, pk=participant_id)
         participant.delete()
@@ -104,33 +154,51 @@ def delete_participant(request, participant_id):
     else:
         return JsonResponse({'error': 'Method not allowed.'}, status=405)
 
+@csrf_exempt
 def update_participant(request, participant_id):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, id=participant_id)
-        
-        # Retrieve data from POST request
+
         name = request.POST.get('editname')
         email = request.POST.get('editemail')
         seat_no = request.POST.get('editseat_no')
         dob = request.POST.get('editdob')
         gender = request.POST.get('editgender')
+        face = request.POST.get('editpf')
         role = request.POST.get('editrole')
         phone_1 = request.POST.get('editphone_1')
         phone_2 = request.POST.get('editphone_2')
         memo = request.POST.get('editmemo')
         address = request.POST.get('editaddress')
-        event_id = request.POST.get('event') 
+        event_id = request.POST.get('event')
         event = get_object_or_404(Event, id=event_id)
+        email_status = request.POST.get('email_status')
+        delete_image = request.POST.get('delete_image') == 'true'
+        embeddable = False
 
-        # Handle base64-encoded image data if provided
-        if 'editfileInput' in request.FILES:
-            profile = request.FILES["editfileInput"]
-            img = profile.read()
-            profile = base64.b64encode(img).decode('utf-8')  
+        if delete_image:
+            # Clear the profile picture
+            participant.profile = None
+            participant.facial_feature = None
+            participant.face = False
+        elif 'editfileInput' in request.FILES:
+            # Update with the new profile picture
+            profile = request.FILES["editfileInput"].read()
+            profile = base64.b64encode(profile).decode('utf-8')
+            embeddable = True
+            participant.profile = profile
+
+            if embeddable:
+                image_np = np.frombuffer(base64.b64decode(profile), dtype=np.uint8)
+                np_img = cv2.imdecode(image_np, cv2.IMREAD_ANYCOLOR)
+                face, detection_status = capture_face(np_img)
+                if detection_status:
+                    encoding = get_encode(face)
+                    participant.facial_feature = json.dumps(encoding)
+                    participant.face = True
         else:
-            profile = participant.profile  
-
-        # Update 
+            profile = participant.profile
+        
         participant.name = name
         participant.email = email
         participant.seat_no = seat_no
@@ -142,10 +210,55 @@ def update_participant(request, participant_id):
         participant.memo = memo
         participant.address = address
         participant.event = event
-        participant.profile = profile
-        
-        participant.save() 
 
-        return JsonResponse({'status': 'success'})
-    
+        participant.save()
+
+        if email_status == 'true':
+            send_update_notification(email)
+
+        return JsonResponse({'status': 'success', 'message': 'Participant updated successfully!'})
+
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+def send_update_notification(email):
+    send_qr(email, 'Your Information is Updated!', 'Your Information is Updated!', False)
+
+def get_participants(request, event_id):
+    participants = Participant.objects.filter(event_id=event_id).values('id', 'name', 'seat_no', 'dob', 'phone_1', 'face')
+    participants_list = list(participants)
+    return JsonResponse({'participants': participants_list})
+
+def participants_view(request):
+    per_page = int(request.GET.get('per_page', 10))
+    search_term = request.GET.get('search', '')
+    selected_event = request.GET.get('event')
+
+    participants = Participant.objects.all()
+    if search_term:
+        participants = participants.filter(name__icontains=search_term)
+    
+    if selected_event:
+        participants = participants.filter(event_id=selected_event)
+
+    paginator = Paginator(participants, per_page)
+    page_number = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.get_page(1)
+    except EmptyPage:
+        page_obj = paginator.get_page(paginator.num_pages)
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'participants_table_body.html', {'page': page_obj})
+
+    events = Event.objects.all()
+
+    return render(request, 'participants.html', {
+        'page': page_obj,
+        'events': events,
+        'search_term': search_term,
+        'selected_event': selected_event
+    })
+
